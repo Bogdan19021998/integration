@@ -1,0 +1,12 @@
+version: '3'
+services:
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "Distli123"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: sqlcmd -S db1.internal.prod.example.com -U SA -P 'Distli123' -Q 'select distinct 1 from AdventureWorksDW2017.dbo.DimDate'

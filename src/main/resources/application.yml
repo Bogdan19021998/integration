@@ -1,0 +1,60 @@
+spring:
+  profiles.active: local
+  main.banner-mode: 'off'
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: true
+    properties:
+      hibernate:
+        default_schema: integrations
+        temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+  flyway:
+    schemas: integrations
+
+spring.datasource:
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=integrations
+  username: postgres
+  password: 1qaz2wsXX
+  driver-class-name: org.postgresql.Driver
+
+cassandra:
+  servers:
+    - localhost
+  keyspace: distil
+  accountKeyspaceReplicationOptions:
+    class: SimpleStrategy
+    replication_factor: 1
+
+ai:
+  distil:
+    api:
+      integrations:
+        url: http://localhost:8087
+      internal:
+        url: http://localhost:8086
+
+app:
+  name: distil_integration
+
+logging.level.org.springframework: ERROR
+
+server:
+  port: 8087
+
+ai.distil.integrations.connections:
+  mySql:
+    protocol: mysql
+    props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
+  postgreSql:
+    protocol: postgresql
+    props: ""
+  msSql:
+    protocol: sqlserver
+    props: ";integratedSecurity=true"
+  redshift:
+    protocol: redshift
+    props: ""

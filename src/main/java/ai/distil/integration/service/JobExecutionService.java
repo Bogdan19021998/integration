@@ -1,0 +1,30 @@
+package ai.distil.integration.service;
+
+import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
+import ai.distil.integration.job.JobDefinitionEnum;
+import ai.distil.integration.mapper.JobMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class JobExecutionService {
+    private final JobScheduler jobScheduler;
+    private final JobMapper jobMapper;
+
+    /**
+     * Schedule a task and run it now
+     * It's applicable for new synchronizations
+     */
+    public void scheduleSyncTask(ScheduleDatasourceSyncRequest request) {
+        jobScheduler.scheduleJob(JobDefinitionEnum.SYNC_DATASOURCE, jobMapper.mapSyncRequest(request));
+        jobScheduler.startJobNow(JobDefinitionEnum.SYNC_DATASOURCE, jobMapper.mapSyncRequest(request));
+    }
+
+    public void runNow(ScheduleDatasourceSyncRequest request) {
+        jobScheduler.scheduleOneTimeJobNow(JobDefinitionEnum.SYNC_DATASOURCE, jobMapper.mapSyncRequest(request));
+    }
+
+}
