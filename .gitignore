@@ -4,3 +4,7 @@
 .vagrant/
 
 *.iml
+
+.mvn-settings.xml
+target/
+dependency-reduced-pom.xml
