@@ -9,7 +9,7 @@ pipelines:
           - bash configure-maven.sh
           - export IMAGE_NAME=docker.io/bigconsultancy/distil-integrations:latest
           - docker build -t $IMAGE_NAME .
-          - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
           - docker push $IMAGE_NAME
 
 options:
