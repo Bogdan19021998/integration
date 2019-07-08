@@ -23,7 +23,7 @@ spring.datasource:
 
 cassandra:
   servers:
-    - localhost
+    - 40.127.201.110
   keyspace: distil
   accountKeyspaceReplicationOptions:
     class: SimpleStrategy
