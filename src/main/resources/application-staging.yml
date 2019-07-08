@@ -16,8 +16,8 @@ spring:
     schemas: integrations
 
 spring.datasource:
-  url: jdbc:postgresql://postgres:5432/distil?searchpath=integrations
-  username: postgres
+  url: jdbc:postgresql://postgres:5432/distil?searchpath=distil
+  username: distil
   password: 1qaz2wsXX
   driver-class-name: org.postgresql.Driver
 
