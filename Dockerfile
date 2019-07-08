@@ -1,6 +1,6 @@
 FROM maven:3.6.1-jdk-8
 
-EXPOSE 8087
+EXPOSE 80
 
 ENV BASE_DIR /opt/distil_integrations
 ENV DEFAULT_JAR_NAME integrations.jar
@@ -18,7 +18,8 @@ COPY ./ ${BASE_DIR}
 RUN mvn clean install -s ${SETTINGS_FILE}  -Dmaven.test.skip=true
 
 FROM openjdk:8u212-jre-slim
-ENV DEFAULT_PROFILE default
+
+ENV DEFAULT_PROFILE staging
 
 ENV BASE_DIR /opt/distil_integrations
 ENV DEFAULT_JAR_NAME integrations.jar
