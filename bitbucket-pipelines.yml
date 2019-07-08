@@ -1,13 +1,14 @@
 image: maven:3.6.1-jdk-8
 
 pipelines:
-  default:
+  branches:
+    development,master
     - step:
         caches:
           - docker
         script:
           - bash configure-maven.sh
-          - export IMAGE_NAME=distil.azurecr.io/distil-integrations:latest
+          - export IMAGE_NAME="distil.azurecr.io/distil-integrations-${BITBUCKET_BRANCH}:latest"
           - docker build -t $IMAGE_NAME .
           - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
           - docker push $IMAGE_NAME

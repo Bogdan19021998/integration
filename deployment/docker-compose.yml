@@ -1,0 +1,18 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:11-alpine
+    restart: always
+    network_mode: host
+    environment:
+      POSTGRES_PASSWORD: distil
+      POSTGRES_DB: distil
+      POSTGRES_USER: distil
+
+  integrations:
+    image: distil.azurecr.io/distil-integrations-development:latest
+    restart: always
+    environment:
+      DEFAULT_PROFILE: staging
+
+    network_mode: host
