@@ -16,9 +16,9 @@ spring:
     schemas: integrations
 
 spring.datasource:
-  url: jdbc:postgresql://postgres:5432/distil?searchpath=distil
-  username: distil
-  password: 1qaz2wsXX
+  url: jdbc:postgresql://distil-staging-postgres.postgres.database.azure.com:5432/distil?searchpath=distil
+  username: distil_admin@distil-staging-postgres
+  password: "!qaz2wsXX"
   driver-class-name: org.postgresql.Driver
 
 cassandra:
