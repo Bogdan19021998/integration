@@ -1,7 +1,7 @@
 package ai.distil.integration.job.sync.jdbc;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.integration.configuration.ConnectionConfiguration;
+import ai.distil.integration.configuration.DbConnectionConfiguration;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractAllTablesQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractDefineSchemaQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.mysql.AllTablesQueryDefinitionMySQL;
@@ -28,7 +28,7 @@ public class MySqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getProtocol() {
-        return ConnectionConfiguration.MY_SQL.getProtocol();
+        return DbConnectionConfiguration.MY_SQL.getProtocol();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class MySqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getConnectionProperties() {
-        return ConnectionConfiguration.MY_SQL.getProps();
+        return DbConnectionConfiguration.MY_SQL.getProps();
     }
 
     @Override

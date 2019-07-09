@@ -43,18 +43,23 @@ app:
 logging.level.org.springframework: ERROR
 
 server:
-  port: 8087
+  port: 80
 
 ai.distil.integrations.connections:
-  mySql:
-    protocol: mysql
-    props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
-  postgreSql:
-    protocol: postgresql
-    props: ""
-  msSql:
-    protocol: sqlserver
-    props: ";integratedSecurity=true"
-  redshift:
-    protocol: redshift
-    props: ""
+  http:
+    mailChimp:
+      baseUrl: https://us3.api.mailchimp.com/3.0
+  jdbc:
+    mySql:
+      protocol: mysql
+      props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
+    postgreSql:
+      protocol: postgresql
+      props: ""
+    msSql:
+      protocol: sqlserver
+      props: ";integratedSecurity=true"
+    redshift:
+      protocol: redshift
+      props: ""
+

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConnectionProps {
+public class DbConnectionProps {
     private String protocol;
     private String props;
 }

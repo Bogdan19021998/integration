@@ -1,7 +1,7 @@
 package ai.distil.integration.job.sync.jdbc;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.integration.configuration.ConnectionConfiguration;
+import ai.distil.integration.configuration.DbConnectionConfiguration;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractAllTablesQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractDefineSchemaQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.mssql.AllTablesQueryDefinitionMsSQL;
@@ -28,12 +28,12 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getProtocol() {
-        return ConnectionConfiguration.MS_SQL.getProtocol();
+        return DbConnectionConfiguration.MS_SQL.getProtocol();
     }
 
     @Override
     protected String getConnectionProperties() {
-        return ConnectionConfiguration.MS_SQL.getProps();
+        return DbConnectionConfiguration.MS_SQL.getProps();
     }
 
     @Override
