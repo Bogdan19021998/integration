@@ -2,12 +2,14 @@ package ai.distil.integration.job.sync.http;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.TableDefinition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.asynchttpclient.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
@@ -67,6 +69,8 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
         return Dsl.asyncHttpClient(clientBuilder);
     }
 
+    public abstract List<DatasetRow> getNextPage(DTODataSource dataSource, PageRequest pageRequest);
+
     protected abstract String getBaseUrl();
 
     protected <R> R execute(Request request, TypeReference<R> type) {
@@ -88,7 +92,11 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
     }
 
     protected Request getBaseGetRequest(String urlPart) {
-        return getBaseGetRequest(urlPart, Collections.emptyMap(), Collections.emptyList());
+        return getBaseGetRequest(urlPart, Collections.emptyList());
+    }
+
+    protected Request getBaseGetRequest(String urlPart, List<Param> params) {
+        return getBaseGetRequest(urlPart, Collections.emptyMap(), params);
     }
 
     protected Request getBaseGetRequest(String urlPart, Map<String, String> headers, List<Param> params) {
@@ -106,7 +114,7 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
     protected abstract IDataConverter getDataConverter();
 
     private Request getBaseRequest(String method, String urlPart, Map<String, String> headers, List<Param> params, Object body) {
-        RequestBuilder requestBuilder = Dsl.request(method, String.format("%s/%s", getBaseUrl(), urlPart));
+        RequestBuilder requestBuilder = Dsl.request(method, String.format("%s%s", getBaseUrl(), urlPart));
         headers.forEach(requestBuilder::addHeader);
         requestBuilder.addQueryParams(params);
 

@@ -3,12 +3,16 @@ package ai.distil.integration;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
+import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.model.org.ConnectionSettings;
+import ai.distil.model.types.DataSourceType;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MailChimpIntegrationTest {
 
@@ -17,6 +21,14 @@ public class MailChimpIntegrationTest {
         MailChimpHttpConnection connection = new MailChimpHttpConnection(defaultConnection());
 
         List<DTODataSource> allDataSources = connection.getAllDataSources();
+        DTODataSource dtoDataSource = new DTODataSource();
+        dtoDataSource.setSourceTableName("3e3e1502d7");
+        dtoDataSource.setDataSourceType(DataSourceType.CUSTOMER);
+
+        HttpPaginationRowIterator httpPaginationRowIterator = new HttpPaginationRowIterator(connection, dtoDataSource, 2);
+        httpPaginationRowIterator.forEachRemaining(row -> {
+            log.info("Row: {}", row);
+        });
     }
 
     private DTOConnection defaultConnection() {

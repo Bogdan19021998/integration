@@ -13,13 +13,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class ResponseWrapper<T> {
+public class MembersWrapper {
 
-    @JsonProperty("lists")
-    private List<T> list;
+    private List<Member> members;
 
     private Long totalItems;
-    private Constraints constraints;
+    private String listId;
 
     @JsonProperty("_links")
     private List<Link> links;
