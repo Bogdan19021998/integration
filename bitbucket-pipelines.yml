@@ -1,6 +1,19 @@
 image: maven:3.6.1-jdk-8
 
 pipelines:
+  custom:
+    test-deploy:
+      - step:
+          caches:
+            - docker
+            - maven
+          script:
+            - mvn -B clean test
+            - bash configure-maven.sh
+            - export IMAGE_NAME="distil.azurecr.io/distil-integrations-${BITBUCKET_BRANCH}:test"
+            - docker build -t $IMAGE_NAME .
+            - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
+            - docker push $IMAGE_NAME
   branches:
     "{development, master}":
     - step:
