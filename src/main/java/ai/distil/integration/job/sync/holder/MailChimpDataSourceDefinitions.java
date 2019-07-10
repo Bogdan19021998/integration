@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.Map;
 
 public enum MailChimpDataSourceDefinitions implements IHttpSourceDefinition {
-    CUSTOMER("/lists/%s/members", DataSourceType.CUSTOMER);
+    CUSTOMER("/3.0/lists/%s/members", DataSourceType.CUSTOMER);
 
     private String urlPart;
     @Getter

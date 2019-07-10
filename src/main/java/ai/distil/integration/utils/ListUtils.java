@@ -3,18 +3,17 @@ package ai.distil.integration.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @Slf4j
 public class ListUtils {
 
-    public static <K, V> Map<K, V> groupByWithOverwriteSilent(List<V> list, Function<V, K> groupingFunction) {
+    public static <K, V> Map<K, V> groupByWithOverwriteSilent(Iterable<V> list, Function<V, K> groupingFunction) {
         return groupByWithOverwrite(list, groupingFunction, false);
     }
 
-    public static <K, V> Map<K, V> groupByWithOverwrite(List<V> list, Function<V, K> groupingFunction, boolean throwIfNotUnique) {
+    public static <K, V> Map<K, V> groupByWithOverwrite(Iterable<V> list, Function<V, K> groupingFunction, boolean throwIfNotUnique) {
         Map<K, V> r = new HashMap<>();
         list.forEach(l -> {
             K key = groupingFunction.apply(l);
@@ -29,7 +28,7 @@ public class ListUtils {
         return r;
     }
 
-    public static <K, V, T> Map<K, T> groupByWithOverwrite(List<V> list, Function<V, K> groupingFunction, Function<V, T> valueFunctino) {
+    public static <K, V, T> Map<K, T> groupByWithOverwrite(Iterable<V> list, Function<V, K> groupingFunction, Function<V, T> valueFunctino) {
         Map<K, T> r = new HashMap<>();
         list.forEach(l -> {
             K key = groupingFunction.apply(l);

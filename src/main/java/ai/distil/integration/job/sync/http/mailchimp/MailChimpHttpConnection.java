@@ -13,6 +13,7 @@ import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import ai.distil.integration.job.sync.jdbc.TableDefinition;
 import ai.distil.model.org.ConnectionSettings;
+import ai.distil.model.types.DataSourceType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.asynchttpclient.Param;
@@ -30,7 +31,8 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     private static final String DEFAULT_COUNT_KEY = "count";
     private static final String DEFAULT_OFFSET_KEY = "offset";
 
-    private static final String LISTS_URL = "/lists";
+    private static final String LISTS_URL = "/3.0/lists";
+    private static final String MEMBERS_SCHEMA_URL = "/schema/3.0/Lists/Members/Instance.json";
 
 
     private static final TypeReference<AudiencesWrapper> AUDIENCE_TYPE_REFERENCE = new TypeReference<AudiencesWrapper>() {};
@@ -49,10 +51,31 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
     @Override
     public List<DTODataSource> getAllDataSources() {
-        Request request = getBaseGetRequest(LISTS_URL);
-        AudiencesWrapper result = execute(request, AUDIENCE_TYPE_REFERENCE);
-        return Lists.newArrayList();
+        Request listRequest = getBaseGetRequest(LISTS_URL);
+
+        AudiencesWrapper result = execute(listRequest, AUDIENCE_TYPE_REFERENCE);
+
+        return result.getList().stream().map(audience -> {
+            return new DTODataSource(null,
+                    this.getConnectionData().getId(),
+                    audience.getName(),
+                    null,
+                    audience.getId(),
+                    null,
+                    null,
+                    null,
+//                    todo may be dynamic for other sources
+                    DataSourceType.CUSTOMER,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        }).collect(Collectors.toList());
+
     }
+
+
 
     @Override
     public DTODataSource getDataSource(TableDefinition tableDefinition) {
