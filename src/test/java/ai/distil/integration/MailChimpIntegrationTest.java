@@ -7,6 +7,7 @@ import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -29,6 +30,18 @@ public class MailChimpIntegrationTest {
         httpPaginationRowIterator.forEachRemaining(row -> {
             log.info("Row: {}", row);
         });
+    }
+
+    @Test
+    public void checkSourceAvailabilityTest() {
+        DTOConnection dtoConnection = defaultConnection();
+        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection);
+
+        Assertions.assertTrue(connection.isAvailable());
+
+        dtoConnection.getConnectionSettings().setApiKey("somefakeapikey");
+
+        Assertions.assertFalse(connection.isAvailable());
     }
 
     private DTOConnection defaultConnection() {

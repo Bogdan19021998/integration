@@ -6,7 +6,6 @@ import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.asynchttpclient.*;
 import org.springframework.data.domain.PageRequest;
@@ -31,17 +30,7 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
     }
 
     @Override
-    public boolean isAvailable() {
-        return false;
-    }
-
-    @Override
     public List<DTODataSource> getAllDataSources() {
-        return null;
-    }
-
-    @Override
-    public DTODataSource getDataSource(TableDefinition tableDefinition) {
         return null;
     }
 
@@ -75,15 +64,13 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
 
     protected <R> R execute(Request request, TypeReference<R> type) {
         ListenableFuture<Response> responseFuture = this.httpClient.executeRequest(request);
-        Response response = null;
+
         try {
-            response = responseFuture.get();
-            if (ofNullable(HttpStatus.resolve(response.getStatusCode())).map(HttpStatus::is2xxSuccessful).orElse(false)) {
-                return this.getDataConverter().fromString(response.getResponseBody(), type);
-            } else {
-//          add appropriate message builder
-                throw new RuntimeException("Can't execute HTTP request. " + response.getStatusCode());
-            }
+            Response response = responseFuture.get();
+            return ofNullable(HttpStatus.resolve(response.getStatusCode())).map(HttpStatus::is2xxSuccessful)
+                    .map(isSuccess -> isSuccess ? this.getDataConverter().fromString(response.getResponseBody(), type) : null)
+                    .orElse(null);
+
         } catch (ExecutionException | InterruptedException e) {
 //          add appropriate message builder
             throw new RuntimeException("Can't execute HTTP request. " + request);

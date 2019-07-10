@@ -118,6 +118,15 @@ public enum DatasetColumnType {
         return DatasetColumnType.UNKNOWN;
     }
 
+    public static DatasetColumnType simplifyJavaType(Object value) {
+        if(value == null) {
+            return DatasetColumnType.UNKNOWN;
+        }
+
+        return simplifyJavaType(value.getClass());
+    }
+
+//todo extend, think about other scenarios/types
     public static DatasetColumnType simplifyJavaType(Class<?> type) {
         if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
             return DatasetColumnType.BOOLEAN;

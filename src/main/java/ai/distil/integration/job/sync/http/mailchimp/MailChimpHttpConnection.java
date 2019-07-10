@@ -3,9 +3,7 @@ package ai.distil.integration.job.sync.http.mailchimp;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
-import ai.distil.integration.controller.dto.data.DatasetColumnType;
 import ai.distil.integration.controller.dto.data.DatasetRow;
-import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.sync.holder.IHttpSourceDefinition;
 import ai.distil.integration.job.sync.holder.MailChimpDataSourceDefinitions;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
@@ -13,6 +11,7 @@ import ai.distil.integration.job.sync.http.IDataConverter;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
+import ai.distil.integration.job.sync.jdbc.TableDefinition;
 import ai.distil.model.org.ConnectionSettings;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -42,6 +41,13 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
+    public boolean isAvailable() {
+        Request request = getBaseGetRequest(LISTS_URL, buildDefaultPageParams(PageRequest.of(0, 1)));
+        AudiencesWrapper result = execute(request, AUDIENCE_TYPE_REFERENCE);
+        return result != null;
+    }
+
+    @Override
     public List<DTODataSource> getAllDataSources() {
         Request request = getBaseGetRequest(LISTS_URL);
         AudiencesWrapper result = execute(request, AUDIENCE_TYPE_REFERENCE);
@@ -49,16 +55,23 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
+    public DTODataSource getDataSource(TableDefinition tableDefinition) {
+//        todo implement
+        return null;
+    }
+
+
+    @Override
     public List<DatasetRow> getNextPage(DTODataSource dtoDataSource, PageRequest pageRequest) {
         IHttpSourceDefinition sourceDefinition = MailChimpDataSourceDefinitions.findSourceDefinition(dtoDataSource);
         Request getRequest = getBaseGetRequest(sourceDefinition.urlPart(dtoDataSource), buildDefaultPageParams(pageRequest));
-        MembersWrapper membersWrapper = execute(getRequest, MEMBERS_TYPE_REFERENCE);
+        MembersWrapper response = execute(getRequest, MEMBERS_TYPE_REFERENCE);
 
-        List<DatasetRow> collect = membersWrapper.getMembers().stream().map((v) -> new DatasetRow(Lists.newArrayList(
-                new DatasetValue(v.getEmailAddress(), "alias", DatasetColumnType.STRING)
-        ))).collect(Collectors.toList());
-
-        return collect;
+        return response.getMembers().stream().map(row -> {
+            DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder();
+            row.forEach(builder::addValue);
+            return builder.build();
+        }).collect(Collectors.toList());
     }
 
     @Override

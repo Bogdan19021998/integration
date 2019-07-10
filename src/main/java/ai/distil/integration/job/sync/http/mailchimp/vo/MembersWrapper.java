@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class MembersWrapper {
 
-    private List<Member> members;
+    private List<Map<String, Object>> members;
 
     private Long totalItems;
     private String listId;
