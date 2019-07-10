@@ -2,15 +2,18 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,15 +24,14 @@ public class MailChimpIntegrationTest {
     public void simpleMailChimpHttpConnectionTest() {
         MailChimpHttpConnection connection = new MailChimpHttpConnection(defaultConnection());
 
-        List<DTODataSource> allDataSources = connection.getAllDataSources();
+        DTODataSource existDataSource = connection.getAllDataSources().get(0);
+
         DTODataSource dtoDataSource = new DTODataSource();
         dtoDataSource.setSourceTableName("3e3e1502d7");
         dtoDataSource.setDataSourceType(DataSourceType.CUSTOMER);
 
         HttpPaginationRowIterator httpPaginationRowIterator = new HttpPaginationRowIterator(connection, dtoDataSource, 2);
-        httpPaginationRowIterator.forEachRemaining(row -> {
-            log.info("Row: {}", row);
-        });
+        List<DatasetRow> rows = new ArrayList<>(Lists.newArrayList(httpPaginationRowIterator));
     }
 
     @Test

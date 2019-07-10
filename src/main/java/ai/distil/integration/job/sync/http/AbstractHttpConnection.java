@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import static java.util.Optional.ofNullable;
 
 public abstract class AbstractHttpConnection extends AbstractConnection {
+    protected static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
 
     protected static final String AUTH_HEADER_KEY = "Authorization";
 

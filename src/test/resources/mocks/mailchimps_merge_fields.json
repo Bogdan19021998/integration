@@ -85,6 +85,52 @@
       ]
     },
     {
+      "merge_id": 7,
+      "tag": "DROPDOWN",
+      "name": "Drop Down Field",
+      "type": "dropdown",
+      "required": false,
+      "default_value": "",
+      "public": true,
+      "display_order": 8,
+      "options": {
+        "choices": [
+          "First Choice",
+          "Second Choice",
+          "Third Choice"
+        ]
+      },
+      "help_text": "",
+      "list_id": "3e3e1502d7",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/7",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json"
+        },
+        {
+          "rel": "parent",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/CollectionResponse.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/CollectionLinks/Lists/MergeFields.json"
+        },
+        {
+          "rel": "update",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/7",
+          "method": "PATCH",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/PATCH.json"
+        },
+        {
+          "rel": "delete",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/7",
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
       "merge_id": 1,
       "tag": "FNAME",
       "name": "First Name",
@@ -127,6 +173,46 @@
       ]
     },
     {
+      "merge_id": 14,
+      "tag": "IMAGE",
+      "name": "IMAGE",
+      "type": "imageurl",
+      "required": false,
+      "default_value": "",
+      "public": true,
+      "display_order": 15,
+      "options": {},
+      "help_text": "",
+      "list_id": "3e3e1502d7",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/14",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json"
+        },
+        {
+          "rel": "parent",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/CollectionResponse.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/CollectionLinks/Lists/MergeFields.json"
+        },
+        {
+          "rel": "update",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/14",
+          "method": "PATCH",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/PATCH.json"
+        },
+        {
+          "rel": "delete",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/14",
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
       "merge_id": 2,
       "tag": "LNAME",
       "name": "Last Name",
@@ -164,6 +250,48 @@
         {
           "rel": "delete",
           "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/2",
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "merge_id": 8,
+      "tag": "MMERGE8",
+      "name": "Untitled",
+      "type": "birthday",
+      "required": false,
+      "default_value": "",
+      "public": true,
+      "display_order": 9,
+      "options": {
+        "date_format": "MM/DD"
+      },
+      "help_text": "",
+      "list_id": "3e3e1502d7",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/8",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json"
+        },
+        {
+          "rel": "parent",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/CollectionResponse.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/CollectionLinks/Lists/MergeFields.json"
+        },
+        {
+          "rel": "update",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/8",
+          "method": "PATCH",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/PATCH.json"
+        },
+        {
+          "rel": "delete",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/8",
           "method": "DELETE"
         }
       ]
@@ -249,10 +377,52 @@
           "method": "DELETE"
         }
       ]
+    },
+    {
+      "merge_id": 12,
+      "tag": "PHONENUMBE",
+      "name": "PHONENUMBER",
+      "type": "phone",
+      "required": false,
+      "default_value": "",
+      "public": true,
+      "display_order": 13,
+      "options": {
+        "phone_format": "none"
+      },
+      "help_text": "",
+      "list_id": "3e3e1502d7",
+      "_links": [
+        {
+          "rel": "self",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/12",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json"
+        },
+        {
+          "rel": "parent",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields",
+          "method": "GET",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/CollectionResponse.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/CollectionLinks/Lists/MergeFields.json"
+        },
+        {
+          "rel": "update",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/12",
+          "method": "PATCH",
+          "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/Response.json",
+          "schema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/MergeFields/PATCH.json"
+        },
+        {
+          "rel": "delete",
+          "href": "https://us3.api.mailchimp.com/3.0/lists/3e3e1502d7/merge-fields/12",
+          "method": "DELETE"
+        }
+      ]
     }
   ],
   "list_id": "3e3e1502d7",
-  "total_items": 6,
+  "total_items": 14,
   "_links": [
     {
       "rel": "self",
@@ -275,4 +445,4 @@
       "targetSchema": "https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/Response.json"
     }
   ]
-}%
+}

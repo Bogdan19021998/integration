@@ -40,7 +40,7 @@ public class MapUtils {
         });
     }
 
-    private static String buildKeyName(String currentPath, String key) {
+    public static String buildKeyName(String currentPath, String key) {
         if (StringUtil.isNullOrEmpty(currentPath)) {
             return key;
         }

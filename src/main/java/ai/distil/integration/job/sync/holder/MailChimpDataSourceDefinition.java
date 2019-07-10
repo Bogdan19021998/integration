@@ -8,23 +8,23 @@ import lombok.Getter;
 
 import java.util.Map;
 
-public enum MailChimpDataSourceDefinitions implements IHttpSourceDefinition {
-    CUSTOMER("/3.0/lists/%s/members", DataSourceType.CUSTOMER);
+public enum MailChimpDataSourceDefinition implements IHttpSourceDefinition {
+    CUSTOMER("/lists/%s/members", DataSourceType.CUSTOMER);
 
     private String urlPart;
     @Getter
     private DataSourceType dataSourceType;
 
-    private static Map<DataSourceType, MailChimpDataSourceDefinitions> sourceDefinitionByType;
+    private static Map<DataSourceType, MailChimpDataSourceDefinition> sourceDefinitionByType;
 
     static {
-        MailChimpDataSourceDefinitions.sourceDefinitionByType = ListUtils.groupByWithOverwrite(
-                Lists.newArrayList(MailChimpDataSourceDefinitions.values()),
-                MailChimpDataSourceDefinitions::getDataSourceType,
+        MailChimpDataSourceDefinition.sourceDefinitionByType = ListUtils.groupByWithOverwrite(
+                Lists.newArrayList(MailChimpDataSourceDefinition.values()),
+                MailChimpDataSourceDefinition::getDataSourceType,
                 true);
     }
 
-    MailChimpDataSourceDefinitions(String urlPart, DataSourceType dataSourceType) {
+    MailChimpDataSourceDefinition(String urlPart, DataSourceType dataSourceType) {
         this.urlPart = urlPart;
         this.dataSourceType = dataSourceType;
     }

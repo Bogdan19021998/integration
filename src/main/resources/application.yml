@@ -48,7 +48,7 @@ server:
 ai.distil.integrations.connections:
   http:
     mailChimp:
-      baseUrl: https://us3.api.mailchimp.com
+      baseUrl: https://us3.api.mailchimp.com/3.0
   jdbc:
     mySql:
       protocol: mysql
