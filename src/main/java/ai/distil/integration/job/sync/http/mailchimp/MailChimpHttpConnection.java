@@ -5,22 +5,19 @@ import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
 import ai.distil.integration.controller.dto.data.DatasetRow;
-import ai.distil.integration.job.sync.holder.IHttpSourceDefinition;
-import ai.distil.integration.job.sync.holder.MailChimpDataSourceDefinition;
+import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.IDataConverter;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
+import ai.distil.integration.job.sync.http.mailchimp.vo.Audience;
 import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.http.request.mailchimp.*;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.utils.MapUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
-import org.asynchttpclient.Param;
-import org.asynchttpclient.Request;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
@@ -28,64 +25,42 @@ import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
 
-    private static final String DEFAULT_COUNT_KEY = "count";
-    private static final String DEFAULT_OFFSET_KEY = "offset";
-
-    private static final String LISTS_URL = "/lists";
-    private static final String MERGE_FIELDS_URL = "/lists/%s/merge-fields";
-
-    private static final TypeReference<AudiencesWrapper> AUDIENCE_TYPE_REFERENCE = new TypeReference<AudiencesWrapper>() {};
-    private static final TypeReference<MembersWrapper> MEMBERS_TYPE_REFERENCE = new TypeReference<MembersWrapper>() {};
-
     public MailChimpHttpConnection(DTOConnection dtoConnection) {
         super(dtoConnection);
     }
 
     @Override
     public boolean isAvailable() {
-        Request request = getBaseGetRequest(LISTS_URL, buildDefaultPageParams(PageRequest.of(0, 1)));
-        AudiencesWrapper result = execute(request, AUDIENCE_TYPE_REFERENCE);
+        AnyMailChimpAudienceRequest request = new AnyMailChimpAudienceRequest();
+        AudiencesWrapper result = execute(request);
         return result != null;
     }
 
     @Override
     public List<DTODataSource> getAllDataSources() {
-        Request listRequest = getBaseGetRequest(LISTS_URL);
-
-        AudiencesWrapper result = execute(listRequest, AUDIENCE_TYPE_REFERENCE);
-
-        return result.getList().stream().map(audience -> new DTODataSource(null,
-                this.getConnectionData().getId(),
-                audience.getName(),
-                null,
-                audience.getId(),
-                null,
-                null,
-                null,
-//                    todo may be dynamic for other sources
-                DataSourceType.CUSTOMER,
-                null,
-                null,
-                getDataSourceAttributes(audience.getId()),
-                null
-        )).collect(Collectors.toList());
-
+        AudiencesWrapper result = execute(new MailChimpAudiencesRequest());
+        return result.getList().stream().map(this::buildDataSource).collect(Collectors.toList());
     }
 
-
-
     @Override
-    public DTODataSource getDataSource(TableDefinition tableDefinition) {
-//        todo implement
-        return null;
+    public DTODataSource getDataSource(SimpleDataSourceDefinition tableDefinition) {
+        SingleMailChimpAudienceRequest request = new SingleMailChimpAudienceRequest(tableDefinition.getDataSourceId());
+        return Optional.ofNullable(execute(request))
+                .map(this::buildDataSource)
+                .orElse(null);
     }
 
+    @Override
+    public boolean dataSourceExist(DataSourceDataHolder dataSource) {
+        SingleMailChimpAudienceRequest request = new SingleMailChimpAudienceRequest(dataSource.getDataSourceId());
+        Audience result = execute(request);
+        return result != null;
+    }
 
     @Override
-    public List<DatasetRow> getNextPage(DTODataSource dtoDataSource, PageRequest pageRequest) {
-        IHttpSourceDefinition sourceDefinition = MailChimpDataSourceDefinition.findSourceDefinition(dtoDataSource);
-        Request getRequest = getBaseGetRequest(sourceDefinition.urlPart(dtoDataSource), buildDefaultPageParams(pageRequest));
-        MembersWrapper response = execute(getRequest, MEMBERS_TYPE_REFERENCE);
+    public List<DatasetRow> getNextPage(DataSourceDataHolder dataSourceHolder, PageRequest pageRequest) {
+        MailChimpMembersRequest request = new MailChimpMembersRequest(dataSourceHolder.getDataSourceId(), pageRequest);
+        MembersWrapper response = execute(request);
 
         return response.getMembers().stream().map(MapUtils::flatten).map(row -> {
 
@@ -119,18 +94,10 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
         return HttpConnectionConfiguration.MAIL_CHIMP.getBaseUrl();
     }
 
-    private List<Param> buildDefaultPageParams(PageRequest pageRequest) {
-        return Lists.newArrayList(
-                new Param(DEFAULT_COUNT_KEY, String.valueOf(pageRequest.getPageSize())),
-                new Param(DEFAULT_OFFSET_KEY, String.valueOf(pageRequest.getPageNumber() * pageRequest.getPageSize()))
-        );
-    }
-
     private List<DTODataSourceAttribute> getDataSourceAttributes(String listId) {
-        String url = String.format(MERGE_FIELDS_URL, listId);
-        Request mergeFieldsRequest = getBaseGetRequest(url);
+        MailChimpMergeFieldsRequest mergeFieldsRequest = new MailChimpMergeFieldsRequest(listId);
 
-        Map<String, Object> mergeFieldsDefinition = execute(mergeFieldsRequest, MAP_TYPE_REFERENCE);
+        Map<String, Object> mergeFieldsDefinition = execute(mergeFieldsRequest);
 
         return MailChimpMembersFieldsHolder.getAllFields(mergeFieldsDefinition)
                 .stream()
@@ -145,6 +112,24 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                         null,
                         new Date(),
                         new Date())).collect(Collectors.toList());
+    }
+
+    private DTODataSource buildDataSource(Audience audience) {
+        return new DTODataSource(null,
+                this.getConnectionData().getId(),
+                audience.getName(),
+                null,
+                audience.getId(),
+                null,
+                null,
+                null,
+//                    todo may be dynamic for other sources
+                DataSourceType.CUSTOMER,
+                null,
+                null,
+                getDataSourceAttributes(audience.getId()),
+                null
+        );
     }
 
 }

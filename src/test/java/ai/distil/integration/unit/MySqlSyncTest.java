@@ -204,11 +204,11 @@ public class MySqlSyncTest extends AbstractSyncTest {
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
 
-            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList());
+            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), null);
             boolean isTableExists = connection.dataSourceExist(holder);
             Assertions.assertTrue(isTableExists, "Consumer table must exists");
 
-            connection.execute("DROP TABLE " + holder.getSourceTableName());
+            connection.execute("DROP TABLE " + holder.getDataSourceId());
 
             boolean isTableExistsAfterRemoving = connection.dataSourceExist(holder);
             Assertions.assertFalse(isTableExistsAfterRemoving, "Consumer table must be removed");

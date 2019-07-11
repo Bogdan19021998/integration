@@ -1,9 +1,9 @@
 package ai.distil.integration.job.sync.jdbc.vo.query;
 
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.TableType;
 
-public abstract class AbstractAllTablesQueryDefinition extends AbstractQueryDefinition<TableDefinition> {
+public abstract class AbstractAllTablesQueryDefinition extends AbstractQueryDefinition<SimpleDataSourceDefinition> {
 
     protected TableType getDataSourceType(String value) {
         switch (value) {

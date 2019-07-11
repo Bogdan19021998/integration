@@ -1,6 +1,6 @@
 package ai.distil.integration.job.sync.jdbc.vo.query.mysql;
 
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.TableType;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractAllTablesQueryDefinition;
 import com.google.common.collect.Lists;
@@ -26,12 +26,12 @@ public class AllTablesQueryDefinitionMySQL extends AbstractAllTablesQueryDefinit
     }
 
     @Override
-    public TableDefinition mapResultSet(ResultSet resultSet) throws SQLException {
+    public SimpleDataSourceDefinition mapResultSet(ResultSet resultSet) throws SQLException {
         String tableName = resultSet.getString(1);
         TableType tableType = getDataSourceType(resultSet.getString(2));
         String description = resultSet.getString(3);
 
-        return new TableDefinition(schema, tableName, tableType, description);
+        return new SimpleDataSourceDefinition(schema, tableName, tableType, description);
     }
 
     @Override

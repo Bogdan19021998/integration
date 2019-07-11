@@ -4,7 +4,7 @@ import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.ssh.ConnectionParamsFactory;
 import ai.distil.integration.ssh.SshConnectionParameters;
@@ -55,8 +55,8 @@ public class SshConnection extends AbstractConnection {
     }
 
     @Override
-    public DTODataSource getDataSource(TableDefinition tableDefinition) {
-        return connection.getDataSource(tableDefinition);
+    public DTODataSource getDataSource(SimpleDataSourceDefinition dataSourceDefinition) {
+        return connection.getDataSource(dataSourceDefinition);
     }
 
     @Override

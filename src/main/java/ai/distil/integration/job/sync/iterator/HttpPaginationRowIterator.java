@@ -1,6 +1,5 @@
 package ai.distil.integration.job.sync.iterator;
 
-import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
@@ -19,7 +18,7 @@ public class HttpPaginationRowIterator implements IRowIterator {
     private int currentPage = 0;
 
     private final AbstractHttpConnection connection;
-    private final DTODataSource sourceDataHolder;
+    private final DataSourceDataHolder dataSourceHolder;
     private final int defaultPageSize;
 
 
@@ -48,7 +47,7 @@ public class HttpPaginationRowIterator implements IRowIterator {
 
     private void fillNextBuffer() {
         PageRequest page = PageRequest.of(currentPage, defaultPageSize);
-        List<DatasetRow> nextPage = connection.getNextPage(sourceDataHolder, page);
+        List<DatasetRow> nextPage = connection.getNextPage(dataSourceHolder, page);
 
         this.buffer = nextPage.iterator();
 

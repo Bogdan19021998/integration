@@ -3,7 +3,7 @@ package ai.distil.integration.job.sync.parser;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,7 +27,7 @@ public abstract class AbstractParser {
     public DataSourceDataHolder refreshSchema() {
         DataSourceDataHolder currentSchema = this.getSchema();
 
-        return Optional.ofNullable(connection.getDataSource(new TableDefinition(null, currentSchema.getSourceTableName(), null, null)))
+        return Optional.ofNullable(connection.getDataSource(new SimpleDataSourceDefinition(null, currentSchema.getDataSourceId(), null, null)))
                 .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
                 .orElse(null);
     }

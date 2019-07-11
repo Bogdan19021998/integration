@@ -1,6 +1,5 @@
 package ai.distil.integration.job.sync.holder;
 
-import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Lists;
@@ -30,12 +29,11 @@ public enum MailChimpDataSourceDefinition implements IHttpSourceDefinition {
     }
 
     @Override
-    public String urlPart(DTODataSource dataSource) {
-//todo add client id
-        return String.format(urlPart, dataSource.getSourceTableName());
+    public String urlPart(DataSourceDataHolder dataSource) {
+        return String.format(urlPart, dataSource.getDataSourceId());
     }
 
-    public static IHttpSourceDefinition findSourceDefinition(DTODataSource dataSource) {
+    public static IHttpSourceDefinition findSourceDefinition(DataSourceDataHolder dataSource) {
         return sourceDefinitionByType.get(dataSource.getDataSourceType());
     }
 }

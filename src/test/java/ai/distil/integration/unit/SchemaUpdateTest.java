@@ -46,8 +46,8 @@ public class SchemaUpdateTest {
 
         FunctionChecked<DTODataSourceAttribute, String> getAttributeSourceName = DTODataSourceAttribute::getAttributeSourceName;
 
-        DataSourceDataHolder oldSchema = new DataSourceDataHolder("test", "test", oldAttributes);
-        DataSourceDataHolder newSchema = new DataSourceDataHolder("test", "test", newAttributes);
+        DataSourceDataHolder oldSchema = new DataSourceDataHolder("test", "test", oldAttributes, null);
+        DataSourceDataHolder newSchema = new DataSourceDataHolder("test", "test", newAttributes, null);
 
 
         List<AttributeChangeInfo> attributeChangeInfos = schemaSyncService.defineSchemaChanges(oldSchema, newSchema);
