@@ -9,7 +9,7 @@ import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
-import ai.distil.integration.utils.HashHelper;
+import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.StringUtils;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Delete;
@@ -18,6 +18,8 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.schemabuilder.*;
 import com.google.common.base.Strings;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.*;
 
+import static ai.distil.integration.utils.HashHelper.DATASET_ROW_FUNNEL;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 
 /**
@@ -258,11 +261,7 @@ public class CassandraSyncRepository {
     }
 
     private InsertStatementWrapper buildInsertStatement(Long orgId, @NotNull DataSourceDataHolder holder, DatasetRow row) {
-        String hash = HashHelper.getHashForRow(row);
-
-        InsertStatementWrapper.InsertStatementWrapperBuilder insertWrapperBuilder = InsertStatementWrapper.builder()
-                .hash(hash);
-
+        Hasher hasher = Hashing.sha1().newHasher();
         String keyspaceName = buildKeyspaceName(orgId);
         String tableName = holder.getDistilTableName();
 
@@ -270,25 +269,32 @@ public class CassandraSyncRepository {
 
         String primaryKeyValue = null;
 
-        for (DatasetValue value : row.getValues()) {
-            Object valueForSave = convertToCassandraType(value.getValue(), value.getColumnType().getCassandraType());
+        Map<String, DatasetValue> valuesByKeys = ListUtils.groupByWithOverwrite(row.getValues(), DatasetValue::getAlias, false);
 
-            if (valueForSave != null) {
-                if (holder.getPrimaryKey().getAttributeDistilName().equals(value.getAlias())) {
+        for (DTODataSourceAttribute attribute : holder.getAllAttributes()) {
+            DatasetValue value = valuesByKeys.get(attribute.getAttributeSourceName());
+            if (value != null && value.getValue() != null) {
+                Object valueForSave = convertToCassandraType(value.getValue(), value.getColumnType().getCassandraType());
+
+                if (holder.getPrimaryKey().getAttributeSourceName().equals(value.getAlias())) {
                     String stringValue = valueForSave.toString();
                     primaryKeyValue = stringValue;
                     insertBuilder.value(PARTITION_COLUMN, partitionColumnValue(stringValue));
                     insertBuilder.value(PRIMARY_KEY_COLUMN, stringValue);
                 } else {
-                    insertBuilder.value(value.getAlias(), valueForSave);
+                    hasher.putObject(value, DATASET_ROW_FUNNEL);
+                    insertBuilder.value(attribute.getAttributeDistilName(), valueForSave);
                 }
             }
         }
+        String hash = hasher.hash().toString();
 
         insertBuilder.value(UPDATED_AT_COLUMN, new Date());
         insertBuilder.value(HASH_COLUMN, hash);
 
-        return insertWrapperBuilder.primaryKey(primaryKeyValue)
+        return InsertStatementWrapper.builder()
+                .hash(hash)
+                .primaryKey(primaryKeyValue)
                 .insertStatement(insertBuilder)
                 .build();
     }

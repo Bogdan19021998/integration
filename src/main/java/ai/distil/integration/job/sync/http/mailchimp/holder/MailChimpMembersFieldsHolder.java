@@ -4,6 +4,7 @@ import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.MapUtils;
 import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -21,14 +22,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
+
 @Slf4j
 @Component
 public class MailChimpMembersFieldsHolder {
 
-    private static final Set<String> EXCLUDE_FIELDS = Sets.newHashSet("_links", "merge_fields");
+    private static final Set<String> EXCLUDE_FIELDS = Sets.newHashSet("_links", "merge_fields", "marketing_permissions", "tags");
 
 
-    private static final String ADDRESS_TYPE_KEY = "address";
     private static final String OBJECT_TYPE_KEY = "object";
     private static final String STRING_TYPE_KEY = "string";
     private static final String NUMBER_TYPE_KEY = "number";
@@ -38,6 +40,7 @@ public class MailChimpMembersFieldsHolder {
 //    todo deal with arrays
     private static final String ARRAY_TYPE_KEY = "array";
 
+    private static final String ADDRESS_TYPE_KEY = "address";
     private static final String TAG_KEY = "tag";
     private static final String NAME_KEY = "name";
     private static final String TITLE_KEY = "title";
@@ -47,7 +50,7 @@ public class MailChimpMembersFieldsHolder {
     private static final Map<String, DataSourceAttributeType> MAIL_CHIMP_TYPE_TO_ATTR_TYPE = ImmutableMap.of(
             STRING_TYPE_KEY, DataSourceAttributeType.STRING,
             NUMBER_TYPE_KEY, DataSourceAttributeType.DOUBLE,
-            INTEGER_TYPE_KEY, DataSourceAttributeType.LONG,
+            INTEGER_TYPE_KEY, DataSourceAttributeType.BIGINT,
             BOOLEAN_TYPE_KEY, DataSourceAttributeType.BOOLEAN
     );
 
@@ -101,7 +104,8 @@ public class MailChimpMembersFieldsHolder {
                 return Stream.of(new SimpleDataSourceField(
                         MapUtils.buildKeyName(currentPath, fieldName),
                         String.valueOf(fieldDefinition.get(TITLE_KEY)),
-                        MAIL_CHIMP_TYPE_TO_ATTR_TYPE.get(currentType)
+                        MAIL_CHIMP_TYPE_TO_ATTR_TYPE.get(currentType),
+                        tryToDefineTag(fieldName)
                 ));
             }
 
@@ -132,9 +136,9 @@ public class MailChimpMembersFieldsHolder {
                 case ADDRESS_TYPE_KEY:
                     return DEFAULT_TYPES_MAPPINGS.get(ADDRESS_TYPE_KEY).stream();
                 case NUMBER_TYPE_KEY:
-                    return Stream.of(new SimpleDataSourceField(fieldName, displayName, DataSourceAttributeType.DOUBLE));
+                    return Stream.of(new SimpleDataSourceField(fieldName, displayName, DataSourceAttributeType.DOUBLE, tryToDefineTag(fieldName)));
                 default:
-                    return Stream.of(new SimpleDataSourceField(fieldName, displayName, DataSourceAttributeType.STRING));
+                    return Stream.of(new SimpleDataSourceField(fieldName, displayName, DataSourceAttributeType.STRING, tryToDefineTag(fieldName)));
             }
         }).collect(Collectors.toList());
 
@@ -142,17 +146,42 @@ public class MailChimpMembersFieldsHolder {
 
     private static final Map<String, List<SimpleDataSourceField>> DEFAULT_TYPES_MAPPINGS = new HashMap<String, List<SimpleDataSourceField>>(){{
         this.put(ADDRESS_TYPE_KEY, Lists.newArrayList(
-                buildSimpleField(ADDRESS_TYPE_KEY, "addr1", "Address 1", DataSourceAttributeType.STRING),
-                buildSimpleField(ADDRESS_TYPE_KEY, "addr2", "Address 2", DataSourceAttributeType.STRING),
-                buildSimpleField(ADDRESS_TYPE_KEY, "city", "City", DataSourceAttributeType.STRING),
-                buildSimpleField(ADDRESS_TYPE_KEY, "state", "State", DataSourceAttributeType.STRING),
-                buildSimpleField(ADDRESS_TYPE_KEY, "zip", "Zip", DataSourceAttributeType.STRING),
-                buildSimpleField(ADDRESS_TYPE_KEY, "county", "County", DataSourceAttributeType.STRING)
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr1", "Address 1", DataSourceAttributeType.STRING, null),
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr2", "Address 2", DataSourceAttributeType.STRING, null),
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "city", "City", DataSourceAttributeType.STRING, null),
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "state", "State", DataSourceAttributeType.STRING, null),
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "zip", "Zip", DataSourceAttributeType.STRING, DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE),
+                buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "county", "County", DataSourceAttributeType.STRING, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE)
         ));
     }};
 
 
-    private static SimpleDataSourceField buildSimpleField(String parentPath, String fieldName, String displayName, DataSourceAttributeType attributeType) {
-        return new SimpleDataSourceField(MapUtils.buildKeyName(parentPath, fieldName), displayName, attributeType);
+    private static DataSourceSchemaAttributeTag tryToDefineTag(String fieldName) {
+        return Optional.ofNullable(fieldName)
+                .map(field ->
+                        TAGS_MAPPING.entrySet().stream()
+                                .filter(tagDefinition -> tagDefinition.getValue().contains(sanitizeColumnName(field)))
+                                .findFirst()
+                                .map(Map.Entry::getKey)
+                                .orElse(null))
+                .orElse(null);
     }
+
+    private static SimpleDataSourceField buildSimpleField(String parentPath, String fieldName, String displayName,
+                                                          DataSourceAttributeType attributeType, DataSourceSchemaAttributeTag attributeTag) {
+
+        return new SimpleDataSourceField(MapUtils.buildKeyName(MERGE_FIELDS_KEY, MapUtils.buildKeyName(parentPath, fieldName)),
+                displayName, attributeType, attributeTag);
+    }
+
+    private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
+        this.put(DataSourceSchemaAttributeTag.PRIMARY_KEY, Sets.newHashSet("ID"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAIL_ADDRESS"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FNAME", "FIRSTNAME", "GIVENNAME"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LNAME", "SECONDNAME", "SURNAME"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_MOBILE_NUMBER, Sets.newHashSet("PHONE", "MOBILENUMBER", "TELEPHONE", "TELNUMBER", "PHONENUMBER"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, Sets.newHashSet("COUNTRY", "COUNTRYCODE"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE, Sets.newHashSet("POSTCODE", "ZIP"));
+        
+    }};
 }

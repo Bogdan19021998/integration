@@ -107,8 +107,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                         generateColumnName(field.getSourceFieldName()),
                         field.getAttributeType(),
                         true,
-//                            todo add tagging
-                        null,
+                        field.getAttributeTag(),
                         null,
                         new Date(),
                         new Date())).collect(Collectors.toList());
@@ -117,7 +116,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     private DTODataSource buildDataSource(Audience audience) {
         return new DTODataSource(null,
                 this.getConnectionData().getId(),
-                audience.getName(),
+                buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null,
                 audience.getId(),
                 null,
@@ -130,6 +129,11 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 getDataSourceAttributes(audience.getId()),
                 null
         );
+    }
+
+//  todo make dynamic if needed
+    private String buildTableName(DataSourceType dataSourceType, String id) {
+        return dataSourceType.toString().toLowerCase() + "_" + id;
     }
 
 }

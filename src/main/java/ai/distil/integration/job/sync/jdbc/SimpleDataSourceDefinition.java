@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimpleDataSourceDefinition {
-    private String dataSourceId;
-
     private String dbName;
+    private String dataSourceId;
     private TableType tableType;
     private String description;
 }
