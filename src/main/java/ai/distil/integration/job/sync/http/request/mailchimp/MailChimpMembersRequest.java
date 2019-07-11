@@ -2,9 +2,8 @@ package ai.distil.integration.job.sync.http.request.mailchimp;
 
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.asynchttpclient.Param;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
@@ -12,13 +11,18 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class MailChimpMembersRequest implements IMailChimpRequest<MembersWrapper> {
+@EqualsAndHashCode(callSuper = true)
+public class MailChimpMembersRequest extends AbstractMailChimpRequest<MembersWrapper> {
     private static final String url = "/lists/%s/members";
 
     private String listId;
     private PageRequest pageRequest;
+
+    public MailChimpMembersRequest(String listId, String apiKey, PageRequest pageRequest) {
+        super(apiKey);
+        this.listId = listId;
+        this.pageRequest = pageRequest;
+    }
 
     @Override
     public TypeReference<MembersWrapper> resultType() {

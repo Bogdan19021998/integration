@@ -2,16 +2,19 @@ package ai.distil.integration.job.sync.http.request.mailchimp;
 
 import ai.distil.integration.job.sync.http.mailchimp.vo.Audience;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpMethod;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SingleMailChimpAudienceRequest implements IMailChimpRequest<Audience> {
+@EqualsAndHashCode(callSuper = true)
+public class SingleMailChimpAudienceRequest extends AbstractMailChimpRequest<Audience> {
     private String listId;
+
+    public SingleMailChimpAudienceRequest(String apiKey, String listId) {
+        super(apiKey);
+        this.listId = listId;
+    }
 
     @Override
     public TypeReference<Audience> resultType() {

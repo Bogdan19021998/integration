@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface IHttpRequest<R> {
+    String AUTH_HEADER_KEY = "Authorization";
+
     TypeReference<R> resultType();
 
     String urlPart();
@@ -25,6 +27,10 @@ public interface IHttpRequest<R> {
 
     default Object body() {
         return null;
+    }
+
+    default String buildBasicAuthHeader(String token) {
+        return String.format("Basic %s", token);
     }
 
 }

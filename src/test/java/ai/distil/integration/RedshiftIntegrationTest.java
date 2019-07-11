@@ -40,6 +40,7 @@ public class RedshiftIntegrationTest {
 
 
     @Test
+    @Disabled
     public void simpleConnectionTest() throws Exception {
 
         try (RedshiftSqlJdbcConnection jdbcConnection = new RedshiftSqlJdbcConnection(getDefaultConnection())) {

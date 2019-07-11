@@ -1,19 +1,22 @@
 package ai.distil.integration.job.sync.http.request.mailchimp;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpMethod;
 
 import java.util.Map;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class MailChimpMergeFieldsRequest implements IMailChimpRequest<Map<String, Object>> {
+@EqualsAndHashCode(callSuper = true)
+public class MailChimpMergeFieldsRequest extends AbstractMailChimpRequest<Map<String, Object>> {
 
     private String listId;
+
+    public MailChimpMergeFieldsRequest(String apiKey, String listId) {
+        super(apiKey);
+        this.listId = listId;
+    }
 
     @Override
     public TypeReference<Map<String, Object>> resultType() {

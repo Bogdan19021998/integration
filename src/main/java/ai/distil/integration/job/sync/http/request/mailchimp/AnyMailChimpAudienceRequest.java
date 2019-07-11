@@ -9,9 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class AnyMailChimpAudienceRequest extends MailChimpAudiencesRequest {
+
+    public AnyMailChimpAudienceRequest(String apiKey) {
+        super(apiKey);
+    }
 
     @Override
     public List<Param> params() {

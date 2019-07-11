@@ -10,6 +10,7 @@ import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.DataSyncService;
+import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MailChimpIntegrationTest {
 
+    public static final String DEFAULT_API_KEY = "YXBpOmE4ZjlkMTBjYmVlODZhNjM3N2Q2YTliNWM3Yzg5NThlLXVzMw==";
     @MockBean
     @Autowired
     private DataSourceProxy dataSourceProxy;
@@ -38,11 +41,16 @@ public class MailChimpIntegrationTest {
     @Autowired
     private DataSyncService dataSyncService;
 
+    @SpyBean
+    @Autowired
+    private RestService restService;
+
+
     private static final String DEFAULT_CLIENT_ID = "3e3e1502d7";
 
     @Test
     public void simpleMailChimpHttpConnectionTest() {
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(defaultConnection());
+        MailChimpHttpConnection connection = new MailChimpHttpConnection(defaultConnection(), this.restService);
 
         DTODataSource existDataSource = connection.getAllDataSources().stream().filter(v -> DEFAULT_CLIENT_ID.equals(v.getSourceTableName())).findFirst().get();
         Assertions.assertNotNull(existDataSource);
@@ -57,7 +65,7 @@ public class MailChimpIntegrationTest {
     @Test
     public void checkSourceAvailabilityTest() {
         DTOConnection dtoConnection = defaultConnection();
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection);
+        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection, this.restService);
         Assertions.assertTrue(connection.isAvailable());
 
         dtoConnection.getConnectionSettings().setApiKey("somefakeapikey");
@@ -68,7 +76,7 @@ public class MailChimpIntegrationTest {
     public void getSingleDataSourceTest() {
 
         DTOConnection dtoConnection = defaultConnection();
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection);
+        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection, this.restService);
         DTODataSource existDataSource = connection.getAllDataSources().stream().filter(v -> DEFAULT_CLIENT_ID.equals(v.getSourceTableName())).findFirst().get();
 
         DTODataSource dataSource = connection.getDataSource(new SimpleDataSourceDefinition(null, DEFAULT_CLIENT_ID, null, null));
@@ -97,7 +105,7 @@ public class MailChimpIntegrationTest {
         DTOConnection dtoConnection = new DTOConnection();
         dtoConnection.setConnectionType(ConnectionType.MAILCHIMP);
         ConnectionSettings connectionSettings = new ConnectionSettings();
-        connectionSettings.setApiKey("YXBpOmE4ZjlkMTBjYmVlODZhNjM3N2Q2YTliNWM3Yzg5NThlLXVzMw==");
+        connectionSettings.setApiKey(DEFAULT_API_KEY);
         dtoConnection.setConnectionSettings(connectionSettings);
 
         return dtoConnection;
