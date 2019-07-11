@@ -75,6 +75,9 @@ public abstract class JdbcConnection extends AbstractConnection {
 
                 ColumnDefinition columnDefinition = schemaQueryDefinition.mapResultSet(resultSet);
                 String sourceColumnName = columnDefinition.getColumnName();
+
+                //TODO: Q > Do we need this?  The distil column name is really only for mapping the column in Postgres once
+                // migrated from Cassandra
                 String distilColumnName = generateColumnName(sourceColumnName);
 
                 columns.add(new DTODataSourceAttribute(null,

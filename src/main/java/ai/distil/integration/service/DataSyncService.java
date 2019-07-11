@@ -66,6 +66,11 @@ public class DataSyncService {
      * @return new schema definition
      */
     public DataSourceDataHolder updateSchemaIfChanged(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+
+        //TODO: NS - Added this here, as this was being called first in the chain as part of a new Sync, and the KeySpace / Table had not already been created
+        //TODO: NS - refactor so we only call this once?
+        cassandraSyncRepository.createTableIfNotExists(orgId, currentSchema, true);
+
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
         newSchema.getAllAttributes().forEach(attribute -> attribute.setDateLastVerified(new Date()));
 

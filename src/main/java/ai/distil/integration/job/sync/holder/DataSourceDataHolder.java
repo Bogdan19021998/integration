@@ -23,7 +23,8 @@ public class DataSourceDataHolder {
     @Getter
     private List<DTODataSourceAttribute> allAttributes;
 
-    private Map<String, DTODataSourceAttribute> attributesByDistilName;
+    //TODO: Q > Can we remove altogether - we don't need to know about the distil Attribute name on the Cassandra sync side
+//    private Map<String, DTODataSourceAttribute> attributesByDistilName;
 
     @Getter
     private DTODataSourceAttribute primaryKey;
@@ -34,7 +35,7 @@ public class DataSourceDataHolder {
 
         this.allAttributes = attributes;
         this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(attributes);
-        this.attributesByDistilName = ListUtils.groupByWithOverwrite(attributes, DTODataSourceAttribute::getAttributeDistilName, true);
+//        this.attributesByDistilName = ListUtils.groupByWithOverwrite(attributes, DTODataSourceAttribute::getAttributeDistilName, true);
         this.primaryKey = definePrimaryKey(attributes);
     }
 
@@ -42,9 +43,9 @@ public class DataSourceDataHolder {
         return new DataSourceDataHolder(dataSource.getSourceTableName(), dataSource.getName(), dataSource.getAttributes());
     }
 
-    public DTODataSourceAttribute getDataSourceAttribute(String alias) {
-        return this.attributesByDistilName.get(alias);
-    }
+//    public DTODataSourceAttribute getDataSourceAttribute(String alias) {
+//        return this.attributesByDistilName.get(alias);
+//    }
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
         return ImmutableList.copyOf(attributes.stream()

@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 public class SchemaSyncService {
 
     /**
+     * TODO: Change comment
      * returns true if getSchema changed and we need to refresh it
      */
     public List<AttributeChangeInfo> defineSchemaChanges(DataSourceDataHolder oldSchema, DataSourceDataHolder newSchema) {

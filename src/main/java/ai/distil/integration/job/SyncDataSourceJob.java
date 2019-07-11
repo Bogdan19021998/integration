@@ -73,6 +73,8 @@ public class SyncDataSourceJob extends QuartzJobBean {
             if (connection.dataSourceExist(dataSource)) {
                 DataSourceDataHolder updatedSchema = dataSyncService.updateSchemaIfChanged(request.getOrgId(), dataSource, connection);
 
+                //TODO: This is sending a list of attributes with blank IDs > causing the proxy function to fail.  It should be a mixture
+                // of existing attributes that have changed (with ids) and new attributes to be created (without ids)
                 connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
                 dataSyncService.syncDataSource(request.getOrgId(), updatedSchema, connection);
             } else {
