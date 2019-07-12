@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttributeChangeInfo {
+    private Long attributeId;
     private DTODataSourceAttribute oldAttribute;
     private DTODataSourceAttribute newAttribute;
     private AttributeChangeType attributeChangeType;

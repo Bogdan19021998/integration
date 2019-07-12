@@ -9,7 +9,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 
 @AllArgsConstructor
 public enum JobDefinitionEnum {
-    SYNC_DATASOURCE("SYNC", true, JobPriority.LOW, "0 0/1 * * * ?", SyncDataSourceJob.class, SyncDataSourceRequest.class);
+    SYNC_DATASOURCE("SYNC", true, JobPriority.LOW, "0 0 0 * * ?", SyncDataSourceJob.class, SyncDataSourceRequest.class);
 
     private String name;
     @Getter

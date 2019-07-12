@@ -2,6 +2,7 @@ package ai.distil.integration.service;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
@@ -65,10 +66,7 @@ public class DataSyncService {
     /**
      * @return new schema definition
      */
-    public DataSourceDataHolder updateSchemaIfChanged(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-
-        //TODO: NS - Added this here, as this was being called first in the chain as part of a new Sync, and the KeySpace / Table had not already been created
-        //TODO: NS - refactor so we only call this once?
+    public DataSourceDataHolder syncSchema(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
         cassandraSyncRepository.createTableIfNotExists(orgId, currentSchema, true);
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
@@ -77,20 +75,24 @@ public class DataSyncService {
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
         attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(orgId, newSchema, attr));
 
-        return newSchema;
+        List<DTODataSourceAttribute> newAttributes = attributesChangeInfo.stream()
+                .filter(attr -> attr.getNewAttribute() != null)
+                .peek(v -> v.getNewAttribute().setId(v.getAttributeId()))
+                .map(AttributeChangeInfo::getNewAttribute)
+                .collect(Collectors.toList());
+
+
+        return new DataSourceDataHolder(newSchema.getSourceTableName(), newSchema.getDistilTableName(), newAttributes);
     }
 
 
     public SyncProgressTrackingData reSyncDataSource(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-        DataSourceDataHolder updatedSchema = this.updateSchemaIfChanged(orgId, currentSchema, connection);
+        DataSourceDataHolder updatedSchema = this.syncSchema(orgId, currentSchema, connection);
         return syncDataSource(orgId, updatedSchema, connection);
     }
 
     public SyncProgressTrackingData syncDataSource(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-
         AbstractParser parser = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE);
-
-        cassandraSyncRepository.createTableIfNotExists(orgId, currentSchema, true);
 
         Map<String, String> allExistingRows = cassandraSyncRepository.getAllRowsIdsAndHashes(orgId, currentSchema);
         int allRowsCountBeforeUpdate = allExistingRows.size();

@@ -78,6 +78,10 @@ public abstract class JdbcConnection extends AbstractConnection {
 
                 //TODO: Q > Do we need this?  The distil column name is really only for mapping the column in Postgres once
                 // migrated from Cassandra
+//                it's not only once, we need to keep distil columns connected with postgres columns, because we currently handling updates and deletes somehow
+//                just imagine the case, we do the sync one time for table t1 with columns: id, name, surname, then we give them those names c1,c2,c3
+//                then run the sync again, for this table, but columns changed: id, some_new_col, name, then we will generate mapping c1,c2,c3 just sequentially
+//                probably I'm missing somethings
                 String distilColumnName = generateColumnName(sourceColumnName);
 
                 columns.add(new DTODataSourceAttribute(null,

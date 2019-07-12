@@ -47,8 +47,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
-                JobDefinitionEnum.SYNC_DATASOURCE
-                        .getJobRequestClazz());
+                JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
 
         ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getOrgId(),
                 request.getConnectionId(),
@@ -71,10 +70,8 @@ public class SyncDataSourceJob extends QuartzJobBean {
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);
 
             if (connection.dataSourceExist(dataSource)) {
-                DataSourceDataHolder updatedSchema = dataSyncService.updateSchemaIfChanged(request.getOrgId(), dataSource, connection);
+                DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getOrgId(), dataSource, connection);
 
-                //TODO: This is sending a list of attributes with blank IDs > causing the proxy function to fail.  It should be a mixture
-                // of existing attributes that have changed (with ids) and new attributes to be created (without ids)
                 connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
                 dataSyncService.syncDataSource(request.getOrgId(), updatedSchema, connection);
             } else {

@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 public class SchemaSyncService {
 
     /**
-     * TODO: Change comment
-     * returns true if getSchema changed and we need to refresh it
+     * method comparing schemas
+     * returns attributes change info for all columns
      */
     public List<AttributeChangeInfo> defineSchemaChanges(DataSourceDataHolder oldSchema, DataSourceDataHolder newSchema) {
         Map<String, DTODataSourceAttribute> oldAttributesByName = ListUtils.groupByWithOverwrite(oldSchema.getAllAttributes(),
@@ -33,13 +33,13 @@ public class SchemaSyncService {
 //          removing attribute from the map, then after all iterations will be done only new attributes remains
             DTODataSourceAttribute newAttribute = newAttributesByName.remove(attributeSourceName);
             AttributeChangeType attributeChangeType = AttributeChangeType.defineAttributeType(oldAttribute, newAttribute);
-            return new AttributeChangeInfo(oldAttribute, newAttribute, attributeChangeType);
+            return new AttributeChangeInfo(oldAttribute.getId(), oldAttribute, newAttribute, attributeChangeType);
         }).collect(Collectors.toList());
 
 
         List<AttributeChangeInfo> newAttributesStream = newAttributesByName.entrySet()
                 .stream()
-                .map(entry -> new AttributeChangeInfo(null, entry.getValue(), AttributeChangeType.ADDED))
+                .map(entry -> new AttributeChangeInfo(null, null, entry.getValue(), AttributeChangeType.ADDED))
                 .collect(Collectors.toList());
 
         return Stream.concat(changedAttributesStream.stream(), newAttributesStream.stream())
