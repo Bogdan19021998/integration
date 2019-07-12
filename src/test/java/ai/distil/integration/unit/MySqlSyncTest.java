@@ -131,13 +131,13 @@ public class MySqlSyncTest extends AbstractSyncTest {
 
             dataSyncService.reSyncDataSource(orgId, dataSourceDataHolder, connection);
 
-            Set<String> expectedColumns = Sets.newHashSet("c_timestamp_field_1145404271", "c_text_field_2112752792",
-                    "c_time_field_1123633416", "c_dec_field_59113085", "c_blob_field_61622744", "c_int_field_319859882",
-                    "c_tinyint_field_1085818454", "c_real_field_1659752679", "c_fixed_field_1392739439", "c_numeric_field_2053119672",
-                    "c_year_field_2005292424", "c_char_field_1190608593", "c_float_field_1470697129", "c_enum_field_1103293380",
-                    "c", "c_mediumint_field_724324139", "h", "c_double_precision_field_351236491", "k", "c_integer_field_729932103",
-                    "c_null_field_2032121790", "c_smallint_field_515715197", "p", "u", "c_bit_field_36977848", "c_double_field_1376821004",
-                    "c_datetime_field_402323254", "c_date_field_862386473", "c_binary_field_340675388", "c_decimal_field_1901500044");
+            Set<String> expectedColumns = Sets.newHashSet("ctimestamp_field_1145404271", "ctext_field_2112752792",
+                    "ctime_field_1123633416", "cdec_field_59113085", "cblob_field_61622744", "cint_field_319859882",
+                    "ctinyint_field_1085818454", "creal_field_1659752679", "cfixed_field_1392739439", "cnumeric_field_2053119672",
+                    "cyear_field_2005292424", "cchar_field_1190608593", "cfloat_field_1470697129", "cenum_field_1103293380",
+                    "c", "cmediumint_field_724324139", "h", "cdouble_precision_field_351236491", "k", "cinteger_field_729932103",
+                    "cnull_field_2032121790", "csmallint_field_515715197", "p", "u", "cbit_field_36977848", "cdouble_field_1376821004",
+                    "cdatetime_field_402323254", "cdate_field_862386473", "cbinary_field_340675388", "cdecimal_field_1901500044");
 
             AtomicInteger rowsCounter = new AtomicInteger();
             Set<String> actualColumns = new HashSet<>();
@@ -171,9 +171,9 @@ public class MySqlSyncTest extends AbstractSyncTest {
             dataSyncService.reSyncDataSource(orgId, dataSourceDataHolder, connection);
 //          removed gender, added test_new_1 and test_new_2
             Set<String> expectedNewColumns = new HashSet<>(expectedColumns);
-            expectedNewColumns.remove("c_timestamp_field_1145404271");
-            expectedNewColumns.add("c_test_new_2_2065383270");
-            expectedNewColumns.add("c_test_new_1_2065383269");
+            expectedNewColumns.remove("ctimestamp_field_1145404271");
+            expectedNewColumns.add("ctest_new_2_2065383270");
+            expectedNewColumns.add("ctest_new_1_2065383269");
 
             int expectedNewRowsCount = 4;
 
