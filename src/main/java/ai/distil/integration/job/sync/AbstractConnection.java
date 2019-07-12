@@ -47,8 +47,10 @@ public abstract class AbstractConnection implements AutoCloseable {
     }
 
     protected String generateColumnName(String sourceColumnName) {
-//      todo same as with table names, check above comment
-        return COLUMN_NAME_PREFIX + "_" + sourceColumnName.replaceAll(NAMING_PATTERN, "") + "_" + Math.abs(sourceColumnName.hashCode());
+
+        return COLUMN_NAME_PREFIX + String.format("%s_%s",
+                sourceColumnName.replaceAll(NAMING_PATTERN, ""),
+                Math.abs(sourceColumnName.hashCode()));
     }
 
 

@@ -204,7 +204,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
 
-            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), null);
+            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), null, 1L);
             boolean isTableExists = connection.dataSourceExist(holder);
             Assertions.assertTrue(isTableExists, "Consumer table must exists");
 

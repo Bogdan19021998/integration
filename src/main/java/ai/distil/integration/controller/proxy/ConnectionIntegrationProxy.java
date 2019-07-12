@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(value = "ConnectionClient", url = "${ai.distil.api.integrations.url}", path = "/connection")
 @Api(value = "Connection Integration Controller")
+@FeignClient(value = "ConnectionClient", url = "${ai.distil.api.integrations.url}", path = "/connection")
 public interface ConnectionIntegrationProxy {
 
     @ApiOperation(value = "Check connectivity", response = CheckConnectivityResponse.class)

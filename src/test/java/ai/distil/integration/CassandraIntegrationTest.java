@@ -22,13 +22,14 @@ public class CassandraIntegrationTest {
     public void createTableTest() {
         Long orgId = 2L;
 
-        DataSourceDataHolder holder = new DataSourceDataHolder("test", "test", Lists.newArrayList(
-                new DTODataSourceAttribute(null, "id", "id", "c1", DataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.PRIMARY_KEY, true, new Date(), new Date()),
-                new DTODataSourceAttribute(null, "name", "name", "c2", DataSourceAttributeType.STRING, true, null, true, new Date(), new Date()),
-                new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, null, true, new Date(), new Date()),
-                new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, null, true, new Date(), new Date()),
-                new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, null, true, new Date(), new Date())
-        ), null);
+        DataSourceDataHolder holder = new DataSourceDataHolder("test", "test",
+                Lists.newArrayList(
+                        new DTODataSourceAttribute(null, "id", "id", "c1", DataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.PRIMARY_KEY, true, new Date(), new Date()),
+                        new DTODataSourceAttribute(null, "name", "name", "c2", DataSourceAttributeType.STRING, true, null, true, new Date(), new Date()),
+                        new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, null, true, new Date(), new Date()),
+                        new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, null, true, new Date(), new Date()),
+                        new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, null, true, new Date(), new Date())
+                ), null, null);
 
         cassandraSyncRepository.createTableIfNotExists(orgId, holder, true);
 

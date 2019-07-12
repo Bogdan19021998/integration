@@ -82,7 +82,11 @@ public class DataSyncService {
                 .collect(Collectors.toList());
 
 
-        return new DataSourceDataHolder(newSchema.getDataSourceId(), newSchema.getDistilTableName(), newAttributes, newSchema.getDataSourceType());
+        return new DataSourceDataHolder(newSchema.getDataSourceId(),
+                newSchema.getDistilTableName(),
+                newAttributes,
+                newSchema.getDataSourceType(),
+                currentSchema.getDataSourceForeignKey());
     }
 
 
@@ -119,12 +123,13 @@ public class DataSyncService {
         progressAggregator.setCurrentRowsCount(rowsCount);
 
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
-        saveDataSourceHistory(trackingData);
+        saveDataSourceHistory(currentSchema.getDataSourceForeignKey(), trackingData);
+
         return trackingData;
     }
 
 
-    public void saveDataSourceHistory(SyncProgressTrackingData trackingData) {
+    public void saveDataSourceHistory(Long dataSourceId, SyncProgressTrackingData trackingData) {
         boolean numberOfRecordsMatch = trackingData.getProcessed() == trackingData.getCurrentRowsCount();
 
         String notUniquePrimaryKeyError = numberOfRecordsMatch ? null : SyncErrors.NUMBER_OF_RECORDS_NOT_MATCH;
@@ -134,8 +139,7 @@ public class DataSyncService {
 
         DataSourceHistory dataSourceHistory = new DataSourceHistory(
                 null,
-//                todo add datasource id if present
-                null,
+                dataSourceId,
                 DateUtils.toSqlDate(trackingData.getStartedDate()),
                 trackingData.getCreated(),
                 trackingData.getUpdated(),

@@ -15,6 +15,9 @@ public class DataSourceDataHolder {
     private String distilTableName;
 
     @Getter
+    private Long dataSourceForeignKey;
+
+    @Getter
     private String dataSourceId;
 
     @Getter
@@ -28,7 +31,7 @@ public class DataSourceDataHolder {
     @Getter
     private DTODataSourceAttribute primaryKey;
 
-    public DataSourceDataHolder(String sourceTableName, String distilTableName, List<DTODataSourceAttribute> attributes, DataSourceType dataSourceType) {
+    public DataSourceDataHolder(String sourceTableName, String distilTableName, List<DTODataSourceAttribute> attributes, DataSourceType dataSourceType, Long dataSourceForeignKey) {
         this.distilTableName = distilTableName;
         this.dataSourceId = sourceTableName;
 
@@ -36,12 +39,14 @@ public class DataSourceDataHolder {
         this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(attributes);
         this.primaryKey = definePrimaryKey(attributes);
         this.dataSourceType = dataSourceType;
+        this.dataSourceForeignKey = dataSourceForeignKey;
     }
 
     public static DataSourceDataHolder mapFromDTODataSourceEntity(DTODataSource dataSource) {
         return new DataSourceDataHolder(dataSource.getSourceTableName(), dataSource.getName(),
                 dataSource.getAttributes(),
-                dataSource.getDataSourceType());
+                dataSource.getDataSourceType(),
+                dataSource.getId());
     }
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
