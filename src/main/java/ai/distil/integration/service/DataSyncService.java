@@ -82,7 +82,7 @@ public class DataSyncService {
                 .collect(Collectors.toList());
 
 
-        return new DataSourceDataHolder(newSchema.getSourceTableName(), newSchema.getDistilTableName(), newAttributes);
+        return new DataSourceDataHolder(newSchema.getDataSourceId(), newSchema.getDistilTableName(), newAttributes, newSchema.getDataSourceType());
     }
 
 
