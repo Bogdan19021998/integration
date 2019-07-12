@@ -47,7 +47,7 @@ public abstract class JdbcConnection extends AbstractConnection {
 
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
-        SimpleCheckDataSourceExistingQueryDefinition queryDef = new SimpleCheckDataSourceExistingQueryDefinition(dataSource.getSourceTableName());
+        SimpleCheckDataSourceExistingQueryDefinition queryDef = new SimpleCheckDataSourceExistingQueryDefinition(dataSource.getDataSourceId());
         String query = queryDef.getQuery();
         try (QueryWrapper queryWrapper = this.query(query, queryDef.getQueryParams())) {
             return queryDef.mapResultSet(queryWrapper.getResultSet());
@@ -59,8 +59,8 @@ public abstract class JdbcConnection extends AbstractConnection {
     }
 
     @Override
-    public DTODataSource getDataSource(TableDefinition tableDefinition) {
-        String sourceTableName = tableDefinition.getTableName();
+    public DTODataSource getDataSource(SimpleDataSourceDefinition tableDefinition) {
+        String sourceTableName = tableDefinition.getDataSourceId();
 
         Optional<SyncTableDefinition> syncTableDefinition = SyncTableDefinition.identifySyncTableDefinition(sourceTableName);
 
@@ -120,9 +120,9 @@ public abstract class JdbcConnection extends AbstractConnection {
     }
 
     //  should returns all tables if pass null or empty list
-    public List<TableDefinition> getAllTables() {
+    public List<SimpleDataSourceDefinition> getAllTables() {
         AbstractAllTablesQueryDefinition allTablesQuery = getAllTablesQuery();
-        List<TableDefinition> result = new ArrayList<>();
+        List<SimpleDataSourceDefinition> result = new ArrayList<>();
         String sql = allTablesQuery.getQuery();
 
         try (QueryWrapper query = this.query(sql, allTablesQuery.getQueryParams(), false)) {
@@ -224,7 +224,7 @@ public abstract class JdbcConnection extends AbstractConnection {
 
         return String.format("SELECT %s FROM %s",
                 fieldsList,
-                getTableName(dataSource.getSourceTableName()));
+                getTableName(dataSource.getDataSourceId()));
     }
 
     private Connection getConnection(boolean close) {

@@ -4,7 +4,7 @@ import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
-import ai.distil.integration.job.sync.jdbc.TableDefinition;
+import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import lombok.Getter;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     public abstract List<DTODataSource> getAllDataSources();
 
-    public abstract DTODataSource getDataSource(TableDefinition tableDefinition);
+    public abstract DTODataSource getDataSource(SimpleDataSourceDefinition tableDefinition);
 
     public abstract IRowIterator getIterator(DataSourceDataHolder dataSources);
 

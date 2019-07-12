@@ -28,7 +28,7 @@ public class CassandraIntegrationTest {
                 new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, null, true, new Date(), new Date()),
                 new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, null, true, new Date(), new Date()),
                 new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, null, true, new Date(), new Date())
-        ));
+        ), null);
 
         cassandraSyncRepository.createTableIfNotExists(orgId, holder, true);
 

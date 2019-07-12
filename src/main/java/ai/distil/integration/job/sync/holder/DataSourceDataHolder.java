@@ -3,6 +3,7 @@ package ai.distil.integration.job.sync.holder;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
@@ -14,7 +15,10 @@ public class DataSourceDataHolder {
     private String distilTableName;
 
     @Getter
-    private String sourceTableName;
+    private String dataSourceId;
+
+    @Getter
+    private DataSourceType dataSourceType;
 
     @Getter
     private List<DTODataSourceAttribute> attributesWithoutPrimaryKey;
@@ -24,17 +28,20 @@ public class DataSourceDataHolder {
     @Getter
     private DTODataSourceAttribute primaryKey;
 
-    public DataSourceDataHolder(String sourceTableName, String distilTableName, List<DTODataSourceAttribute> attributes) {
+    public DataSourceDataHolder(String sourceTableName, String distilTableName, List<DTODataSourceAttribute> attributes, DataSourceType dataSourceType) {
         this.distilTableName = distilTableName;
-        this.sourceTableName = sourceTableName;
+        this.dataSourceId = sourceTableName;
 
         this.allAttributes = attributes;
         this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(attributes);
         this.primaryKey = definePrimaryKey(attributes);
+        this.dataSourceType = dataSourceType;
     }
 
     public static DataSourceDataHolder mapFromDTODataSourceEntity(DTODataSource dataSource) {
-        return new DataSourceDataHolder(dataSource.getSourceTableName(), dataSource.getName(), dataSource.getAttributes());
+        return new DataSourceDataHolder(dataSource.getSourceTableName(), dataSource.getName(),
+                dataSource.getAttributes(),
+                dataSource.getDataSourceType());
     }
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {

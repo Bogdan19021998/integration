@@ -3,11 +3,13 @@ package ai.distil.integration.service.sync;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SshConnection;
+import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.jdbc.MsSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.RedshiftSqlJdbcConnection;
 import ai.distil.integration.mapper.ConnectionMapper;
+import ai.distil.integration.service.RestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class ConnectionFactory {
 
     private final ConnectionMapper connectionMapper;
+    private final RestService restService;
 
     public AbstractConnection buildConnection(DTOConnection dtoConnection) {
         AbstractConnection abstractConnection = buildSimpleConnection(dtoConnection);
@@ -38,6 +41,8 @@ public class ConnectionFactory {
                 return new MsSqlJdbcConnection(connection);
             case REDSHIFT:
                 return new RedshiftSqlJdbcConnection(connection);
+            case MAILCHIMP:
+                return new MailChimpHttpConnection(connection, restService);
             default:
                 throw new UnsupportedOperationException();
         }

@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
 import static ai.distil.model.types.DataSourceSchemaAttributeTag.PRIMARY_KEY;
 
 public enum SyncTableDefinition {
@@ -81,10 +82,6 @@ public enum SyncTableDefinition {
 
     public static boolean isTableEligibleForRun(String tableName) {
         return Stream.of(SyncTableDefinition.values()).anyMatch(tb -> tb.isTableNameFitNamingConvention(tableName));
-    }
-
-    private static String sanitizeColumnName(String columnName) {
-        return columnName.trim().toUpperCase().replaceAll("_", "");
     }
 
     public DataSourceSchemaAttributeTag tryToGetAttributeType(@NotNull String columnName) {

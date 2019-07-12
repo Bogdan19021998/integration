@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface IHttpSourceDefinition {
 
-    String urlPart(DTODataSource dataSource);
+    String urlPart(DataSourceDataHolder dataSource);
 
     default List<Param> params(DTODataSource dataSource) {
         return Collections.emptyList();
