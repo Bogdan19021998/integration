@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.progress;
 
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
 import lombok.Getter;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Date;
 
@@ -25,6 +26,10 @@ public class ProgressAggregator {
             case UPDATED:
                 this.syncTrackingData.incrementUpdatesCounter();
                 break;
+            case ERROR:
+                this.syncTrackingData.incrementErrorsCount();
+            default:
+                throw new NotImplementedException();
         }
     }
 

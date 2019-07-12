@@ -7,6 +7,7 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.JdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
+import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
@@ -67,13 +68,12 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 15;
+        long orgId = 123;
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
-            connection.getAllDataSources()
-                    .stream()
-                    .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(orgId, dataSource, connection));
+            DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
+            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(orgId, dataSource, connection);
+            Assertions.assertEquals(3, syncResults.getProcessed());
         }
     }
 

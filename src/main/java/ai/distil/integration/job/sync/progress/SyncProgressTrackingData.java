@@ -16,6 +16,7 @@ public class SyncProgressTrackingData {
     private long created;
     private long updated;
     private long deleted;
+    private long errorsCount;
     private long notChanged;
     private long currentRowsCount;
     private long beforeRowsCount;
@@ -35,6 +36,11 @@ public class SyncProgressTrackingData {
     public void incrementNotChangedCounter() {
         this.processed++;
         this.notChanged++;
+    }
+
+    public void incrementErrorsCount() {
+        this.processed++;
+        this.errorsCount++;
     }
 
     @JsonIgnore
