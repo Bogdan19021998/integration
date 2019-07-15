@@ -53,7 +53,7 @@ public class CassandraSyncRepository {
     private static final String HASH_COLUMN = "h";
     private static final String CREATED_AT_COLUMN = "c";
     private static final String UPDATED_AT_COLUMN = "u";
-    private static final String KEYSPACE_PREFIX = "ORG_";
+    private static final String KEYSPACE_PREFIX = "distil_org_";
 
     private final CassandraConnection connection;
 
