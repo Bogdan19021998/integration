@@ -51,4 +51,13 @@ public class JsonDataConverter implements IDataConverter {
             throw new ConverterException(false, "Can't deserialize json object", e);
         }
     }
+
+    @Override
+    public <T> T fromString(String t, Class<T> clazz) {
+        try {
+            return mapper.readValue(t, clazz);
+        } catch (IOException e) {
+            throw new ConverterException(false, "Can't deserialize json object", e);
+        }
+    }
 }

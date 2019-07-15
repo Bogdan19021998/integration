@@ -20,10 +20,7 @@ import com.datastax.driver.core.schemabuilder.*;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.format.ISODateTimeFormat;
 import org.postgresql.jdbc.PgSQLXML;
@@ -55,6 +52,7 @@ public class CassandraSyncRepository {
     private static final String UPDATED_AT_COLUMN = "u";
     private static final String KEYSPACE_PREFIX = "distil_org_";
 
+    @Getter
     private final CassandraConnection connection;
 
     public List<Map<String, Object>> selectAllToMap(Long orgId, @NotNull DataSourceDataHolder holder) {
@@ -120,25 +118,31 @@ public class CassandraSyncRepository {
     }
 
     public IngestionResult insertWithStats(Long orgId, @NotNull DataSourceDataHolder holder, DatasetRow row, Map<String, String> existingRows, boolean sync) {
-        InsertStatementWrapper insertStatement = buildInsertStatement(orgId, holder, row);
-        Insert insert = insertStatement.getInsertStatement();
-        IngestionStatus ingestionStatus = defineIngestionStatus(insertStatement, existingRows);
+        try {
+            InsertStatementWrapper insertStatement = buildInsertStatement(orgId, holder, row);
+            Insert insert = insertStatement.getInsertStatement();
+            IngestionStatus ingestionStatus = defineIngestionStatus(insertStatement, existingRows);
 
-        if (IngestionStatus.CREATED.equals(ingestionStatus)) {
-            insert.value(CREATED_AT_COLUMN, new Date());
+            if (IngestionStatus.CREATED.equals(ingestionStatus)) {
+                insert.value(CREATED_AT_COLUMN, new Date());
+            }
+
+            ResultSetFuture resultSetFuture = null;
+
+            if (!IngestionStatus.NOT_CHANGED.equals(ingestionStatus)) {
+                resultSetFuture = connection.getSession().executeAsync(insert);
+            }
+
+            if (sync && resultSetFuture != null) {
+                resultSetFuture.getUninterruptibly();
+            }
+
+            return new IngestionResult(resultSetFuture, ingestionStatus, insertStatement.getPrimaryKey());
+        } catch (Exception e) {
+            log.error("Can't ingest row", e);
+            return new IngestionResult(null, IngestionStatus.ERROR, null);
         }
 
-        ResultSetFuture resultSetFuture = null;
-
-        if (!IngestionStatus.NOT_CHANGED.equals(ingestionStatus)) {
-            resultSetFuture = connection.getSession().executeAsync(insert);
-        }
-
-        if (sync && resultSetFuture != null) {
-            resultSetFuture.getUninterruptibly();
-        }
-
-        return new IngestionResult(resultSetFuture, ingestionStatus, insertStatement.getPrimaryKey());
     }
 
     public ResultSetFuture deleteFromTable(Long orgId, DataSourceDataHolder holder, String primaryKey, boolean sync) {

@@ -168,6 +168,7 @@ public enum DatasetColumnType {
             case "smallint":
             case "tinyint":
             case "int2":
+            case "integer":
             case "int4":
             case "bytea":
                 return DatasetColumnType.INTEGER;
