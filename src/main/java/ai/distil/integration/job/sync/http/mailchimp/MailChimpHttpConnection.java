@@ -21,7 +21,6 @@ import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,8 +28,11 @@ import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
 
-    public MailChimpHttpConnection(DTOConnection dtoConnection, RestService restService) {
-        super(dtoConnection, restService);
+    private MailChimpMembersFieldsHolder fieldsHolder;
+
+    public MailChimpHttpConnection(DTOConnection dtoConnection, RestService restService, MailChimpMembersFieldsHolder fieldsHolder) {
+        super(dtoConnection, restService, fieldsHolder);
+        this.fieldsHolder = fieldsHolder;
     }
 
     @Override
@@ -47,8 +49,8 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
-    public DTODataSource getDataSource(SimpleDataSourceDefinition tableDefinition) {
-        SingleMailChimpAudienceRequest request = new SingleMailChimpAudienceRequest(getApiKey(), tableDefinition.getDataSourceId());
+    public DTODataSource getDataSource(SimpleDataSourceDefinition dataSource) {
+        SingleMailChimpAudienceRequest request = new SingleMailChimpAudienceRequest(getApiKey(), dataSource.getDataSourceId());
         return Optional.ofNullable(executeRequest(request))
                 .map(this::buildDataSource)
                 .orElse(null);
@@ -84,18 +86,10 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
         Map<String, Object> mergeFieldsDefinition = executeRequest(mergeFieldsRequest);
 
-        return MailChimpMembersFieldsHolder.getAllFields(mergeFieldsDefinition)
+        return this.fieldsHolder.getAllFields(mergeFieldsDefinition)
                 .stream()
-                .map(field -> new DTODataSourceAttribute(null,
-                        field.getSourceFieldName(),
-                        field.getDisplayName(),
-                        generateColumnName(field.getSourceFieldName()),
-                        field.getAttributeType(),
-                        true,
-                        field.getAttributeTag(),
-                        null,
-                        new Date(),
-                        new Date())).collect(Collectors.toList());
+                .map(this::buildDTODataSourceAttribute)
+                .collect(Collectors.toList());
     }
 
     private DTODataSource buildDataSource(Audience audience) {

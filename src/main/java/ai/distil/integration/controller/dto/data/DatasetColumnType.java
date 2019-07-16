@@ -36,6 +36,9 @@ public enum DatasetColumnType {
     private DataType cassandraType;
 
     public static DatasetColumnType mapFromSystemType(DataSourceAttributeType attributeType) {
+        if(DataSourceAttributeType.TEXT.equals(attributeType)) {
+            return DatasetColumnType.STRING;
+        }
         return DatasetColumnType.valueOf(attributeType.toString());
     }
 

@@ -7,8 +7,8 @@ import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
+import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
-import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -68,14 +69,14 @@ public class MailChimpIntegrationTest {
 
     @Test
     public void simpleMailChimpHttpConnectionTest() {
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(defaultConnection(), this.restService);
+        AbstractHttpConnection connection = (AbstractHttpConnection) connectionFactory.buildConnection(defaultConnection());
 
         DTODataSource existDataSource = connection.getAllDataSources().stream().filter(v -> DEFAULT_CLIENT_ID.equals(v.getSourceTableName())).findFirst().get();
         Assertions.assertNotNull(existDataSource);
 
         DataSourceDataHolder dataHolder = DataSourceDataHolder.mapFromDTODataSourceEntity(existDataSource);
 
-        HttpPaginationRowIterator httpPaginationRowIterator = new HttpPaginationRowIterator(connection, dataHolder, 2);
+        HttpPaginationRowIterator httpPaginationRowIterator = new HttpPaginationRowIterator(connection, dataHolder, new AtomicInteger(0), 2);
         List<DatasetRow> rows = new ArrayList<>(Lists.newArrayList(httpPaginationRowIterator));
         Assertions.assertEquals(rows.size(), 5);
     }
@@ -83,7 +84,7 @@ public class MailChimpIntegrationTest {
     @Test
     public void checkSourceAvailabilityTest() {
         DTOConnection dtoConnection = defaultConnection();
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection, this.restService);
+        AbstractHttpConnection connection = (AbstractHttpConnection) connectionFactory.buildConnection(dtoConnection);
         Assertions.assertTrue(connection.isAvailable());
 
         dtoConnection.getConnectionSettings().setApiKey("somefakeapikey");
@@ -94,7 +95,7 @@ public class MailChimpIntegrationTest {
     public void getSingleDataSourceTest() {
 
         DTOConnection dtoConnection = defaultConnection();
-        MailChimpHttpConnection connection = new MailChimpHttpConnection(dtoConnection, this.restService);
+        AbstractHttpConnection connection = (AbstractHttpConnection) connectionFactory.buildConnection(dtoConnection);
         DTODataSource existDataSource = connection.getAllDataSources().stream().filter(v -> DEFAULT_CLIENT_ID.equals(v.getSourceTableName())).findFirst().get();
 
         DTODataSource dataSource = connection.getDataSource(new SimpleDataSourceDefinition(null, DEFAULT_CLIENT_ID, null, null));

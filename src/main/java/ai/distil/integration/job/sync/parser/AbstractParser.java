@@ -15,13 +15,13 @@ public abstract class AbstractParser {
     @Getter
     protected AbstractConnection connection;
     @Getter
-    protected DataSourceDataHolder dataSourceDataHolders;
+    protected DataSourceDataHolder dataSourceDataHolder;
 
 
     public abstract void parse(BiConsumer<DataSourceDataHolder, DatasetRow> callback);
 
     public DataSourceDataHolder getSchema() {
-        return dataSourceDataHolders;
+        return dataSourceDataHolder;
     }
 
     public DataSourceDataHolder refreshSchema() {

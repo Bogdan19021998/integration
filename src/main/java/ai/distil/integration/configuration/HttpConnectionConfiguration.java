@@ -13,13 +13,16 @@ import javax.annotation.PostConstruct;
 public class HttpConnectionConfiguration {
 
     public static SimpleHttpConnectionProps MAIL_CHIMP;
+    public static SimpleHttpConnectionProps CAMPAIGN_MONITOR;
 
     public SimpleHttpConnectionProps mailChimp;
+    public SimpleHttpConnectionProps campaignMonitor;
 
 
     @PostConstruct
     public void init() {
         MAIL_CHIMP = this.mailChimp;
+        CAMPAIGN_MONITOR = this.campaignMonitor;
     }
 
 }

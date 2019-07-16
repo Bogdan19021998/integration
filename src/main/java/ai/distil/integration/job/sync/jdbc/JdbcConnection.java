@@ -184,7 +184,7 @@ public abstract class JdbcConnection extends AbstractConnection {
     protected abstract String getConnectionString();
 
     protected Properties getProperties() {
-        ConnectionSettings connectionSettings = this.getConnectionData().getConnectionSettings();
+        ConnectionSettings connectionSettings = this.getConnectionSettings();
         Properties props = new Properties();
         Optional.ofNullable(connectionSettings.getUserName()).ifPresent(v -> props.setProperty("user", v));
         Optional.ofNullable(connectionSettings.getPassword()).ifPresent(v -> props.setProperty("password", v));

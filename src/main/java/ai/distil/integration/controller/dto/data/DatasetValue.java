@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class DatasetValue {
     private Object value;
     private String alias;
-    private DatasetColumnType columnType;
 }

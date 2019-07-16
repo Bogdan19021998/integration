@@ -5,6 +5,7 @@ import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
+import ai.distil.model.org.ConnectionSettings;
 import lombok.Getter;
 
 import java.util.List;
@@ -32,11 +33,15 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     public abstract List<DTODataSource> getAllDataSources();
 
-    public abstract DTODataSource getDataSource(SimpleDataSourceDefinition tableDefinition);
+    public abstract DTODataSource getDataSource(SimpleDataSourceDefinition sourceDefinition);
 
     public abstract IRowIterator getIterator(DataSourceDataHolder dataSources);
 
     public abstract boolean dataSourceExist(DataSourceDataHolder dataSource);
+
+    protected ConnectionSettings getConnectionSettings() {
+        return this.getConnectionData().getConnectionSettings();
+    }
 
     protected String generateTableName(String sourceTable) {
 //        todo think about more clever solution

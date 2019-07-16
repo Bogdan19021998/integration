@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
 public class HttpPaginationRowIterator implements IRowIterator {
@@ -15,10 +16,10 @@ public class HttpPaginationRowIterator implements IRowIterator {
     private boolean allRetrieved = false;
 
     private Iterator<DatasetRow> buffer;
-    private int currentPage = 0;
 
     private final AbstractHttpConnection connection;
     private final DataSourceDataHolder dataSourceHolder;
+    private final AtomicInteger currentPage;
     private final int defaultPageSize;
 
 
@@ -46,13 +47,13 @@ public class HttpPaginationRowIterator implements IRowIterator {
     }
 
     private void fillNextBuffer() {
-        PageRequest page = PageRequest.of(currentPage, defaultPageSize);
+        PageRequest page = PageRequest.of(currentPage.get(), defaultPageSize);
         List<DatasetRow> nextPage = connection.getNextPage(dataSourceHolder, page);
 
         this.buffer = nextPage.iterator();
 
         allRetrieved = nextPage.size() != defaultPageSize;
-        currentPage++;
+        currentPage.incrementAndGet();
     }
 
 }

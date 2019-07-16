@@ -277,8 +277,9 @@ public class CassandraSyncRepository {
 
         for (DTODataSourceAttribute attribute : holder.getAllAttributes()) {
             DatasetValue value = valuesByKeys.get(attribute.getAttributeSourceName());
+
             if (value != null && value.getValue() != null) {
-                Object valueForSave = convertToCassandraType(value.getValue(), value.getColumnType().getCassandraType());
+                Object valueForSave = convertToCassandraType(value.getValue(), DatasetColumnType.mapFromSystemType(attribute.getAttributeType()).getCassandraType());
 
                 if (holder.getPrimaryKey().getAttributeSourceName().equals(value.getAlias())) {
                     String stringValue = valueForSave.toString();

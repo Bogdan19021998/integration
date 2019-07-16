@@ -16,13 +16,13 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
-        ConnectionSettings connectionSettings = this.getConnectionData().getConnectionSettings();
+        ConnectionSettings connectionSettings = getConnectionSettings();
         return new DefineSchemaQueryDefinitionMsSQL(connectionSettings.getDatabaseName(), tableName);
     }
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String dbName = this.getConnectionData().getConnectionSettings().getDatabaseName();
+        String dbName = getConnectionSettings().getDatabaseName();
         return new AllTablesQueryDefinitionMsSQL(dbName);
     }
 
@@ -43,7 +43,7 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getConnectionString() {
-        ConnectionSettings connectionSettings = this.getConnectionData().getConnectionSettings();
+        ConnectionSettings connectionSettings = this.getConnectionSettings();
         String address = connectionSettings.getServerAddress();
         String port = connectionSettings.getPort();
         String schema = connectionSettings.getSchema();
@@ -53,7 +53,7 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getTableName(String tableName) {
-        String dbName = this.getConnectionData().getConnectionSettings().getDatabaseName();
+        String dbName = getConnectionSettings().getDatabaseName();
         return quoteString(dbName + "." + tableName);
     }
 

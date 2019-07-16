@@ -15,6 +15,7 @@ public class DataSourceDataHolder {
     private String distilTableName;
 
     @Getter
+//  DataSource id in database
     private Long dataSourceForeignKey;
 
     @Getter

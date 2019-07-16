@@ -16,13 +16,13 @@ public class PostgreSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
-        ConnectionSettings connectionSettings = this.getConnectionData().getConnectionSettings();
+        ConnectionSettings connectionSettings = getConnectionSettings();
         return new DefineSchemaQueryDefinitionPostgreSQL(connectionSettings.getSchema(), tableName);
     }
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String schema = this.getConnectionData().getConnectionSettings().getSchema();
+        String schema = getConnectionSettings().getSchema();
         return new AllTablesQueryDefinitionPostgreSQL(schema);
     }
 
@@ -33,7 +33,7 @@ public class PostgreSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getConnectionString() {
-        ConnectionSettings connectionSettings = this.getConnectionData().getConnectionSettings();
+        ConnectionSettings connectionSettings = this.getConnectionSettings();
         String address = connectionSettings.getServerAddress();
         String port = connectionSettings.getPort();
         String schema = connectionSettings.getSchema();

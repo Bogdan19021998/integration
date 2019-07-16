@@ -17,13 +17,8 @@ public class DatasetRow {
     public static class DatasetRowBuilder {
         private DatasetRow row = new DatasetRow(Lists.newArrayList());
 
-        public DatasetRowBuilder addValue(String alias, Object value, DatasetColumnType datasetColumnType) {
-            row.getValues().add(new DatasetValue(value, alias, datasetColumnType));
-            return this;
-        }
-
         public DatasetRowBuilder addValue(String alias, Object value) {
-            row.getValues().add(new DatasetValue(value, alias, DatasetColumnType.simplifyJavaType(value)));
+            row.getValues().add(new DatasetValue(value, alias));
             return this;
         }
 

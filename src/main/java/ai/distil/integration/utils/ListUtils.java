@@ -1,8 +1,10 @@
 package ai.distil.integration.utils;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -12,6 +14,7 @@ public class ListUtils {
     public static <K, V> Map<K, V> groupByWithOverwriteSilent(Iterable<V> list, Function<V, K> groupingFunction) {
         return groupByWithOverwrite(list, groupingFunction, false);
     }
+
 
     public static <K, V> Map<K, V> groupByWithOverwrite(Iterable<V> list, Function<V, K> groupingFunction, boolean throwIfNotUnique) {
         Map<K, V> r = new HashMap<>();
@@ -28,13 +31,28 @@ public class ListUtils {
         return r;
     }
 
-    public static <K, V, T> Map<K, T> groupByWithOverwrite(Iterable<V> list, Function<V, K> groupingFunction, Function<V, T> valueFunctino) {
+    public static <K, V, T> Map<K, T> groupByWithOverwrite(Iterable<V> list, Function<V, K> groupingFunction, Function<V, T> valueFunction) {
         Map<K, T> r = new HashMap<>();
         list.forEach(l -> {
             K key = groupingFunction.apply(l);
-            T value = valueFunctino.apply(l);
+            T value = valueFunction.apply(l);
 
             r.put(key, value);
+        });
+
+        return r;
+    }
+
+    public static <K, V, T> Map<K, List<T>> groupBy(Iterable<V> list, Function<V, K> groupingFunction, Function<V, T> valueFunction) {
+        Map<K, List<T>> r = new HashMap<>();
+
+        list.forEach(l -> {
+            K key = groupingFunction.apply(l);
+            T value = valueFunction.apply(l);
+            List<T> values = r.getOrDefault(key, Lists.newArrayList());
+            values.add(value);
+
+            r.put(key, values);
         });
 
         return r;

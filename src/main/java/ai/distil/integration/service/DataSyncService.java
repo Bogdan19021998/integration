@@ -89,7 +89,6 @@ public class DataSyncService {
                 currentSchema.getDataSourceForeignKey());
     }
 
-
     public SyncProgressTrackingData reSyncDataSource(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
         DataSourceDataHolder updatedSchema = this.syncSchema(orgId, currentSchema, connection);
         return syncDataSource(orgId, updatedSchema, connection);

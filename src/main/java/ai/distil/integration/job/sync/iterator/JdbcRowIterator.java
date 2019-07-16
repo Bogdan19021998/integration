@@ -76,7 +76,7 @@ public class JdbcRowIterator implements IRowIterator {
                 DatasetColumnType type = DatasetColumnType.mapFromSystemType(column.getAttributeType());
 
                 Object value = getValue(type, rs, label);
-                values.add(new DatasetValue(value, column.getAttributeSourceName(), type));
+                values.add(new DatasetValue(value, column.getAttributeSourceName()));
             }
             rs.next();
         } catch (Exception e) {

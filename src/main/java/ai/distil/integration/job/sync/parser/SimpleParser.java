@@ -15,11 +15,8 @@ public class SimpleParser extends AbstractParser {
 
     @Override
     public void parse(BiConsumer<DataSourceDataHolder, DatasetRow> callback) {
-        IRowIterator iterator = connection.getIterator(this.dataSourceDataHolders);
-
-        DataSourceDataHolder dataSourceDataHolder = iterator.getDataSource();
-        iterator.forEachRemaining(r -> callback.accept(dataSourceDataHolder, r));
-
+        IRowIterator iterator = connection.getIterator(this.dataSourceDataHolder);
+        iterator.forEachRemaining(r -> callback.accept(this.dataSourceDataHolder, r));
     }
 
 }
