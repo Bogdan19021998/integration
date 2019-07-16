@@ -58,14 +58,14 @@ public class RedshiftIntegrationTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 25;
+        String tenantId = "25";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
                     .filter(dataSource -> SyncTableDefinition.isTableEligibleForRun(dataSource.getSourceTableName()))
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(orgId, dataSource, connection));
+                    .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
     }
 

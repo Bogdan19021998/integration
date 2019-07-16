@@ -79,13 +79,13 @@ public class CampaignMonitorIntegrationTest {
     @Test
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = defaultConnection();
-        long orgId = 130;
+        String tenantId = "130";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(orgId, dataSource, connection));
+                    .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
 
 

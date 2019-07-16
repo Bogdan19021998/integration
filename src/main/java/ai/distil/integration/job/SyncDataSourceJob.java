@@ -70,10 +70,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);
 
             if (connection.dataSourceExist(dataSource)) {
-                DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getOrgId(), dataSource, connection);
+                DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getTenantId(), dataSource, connection);
 
                 connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
-                dataSyncService.syncDataSource(request.getOrgId(), updatedSchema, connection);
+                dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
             } else {
                 connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
                 return;

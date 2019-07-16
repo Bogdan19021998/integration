@@ -56,13 +56,13 @@ public class MsSqlIntegrationTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 20;
+        String tenantId = "20";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(orgId, dataSource, connection));
+                    .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
     }
 

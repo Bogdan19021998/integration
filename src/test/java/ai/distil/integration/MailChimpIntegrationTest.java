@@ -107,9 +107,9 @@ public class MailChimpIntegrationTest {
 
     @Test
     public void reSyncMailChimpWithDynamicFields() throws Exception {
-        long orgId = 35;
+        String tenantId = "35";
 
-        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("org_%s", orgId)));
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("org_%s", tenantId)).ifExists());
         DTOConnection connectionDTO = defaultConnection();
 
         Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {}))
@@ -125,11 +125,11 @@ public class MailChimpIntegrationTest {
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             oldDataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
-            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(orgId, oldDataSource, connection);
+            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(tenantId, oldDataSource, connection);
 //            check we processed 5 rows
             Assertions.assertEquals(5, syncResults.getProcessed());
 //            retrieve all existing rows
-            List<Map<String, Object>> allRows = cassandraSyncRepository.selectAllToMap(orgId, oldDataSource);
+            List<Map<String, Object>> allRows = cassandraSyncRepository.selectAllToMap(tenantId, oldDataSource);
 //            check that existing rows count match processed ones
             Assertions.assertEquals(allRows.size(), syncResults.getProcessed());
 //            check that columns count in table is correct
@@ -143,14 +143,14 @@ public class MailChimpIntegrationTest {
         Mockito.doReturn(parseJsonFile("mocks/mailchimp/new_mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {}))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMergeFieldsRequest.class), Mockito.any());
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
-            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(orgId, oldDataSource, connection);
+            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(tenantId, oldDataSource, connection);
             DataSourceDataHolder newDataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
 //            check we processed 5 rows
             Assertions.assertEquals(5, syncResults.getProcessed());
 //            check we updated all 5 rows
             Assertions.assertEquals(5, syncResults.getUpdated());
 
-            List<Map<String, Object>> allRows = cassandraSyncRepository.selectAllToMap(orgId, newDataSource);
+            List<Map<String, Object>> allRows = cassandraSyncRepository.selectAllToMap(tenantId, newDataSource);
 //            check that existing rows count match processed ones
             Assertions.assertEquals(allRows.size(), syncResults.getProcessed());
             //            check that columns count in table is correct
@@ -164,13 +164,13 @@ public class MailChimpIntegrationTest {
     @Test
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = defaultConnection();
-        long orgId = 30;
+        String tenantId = "30";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(orgId, dataSource, connection));
+                    .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
 
 

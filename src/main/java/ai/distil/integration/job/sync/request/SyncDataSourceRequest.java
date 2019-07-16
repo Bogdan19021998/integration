@@ -15,17 +15,16 @@ public class SyncDataSourceRequest implements IJobRequest, Serializable {
     private static final long serialVersionUID = -5019757636334640002L;
 
     private Long orgId;
+    private String tenantId;
     private Long connectionId;
     private Long dataSourceId;
 
     @Override
     public String getKey() {
-        return new StringBuilder()
-                .append(orgId)
-                .append(DEFAULT_KEY_SEPARATOR)
-                .append(connectionId)
-                .append(DEFAULT_KEY_SEPARATOR)
-                .append(dataSourceId)
-                .toString();
+        return tenantId +
+                DEFAULT_KEY_SEPARATOR +
+                connectionId +
+                DEFAULT_KEY_SEPARATOR +
+                dataSourceId;
     }
 }

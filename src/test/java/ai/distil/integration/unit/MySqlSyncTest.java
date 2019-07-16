@@ -15,6 +15,7 @@ import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
 import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
@@ -86,7 +87,8 @@ public class MySqlSyncTest extends AbstractSyncTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 5;
+        String tenantId = "5";
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("org_%s", tenantId)).ifExists());
 
         Set<Map<String, Object>> expectedResult = objectMapper.readValue(this.getClass().getClassLoader().getResourceAsStream(MYSQL_SYNC_RESULTS_FILE),
                 new TypeReference<Set<TreeMap<String, Object>>>() {
@@ -102,10 +104,10 @@ public class MySqlSyncTest extends AbstractSyncTest {
                     .stream()
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
                     .forEach(dataSource -> {
-                        SyncProgressTrackingData syncTrackingData = dataSyncService.reSyncDataSource(orgId, dataSource, connection);
+                        SyncProgressTrackingData syncTrackingData = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
                         Assertions.assertEquals(expectedResult.size(), syncTrackingData.getCurrentRowsCount());
 
-                        List<Map<String, Object>> syncResult = cassandraSyncRepository.selectAllToMap(orgId, dataSource);
+                        List<Map<String, Object>> syncResult = cassandraSyncRepository.selectAllToMap(tenantId, dataSource);
 
                         syncResult.stream().peek(row -> {
                             row.keySet().removeAll(DYNAMIC_FIELDS_TO_AVOID);
@@ -122,14 +124,14 @@ public class MySqlSyncTest extends AbstractSyncTest {
     public void reSyncDataTest() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 4;
+        String tenantId = "4";
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
             DTODataSource allDataSources = connection.getAllDataSources().get(0);
             DataSourceDataHolder dataSourceDataHolder = DataSourceDataHolder.mapFromDTODataSourceEntity(allDataSources);
-            cassandraSyncRepository.dropTableIfExists(orgId, dataSourceDataHolder);
+            cassandraSyncRepository.dropTableIfExists(tenantId, dataSourceDataHolder);
 
-            dataSyncService.reSyncDataSource(orgId, dataSourceDataHolder, connection);
+            dataSyncService.reSyncDataSource(tenantId, dataSourceDataHolder, connection);
 
             Set<String> expectedColumns = Sets.newHashSet("ctimestamp_field_1145404271", "ctext_field_2112752792",
                     "ctime_field_1123633416", "cdec_field_59113085", "cblob_field_61622744", "cint_field_319859882",
@@ -142,7 +144,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
             AtomicInteger rowsCounter = new AtomicInteger();
             Set<String> actualColumns = new HashSet<>();
 
-            cassandraSyncRepository.selectAll(orgId, dataSourceDataHolder).forEach(row -> {
+            cassandraSyncRepository.selectAll(tenantId, dataSourceDataHolder).forEach(row -> {
                 ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
 
                 rowsCounter.incrementAndGet();
@@ -168,7 +170,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                             " '2019-01-01', '08:00:00', '9999-12-31 23:59:59', '1970', '0', '0', '0', '0', 'M', '0', 0, 0) ",
                     CUSTOMERS_TABLE_NAME));
 
-            dataSyncService.reSyncDataSource(orgId, dataSourceDataHolder, connection);
+            dataSyncService.reSyncDataSource(tenantId, dataSourceDataHolder, connection);
 //          removed gender, added test_new_1 and test_new_2
             Set<String> expectedNewColumns = new HashSet<>(expectedColumns);
             expectedNewColumns.remove("ctimestamp_field_1145404271");
@@ -180,7 +182,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
             AtomicInteger newRowsCounter = new AtomicInteger();
             Set<String> newActualColumns = new HashSet<>();
 
-            cassandraSyncRepository.selectAll(orgId, dataSourceDataHolder).forEach(row -> {
+            cassandraSyncRepository.selectAll(tenantId, dataSourceDataHolder).forEach(row -> {
                 ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
 
                 newRowsCounter.incrementAndGet();

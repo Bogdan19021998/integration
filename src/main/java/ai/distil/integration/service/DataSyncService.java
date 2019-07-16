@@ -66,14 +66,14 @@ public class DataSyncService {
     /**
      * @return new schema definition
      */
-    public DataSourceDataHolder syncSchema(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-        cassandraSyncRepository.createTableIfNotExists(orgId, currentSchema, true);
+    public DataSourceDataHolder syncSchema(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+        cassandraSyncRepository.createTableIfNotExists(tenantId, currentSchema, true);
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
         newSchema.getAllAttributes().forEach(attribute -> attribute.setDateLastVerified(new Date()));
 
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
-        attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(orgId, newSchema, attr));
+        attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, newSchema, attr));
 
         List<DTODataSourceAttribute> newAttributes = attributesChangeInfo.stream()
                 .filter(attr -> attr.getNewAttribute() != null)
@@ -89,15 +89,15 @@ public class DataSyncService {
                 currentSchema.getDataSourceForeignKey());
     }
 
-    public SyncProgressTrackingData reSyncDataSource(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-        DataSourceDataHolder updatedSchema = this.syncSchema(orgId, currentSchema, connection);
-        return syncDataSource(orgId, updatedSchema, connection);
+    public SyncProgressTrackingData reSyncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+        DataSourceDataHolder updatedSchema = this.syncSchema(tenantId, currentSchema, connection);
+        return syncDataSource(tenantId, updatedSchema, connection);
     }
 
-    public SyncProgressTrackingData syncDataSource(Long orgId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+    public SyncProgressTrackingData syncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
         AbstractParser parser = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE);
 
-        Map<String, String> allExistingRows = cassandraSyncRepository.getAllRowsIdsAndHashes(orgId, currentSchema);
+        Map<String, String> allExistingRows = cassandraSyncRepository.getAllRowsIdsAndHashes(tenantId, currentSchema);
         int allRowsCountBeforeUpdate = allExistingRows.size();
 
         ProgressAggregator progressAggregator = new ProgressAggregator();
@@ -105,20 +105,20 @@ public class DataSyncService {
         progressAggregator.setBeforeRowsCount(allRowsCountBeforeUpdate);
 
         parser.parse((holder, row) -> {
-            IngestionResult ingestionResult = cassandraSyncRepository.insertWithStats(orgId, currentSchema, row, allExistingRows, true);
+            IngestionResult ingestionResult = cassandraSyncRepository.insertWithStats(tenantId, currentSchema, row, allExistingRows, true);
 //          remove the row from the all existing rows map, then left rows must be deleted after the sync
             allExistingRows.remove(ingestionResult.getPrimaryKey());
             progressAggregator.aggregate(ingestionResult);
         });
 
         allExistingRows.forEach((primaryKey, hash) ->
-                cassandraSyncRepository.deleteFromTable(orgId, currentSchema, primaryKey, true));
+                cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
 
         progressAggregator.stopTracking();
 
         progressAggregator.setDeletedCount(allExistingRows.size());
 
-        long rowsCount = cassandraSyncRepository.getRowsCount(orgId, currentSchema);
+        long rowsCount = cassandraSyncRepository.getRowsCount(tenantId, currentSchema);
         progressAggregator.setCurrentRowsCount(rowsCount);
 
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();

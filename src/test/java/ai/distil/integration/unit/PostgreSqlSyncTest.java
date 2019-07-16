@@ -68,11 +68,11 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
-        long orgId = 123;
+        String tenantId = "123";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
-            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(orgId, dataSource, connection);
+            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
             Assertions.assertEquals(3, syncResults.getProcessed());
         }
     }

@@ -20,7 +20,7 @@ public class CassandraIntegrationTest {
 
     @Test
     public void createTableTest() {
-        Long orgId = 2L;
+        String tenantId = "2";
 
         DataSourceDataHolder holder = new DataSourceDataHolder("test", "test",
                 Lists.newArrayList(
@@ -31,7 +31,7 @@ public class CassandraIntegrationTest {
                         new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, null, true, new Date(), new Date())
                 ), null, null);
 
-        cassandraSyncRepository.createTableIfNotExists(orgId, holder, true);
+        cassandraSyncRepository.createTableIfNotExists(tenantId, holder, true);
 
 
     }
