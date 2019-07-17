@@ -15,6 +15,7 @@ import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,9 @@ public class ConnectionFactory {
                 return new MailChimpHttpConnection(connection, restService, mailChimpMembersFieldsHolder);
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorHttpConnection(connection, restService, campaignMonitorFieldsHolder);
+            case SALESFORCE:
+//                todo add fields holder
+                return new SalesforceHttpConnection(connection, restService, null);
             default:
                 throw new UnsupportedOperationException();
         }

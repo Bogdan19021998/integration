@@ -14,15 +14,18 @@ public class HttpConnectionConfiguration {
 
     public static SimpleHttpConnectionProps MAIL_CHIMP;
     public static SimpleHttpConnectionProps CAMPAIGN_MONITOR;
+    public static SimpleHttpConnectionProps SALESFORCE;
 
     public SimpleHttpConnectionProps mailChimp;
     public SimpleHttpConnectionProps campaignMonitor;
+    public SimpleHttpConnectionProps salesforce;
 
 
     @PostConstruct
     public void init() {
         MAIL_CHIMP = this.mailChimp;
         CAMPAIGN_MONITOR = this.campaignMonitor;
+        SALESFORCE = this.salesforce;
     }
 
 }
