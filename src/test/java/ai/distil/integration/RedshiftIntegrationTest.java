@@ -77,11 +77,14 @@ public class RedshiftIntegrationTest {
                 "vitaliy",
                 "JtL4A7+Waq",
                 null,
+                null,
+                null,
                 "dwh.clgb5kxf1w5l.eu-west-2.redshift.amazonaws.com",
                 String.valueOf(5439),
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_DB_NAME,
-                false, null, -1, null, null, null,
+                false, null, -1,
+                null, null, null,
                 null
         ));
         return connectionDTO;

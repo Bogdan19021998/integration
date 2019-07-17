@@ -252,6 +252,8 @@ public class MySqlSyncTest extends AbstractSyncTest {
                 this.config.getUsername(),
                 this.config.getPassword(),
                 null,
+                null,
+                null,
                 DEFAULT_SERVER_ADDRESS,
                 String.valueOf(this.config.getPort()),
                 DEFAULT_SCHEMA_NAME,

@@ -74,6 +74,8 @@ public class MsSqlIntegrationTest {
                 "SA",
                 "Distli123",
                 null,
+                null,
+                null,
                 "localhost",
                 String.valueOf(1433),
                 "master",

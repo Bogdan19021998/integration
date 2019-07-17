@@ -48,7 +48,10 @@ public class ParserTest {
         connectionDTO.setConnectionSettings(new ConnectionSettings(
                 "root",
                 "Passw0rd!",
-                null, "localhost", "3306", "mysql",
+                null,
+                null,
+                null,
+                "localhost", "3306", "mysql",
                 null,
                 true, "localhost", 2222, "vagrant", null, key,
                 null
@@ -75,6 +78,8 @@ public class ParserTest {
         connectionDTO.setConnectionSettings(new ConnectionSettings(
                 "root",
                 "Passw0rd!",
+                null,
+                null,
                 null, "localhost", "3306", "mysql", null,
                 true, "localhost", 2214, "vagrant", "vagrant", null,
                 null
