@@ -21,6 +21,7 @@ import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,7 +87,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
         Map<String, Object> mergeFieldsDefinition = executeRequest(mergeFieldsRequest);
 
-        return this.fieldsHolder.getAllFields(mergeFieldsDefinition)
+        return this.fieldsHolder.getAllFields(Collections.singletonList(mergeFieldsDefinition))
                 .stream()
                 .map(this::buildDTODataSourceAttribute)
                 .collect(Collectors.toList());

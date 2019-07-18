@@ -15,7 +15,6 @@ import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
 public interface IFieldsHolder<T> {
     String DEFAULT_TYPE_KEY = "DISTIL_DEFAULT_KEY";
 
-    Set<String> getExcludeFields();
 
     //  map for types mappings, e.g. number -> BIGINT, double -> NUMBER, etc...
     Map<String, DataSourceAttributeType> getDataTypeMapping();
@@ -27,9 +26,12 @@ public interface IFieldsHolder<T> {
         return Collections.emptyMap();
     }
 
+    default Set<String> getExcludeFields() {
+        return Collections.emptySet();
+    }
 
     default DataSourceAttributeType defineType(String type) {
-        return getDataTypeMapping().get(type);
+        return getDataTypeMapping().getOrDefault(type, DataSourceAttributeType.UNKNOWN);
     }
 
     default DataSourceSchemaAttributeTag tryToDefineTag(String fieldName, String columnType) {
@@ -51,9 +53,16 @@ public interface IFieldsHolder<T> {
 
     List<SimpleDataSourceField> getStaticDataSourceFields();
 
-    List<SimpleDataSourceField> getDynamicDataSourceFields(T fieldsDefinition);
+    //  it returns a list, because it's possible to produce a list of fields from the on field
+    List<SimpleDataSourceField> getDynamicDataSourceField(T fieldDefinition);
 
-    default List<SimpleDataSourceField> getAllFields(T dynamicFields) {
+    default List<SimpleDataSourceField> getDynamicDataSourceFields(List<T> fieldsDefinition) {
+        return fieldsDefinition.stream()
+                .flatMap(fd -> this.getDynamicDataSourceField(fd).stream())
+                .collect(Collectors.toList());
+    }
+
+    default List<SimpleDataSourceField> getAllFields(List<T> dynamicFields) {
         return Stream.concat(getStaticDataSourceFields().stream(), getDynamicDataSourceFields(dynamicFields).stream())
                 .collect(Collectors.toList());
     }

@@ -53,6 +53,7 @@ ai.distil.integrations.connections:
       baseUrl: https://api.createsend.com/api/v3.2
     salesforce:
       baseUrl: https://login.salesforce.com
+      apiVersion: v46.0
 
   jdbc:
     mySql:

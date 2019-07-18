@@ -6,26 +6,36 @@ import ai.distil.integration.configuration.HttpConnectionConfiguration;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
-import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
+import ai.distil.integration.job.sync.http.sf.holder.SalesforceFieldsHolder;
+import ai.distil.integration.job.sync.http.sf.request.SalesforceListFieldsRequest;
 import ai.distil.integration.job.sync.http.sf.request.SalesforceLoginRequest;
+import ai.distil.integration.job.sync.http.sf.vo.SalesforceListFields;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
+import ai.distil.model.types.DataSourceType;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SalesforceHttpConnection extends AbstractHttpConnection {
 
-    public SalesforceHttpConnection(DTOConnection dtoConnection, RestService restService, IFieldsHolder fieldsHolder) {
+    private SalesforceFieldsHolder fieldsHolder;
+    private final String baseUrl;
+    private final String apiVersion;
+    private final String accessToken;
+
+    public SalesforceHttpConnection(DTOConnection dtoConnection, RestService restService, SalesforceFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
+        this.apiVersion = HttpConnectionConfiguration.SALESFORCE.getApiVersion();
+        this.fieldsHolder = fieldsHolder;
 
-    }
+        SalesforceLoginResponse response = connect();
 
-    //  todo consider refactoring for support connectable datasource, will be applicable for OAuth
-    private void connect() {
-
+        this.baseUrl = response.getInstanceUrl();
+        this.accessToken = response.getAccessToken();
     }
 
     @Override
@@ -35,28 +45,61 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
 
     @Override
     protected String getBaseUrl() {
-        return null;
+        return baseUrl;
     }
 
     @Override
     public boolean isAvailable() {
-        SalesforceLoginRequest salesforceLoginRequest = new SalesforceLoginRequest(this.getConnectionSettings());
-        SalesforceLoginResponse response = this.restService.execute(HttpConnectionConfiguration.SALESFORCE.getBaseUrl(), salesforceLoginRequest, JsonDataConverter.getInstance());
-        return response != null && response.getAccessToken() != null;
+        SalesforceLoginResponse loginResponse = connect();
+        return loginResponse != null && loginResponse.getAccessToken() != null;
     }
 
     @Override
     public List<DTODataSource> getAllDataSources() {
-        return null;
+        return this.fieldsHolder.getPredefinedDataSources()
+                .stream()
+                .map(this::buildDataSource)
+                .collect(Collectors.toList());
+    }
+
+    private DTODataSource buildDataSource(SimpleDataSourceDefinition dataSource) {
+        SalesforceListFieldsRequest request = new SalesforceListFieldsRequest(accessToken, apiVersion, dataSource.getDataSourceId());
+        SalesforceListFields fields = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
+        return buildDataSource(dataSource, fields);
     }
 
     @Override
     public DTODataSource getDataSource(SimpleDataSourceDefinition sourceDefinition) {
-        return null;
+        return this.buildDataSource(sourceDefinition);
     }
 
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
         return false;
+    }
+
+    //  todo consider refactoring for support connectable datasource, will be applicable for OAuth
+    private SalesforceLoginResponse connect() {
+        SalesforceLoginRequest salesforceLoginRequest = new SalesforceLoginRequest(this.getConnectionSettings());
+        return this.restService.execute(HttpConnectionConfiguration.SALESFORCE.getBaseUrl(), salesforceLoginRequest, JsonDataConverter.getInstance());
+    }
+
+
+    private DTODataSource buildDataSource(SimpleDataSourceDefinition dataSource, SalesforceListFields listFields) {
+        return new DTODataSource(
+                null,
+                this.getConnectionData().getId(),
+                dataSource.getDataSourceId(),
+                null,
+                dataSource.getDataSourceId(),
+                null,
+                null,
+                null,
+                DataSourceType.CUSTOMER,
+                0,
+                0,
+                this.fieldsHolder.getAllFields(listFields.getFields()).stream().map(this::buildDTODataSourceAttribute).collect(Collectors.toList()),
+                null
+        );
     }
 }

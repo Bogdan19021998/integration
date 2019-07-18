@@ -7,6 +7,8 @@ import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
+import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
+import ai.distil.integration.job.sync.http.sf.holder.SalesforceFieldsHolder;
 import ai.distil.integration.job.sync.jdbc.MsSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
@@ -15,7 +17,6 @@ import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ConnectionFactory {
     private final RestService restService;
     private final MailChimpMembersFieldsHolder mailChimpMembersFieldsHolder;
     private final CampaignMonitorFieldsHolder campaignMonitorFieldsHolder;
+    private final SalesforceFieldsHolder salesforceFieldsHolder;
 
     public AbstractConnection buildConnection(DTOConnection dtoConnection) {
         AbstractConnection abstractConnection = buildSimpleConnection(dtoConnection);
@@ -52,8 +54,7 @@ public class ConnectionFactory {
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorHttpConnection(connection, restService, campaignMonitorFieldsHolder);
             case SALESFORCE:
-//                todo add fields holder
-                return new SalesforceHttpConnection(connection, restService, null);
+                return new SalesforceHttpConnection(connection, restService, salesforceFieldsHolder);
             default:
                 throw new UnsupportedOperationException();
         }

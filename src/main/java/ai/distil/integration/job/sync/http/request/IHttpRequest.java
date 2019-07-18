@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 public interface IHttpRequest<R> {
     String AUTH_HEADER_KEY = "Authorization";
+    String BASIC_AUTH_KEY = "Basic";
+    String BEARER_AUTH_KEY = "Bearer";
 
     TypeReference<R> resultType();
 
@@ -31,8 +33,12 @@ public interface IHttpRequest<R> {
         return null;
     }
 
+    default String bearerAuthKey(String token) {
+        return String.format("%s %s", BEARER_AUTH_KEY, token);
+    }
+
     default String buildBasicAuthHeader(String token) {
-        return String.format("Basic %s", token);
+        return String.format("%s %s", BASIC_AUTH_KEY, token);
     }
 
     default String buildRequestParams(Map<String, String> map) {
