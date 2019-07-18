@@ -17,7 +17,7 @@ import java.util.*;
 @Slf4j
 @Component
 public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
-    private static Set<String> EXCLUDE_FIELDS = Sets.newHashSet("Address", "attributes");
+    private static Set<String> EXCLUDE_FIELDS = Sets.newHashSet("Address", "attributes", "MailingAddress");
 
     private static Map<String, DataSourceAttributeType> DEFAULT_ATTRIBUTES_TYPE = new HashMap<String, DataSourceAttributeType>() {{
         this.put("xsd:string", DataSourceAttributeType.TEXT);

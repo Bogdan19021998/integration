@@ -13,6 +13,7 @@ import ai.distil.model.types.ConnectionType;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +61,8 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+//    disabled it, because there are 35k rows
+    @Disabled
     public void salesforceSyncLeadDataSource() {
         String tenantId = "123";
         cassandraSyncRepository.getConnection().getSession()
@@ -68,6 +71,30 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
 
         DTOConnection connectionDto = getDefaultDtoConnection();
         String dataSourceId = "Lead";
+
+        try(AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
+            List<DTODataSource> allDataSources = connection.getAllDataSources();
+            DataSourceDataHolder dataSource = allDataSources.stream().filter(d -> d.getSourceTableName().equals(dataSourceId)).findFirst()
+                    .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
+                    .orElseThrow(() -> new RuntimeException("There is no lead datasource here"));
+
+            SyncProgressTrackingData syncResult = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    //    disabled it, because there are 35k rows
+    @Disabled
+    public void salesforceSyncContactDataSource() {
+        String tenantId = "123";
+        cassandraSyncRepository.getConnection().getSession()
+                .execute(SchemaBuilder.dropKeyspace(String.format("%s%s", CassandraSyncRepository.KEYSPACE_PREFIX, tenantId))
+                .ifExists());
+
+        DTOConnection connectionDto = getDefaultDtoConnection();
+        String dataSourceId = "Contact";
 
         try(AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
             List<DTODataSource> allDataSources = connection.getAllDataSources();

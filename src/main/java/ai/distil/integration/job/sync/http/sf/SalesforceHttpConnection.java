@@ -4,6 +4,8 @@ import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
+import ai.distil.integration.controller.dto.data.DatasetPage;
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
@@ -18,7 +20,6 @@ import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
 import ai.distil.model.types.DataSourceType;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,17 +43,24 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
-    public List<DatasetRow> getNextPage(DataSourceDataHolder dataSource, PageRequest pageRequest) {
+    public DatasetPage getNextPage(DataSourceDataHolder dataSource, DatasetPageRequest pageRequest) {
         List<String> allFields = dataSource.getAllAttributes().stream()
                 .filter(DTODataSourceAttribute::getSyncAttribute)
                 .map(DTODataSourceAttribute::getAttributeSourceName)
                 .collect(Collectors.toList());
 
         SalesforceDataRequest request = new SalesforceDataRequest(this.accessToken, this.apiVersion, allFields,
-                dataSource.getDataSourceId());
-        SalesforceDataPage dataPage = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
+                dataSource.getDataSourceId(), pageRequest.getNextPageUrl());
 
-        return dataPage.getRecords().stream().map(this.fieldsHolder::transformRow).collect(Collectors.toList());
+        SalesforceDataPage dataPage = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
+        List<DatasetRow> rows = dataPage.getRecords().stream().map(this.fieldsHolder::transformRow).collect(Collectors.toList());
+
+        return new DatasetPage(rows, dataPage.getNextRecordsUrl());
+    }
+
+    @Override
+    protected int getDefaultPageNumber() {
+        return 200;
     }
 
     @Override

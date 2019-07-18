@@ -2,17 +2,16 @@ package ai.distil.integration.job.sync.http;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
-import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.controller.dto.data.DatasetPage;
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractHttpConnection extends AbstractConnection {
@@ -40,7 +39,7 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
         return 0;
     }
 
-    public abstract List<DatasetRow> getNextPage(DataSourceDataHolder dataSource, PageRequest pageRequest);
+    public abstract DatasetPage getNextPage(DataSourceDataHolder dataSource, DatasetPageRequest pageRequest);
 
     protected Integer getDefaultPageSize() {
         return 100;

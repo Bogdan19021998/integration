@@ -1,10 +1,10 @@
 package ai.distil.integration.job.sync.http.request.mailchimp;
 
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.http.request.IHttpRequest;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import org.asynchttpclient.Param;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +17,7 @@ public abstract class AbstractMailChimpRequest<R> implements IHttpRequest<R> {
 
     private String apiKey;
 
-    protected List<Param> buildDefaultPageParams(PageRequest pageRequest) {
+    protected List<Param> buildDefaultPageParams(DatasetPageRequest pageRequest) {
         return Lists.newArrayList(
                 new Param(DEFAULT_COUNT_KEY, String.valueOf(pageRequest.getPageSize())),
                 new Param(DEFAULT_OFFSET_KEY, String.valueOf(pageRequest.getPageNumber() * pageRequest.getPageSize()))

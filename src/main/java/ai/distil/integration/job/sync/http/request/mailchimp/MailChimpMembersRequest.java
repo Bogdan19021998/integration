@@ -1,11 +1,11 @@
 package ai.distil.integration.job.sync.http.request.mailchimp;
 
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.asynchttpclient.Param;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
@@ -16,9 +16,9 @@ public class MailChimpMembersRequest extends AbstractMailChimpRequest<MembersWra
     private static final String url = "/lists/%s/members";
 
     private String listId;
-    private PageRequest pageRequest;
+    private DatasetPageRequest pageRequest;
 
-    public MailChimpMembersRequest(String listId, String apiKey, PageRequest pageRequest) {
+    public MailChimpMembersRequest(String listId, String apiKey, DatasetPageRequest pageRequest) {
         super(apiKey);
         this.listId = listId;
         this.pageRequest = pageRequest;
