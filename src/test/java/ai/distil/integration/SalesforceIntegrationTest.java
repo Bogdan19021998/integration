@@ -10,6 +10,7 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,9 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void salesforceSyncLeadDataSource() {
         String tenantId = "123";
+        cassandraSyncRepository.getConnection().getSession()
+                .execute(SchemaBuilder.dropKeyspace(String.format("%s%s", CassandraSyncRepository.KEYSPACE_PREFIX, tenantId))
+                .ifExists());
 
         DTOConnection connectionDto = getDefaultDtoConnection();
         String dataSourceId = "Lead";
@@ -72,7 +76,6 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
                     .orElseThrow(() -> new RuntimeException("There is no lead datasource here"));
 
             SyncProgressTrackingData syncResult = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
-            System.out.println();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

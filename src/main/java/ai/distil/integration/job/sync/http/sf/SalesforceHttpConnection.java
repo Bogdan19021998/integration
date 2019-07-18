@@ -2,14 +2,17 @@ package ai.distil.integration.job.sync.http.sf;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
 import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.sf.holder.SalesforceFieldsHolder;
+import ai.distil.integration.job.sync.http.sf.request.SalesforceDataRequest;
 import ai.distil.integration.job.sync.http.sf.request.SalesforceListFieldsRequest;
 import ai.distil.integration.job.sync.http.sf.request.SalesforceLoginRequest;
+import ai.distil.integration.job.sync.http.sf.vo.SalesforceDataPage;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceListFields;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
@@ -40,7 +43,16 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
 
     @Override
     public List<DatasetRow> getNextPage(DataSourceDataHolder dataSource, PageRequest pageRequest) {
-        return null;
+        List<String> allFields = dataSource.getAllAttributes().stream()
+                .filter(DTODataSourceAttribute::getSyncAttribute)
+                .map(DTODataSourceAttribute::getAttributeSourceName)
+                .collect(Collectors.toList());
+
+        SalesforceDataRequest request = new SalesforceDataRequest(this.accessToken, this.apiVersion, allFields,
+                dataSource.getDataSourceId());
+        SalesforceDataPage dataPage = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
+
+        return dataPage.getRecords().stream().map(this.fieldsHolder::transformRow).collect(Collectors.toList());
     }
 
     @Override

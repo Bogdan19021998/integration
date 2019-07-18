@@ -1,5 +1,6 @@
 package ai.distil.integration.job.sync.http.sf.holder;
 
+import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.http.sf.vo.SfField;
@@ -16,9 +17,11 @@ import java.util.*;
 @Slf4j
 @Component
 public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
+    private static Set<String> EXCLUDE_FIELDS = Sets.newHashSet("Address", "attributes");
 
     private static Map<String, DataSourceAttributeType> DEFAULT_ATTRIBUTES_TYPE = new HashMap<String, DataSourceAttributeType>() {{
         this.put("xsd:string", DataSourceAttributeType.TEXT);
+        this.put("tns:ID", DataSourceAttributeType.TEXT);
 
         this.put("xsd:boolean", DataSourceAttributeType.BOOLEAN);
         this.put("xsd:double", DataSourceAttributeType.DOUBLE);
@@ -32,12 +35,12 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
         this.put("xsd:signedInt", DataSourceAttributeType.INTEGER);
         this.put("xsd:unsignedShort", DataSourceAttributeType.INTEGER);
 
-        this.put("tns:ID", DataSourceAttributeType.BIGINT);
         this.put("xsd:long", DataSourceAttributeType.BIGINT);
         this.put("xsd:unsignedInt", DataSourceAttributeType.BIGINT);
 
-        this.put("xsd:date", DataSourceAttributeType.DATE);
-        this.put("xsd:dateTime", DataSourceAttributeType.TIMESTAMP);
+//      TODO think about it
+        this.put("xsd:date", DataSourceAttributeType.TEXT);
+        this.put("xsd:dateTime", DataSourceAttributeType.TEXT);
     }};
 
     private static Map<DataSourceSchemaAttributeTag, Set<String>> DEFAULT_ATTRIBUTES_TAGS = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
@@ -52,7 +55,19 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
 
     @Override
     public Set<String> getExcludeFields() {
-        return Sets.newHashSet("Address");
+        return EXCLUDE_FIELDS;
+    }
+
+    public DatasetRow transformRow(Map<String, Object> row) {
+        DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder(row.size());
+
+        row.forEach((k, v) -> {
+            if(!getExcludeFields().contains(k)) {
+                builder.addValue(k, v);
+            }
+        });
+
+        return builder.build();
     }
 
     @Override

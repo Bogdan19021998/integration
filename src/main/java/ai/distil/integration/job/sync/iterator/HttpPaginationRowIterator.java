@@ -38,7 +38,7 @@ public class HttpPaginationRowIterator implements IRowIterator {
 
     @Override
     public DataSourceDataHolder getDataSource() {
-        return null;
+        return dataSourceHolder;
     }
 
     @Override
