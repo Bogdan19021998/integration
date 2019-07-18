@@ -109,7 +109,7 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
         return new DTODataSource(
                 null,
                 this.getConnectionData().getId(),
-                dataSource.getDataSourceId(),
+                generateTableName(dataSource.getDataSourceId()),
                 null,
                 dataSource.getDataSourceId(),
                 null,

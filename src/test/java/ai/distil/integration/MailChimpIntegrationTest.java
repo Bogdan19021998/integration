@@ -8,7 +8,6 @@ import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
-import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
@@ -26,7 +25,6 @@ import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,12 +33,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static ai.distil.integration.utils.ParseUtils.parseJsonFile;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -186,15 +184,6 @@ public class MailChimpIntegrationTest {
         return dtoConnection;
     }
 
-    private <T> T parseJsonFile(String path, TypeReference<T> tr) {
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(path);
-
-        try {
-            return JsonDataConverter.getInstance().fromString(IOUtils.toString(inputStream, "UTF-8"), tr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
 }
