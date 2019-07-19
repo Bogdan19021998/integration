@@ -49,7 +49,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
 
-        ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getOrgId(),
+        ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getTenantId(), request.getOrgId(),
                 request.getConnectionId(),
                 request.getDataSourceId());
 
@@ -60,7 +60,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
             return;
         }
 
-        connectionProxy.updateConnectionData(request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
 
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
@@ -72,22 +72,22 @@ public class SyncDataSourceJob extends QuartzJobBean {
             if (connection.dataSourceExist(dataSource)) {
                 DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getTenantId(), dataSource, connection);
 
-                connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
+                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
                 dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
             } else {
-                connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
+                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
                 return;
             }
 
 
         } catch (Exception e) {
-            connectionProxy.updateConnectionData(request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.LAST_SYNC_FAILED));
+            connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.LAST_SYNC_FAILED));
             log.error("The error happened while running the job, do not rethrow exception because of retry policy", e);
             return;
         }
 
-        connectionProxy.updateConnectionData(request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNCED));
-        connectionProxy.updateDataSourceData(request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNCED));
+        connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
     }
 
 }
