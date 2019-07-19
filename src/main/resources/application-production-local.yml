@@ -6,9 +6,9 @@ spring.datasource:
 
 cassandra:
   servers:
-    - 10.2.2.4
-    - 10.2.2.5
-    - 10.2.2.6
+    - 40.127.201.179:10001
+    - 40.127.201.179:10002
+    - 40.127.201.179:10003
   keyspace: distil_app
   accountKeyspaceReplicationOptions:
     class: NetworkTopologyStrategy
@@ -18,9 +18,9 @@ ai:
   distil:
     api:
       integrations:
-        url: http://40.127.201.179:8009
+        url: http://localhost:8087
       internal:
-        url: http://40.127.201.179:8008
+        url: http://localhost:8086
 
 app:
   name: distil_integration
@@ -28,7 +28,7 @@ app:
 logging.level.org.springframework: ERROR
 
 server:
-  port: 8009
+  port: 8087
 
 ai.distil.integrations.connections:
   mySql:
