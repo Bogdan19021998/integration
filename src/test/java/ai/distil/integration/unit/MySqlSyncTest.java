@@ -88,7 +88,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         DTOConnection connectionDTO = getDefaultConnection();
 
         String tenantId = "5";
-        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("org_%s", tenantId)).ifExists());
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("%s_%s", CassandraSyncRepository.KEYSPACE_PREFIX, tenantId)).ifExists());
 
         Set<Map<String, Object>> expectedResult = objectMapper.readValue(this.getClass().getClassLoader().getResourceAsStream(MYSQL_SYNC_RESULTS_FILE),
                 new TypeReference<Set<TreeMap<String, Object>>>() {
@@ -251,6 +251,8 @@ public class MySqlSyncTest extends AbstractSyncTest {
         connectionDTO.setConnectionSettings(new ConnectionSettings(
                 this.config.getUsername(),
                 this.config.getPassword(),
+                null,
+                null,
                 null,
                 DEFAULT_SERVER_ADDRESS,
                 String.valueOf(this.config.getPort()),

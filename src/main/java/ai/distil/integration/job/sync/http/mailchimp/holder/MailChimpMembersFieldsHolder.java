@@ -123,7 +123,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     }
 
     @Override
-    public List<SimpleDataSourceField> getDynamicDataSourceFields(Map<String, Object> fieldsDefinition) {
+    public List<SimpleDataSourceField> getDynamicDataSourceField(Map<String, Object> fieldsDefinition) {
         List<Map<String, Object>> rows = (List<Map<String, Object>>) fieldsDefinition.getOrDefault(MERGE_FIELDS_KEY, Collections.emptyList());
 
         return rows.stream().flatMap(row -> {

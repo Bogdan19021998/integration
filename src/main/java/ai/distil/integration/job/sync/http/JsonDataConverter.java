@@ -6,8 +6,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 public class JsonDataConverter implements IDataConverter {
@@ -60,4 +62,14 @@ public class JsonDataConverter implements IDataConverter {
             throw new ConverterException(false, "Can't deserialize json object", e);
         }
     }
+
+    @Override
+    public  <T> T parseStream(InputStream is, TypeReference<T> tr) {
+        try {
+            return JsonDataConverter.getInstance().fromString(IOUtils.toString(is, "UTF-8"), tr);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

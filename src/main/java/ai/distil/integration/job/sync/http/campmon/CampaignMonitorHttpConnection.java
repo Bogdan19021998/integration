@@ -4,7 +4,8 @@ import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
-import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.controller.dto.data.DatasetPage;
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
@@ -18,7 +19,6 @@ import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.org.SyncSchedule;
 import ai.distil.model.types.DataSourceType;
 import ai.distil.model.types.SyncFrequency;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,13 +34,14 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
-    public List<DatasetRow> getNextPage(DataSourceDataHolder dataSource, PageRequest pageRequest) {
+    public DatasetPage getNextPage(DataSourceDataHolder dataSource, DatasetPageRequest pageRequest) {
         SubscribersCampaignMonitorRequest request = new SubscribersCampaignMonitorRequest(getConnectionSettings().getApiKey(), dataSource.getDataSourceId(), pageRequest);
         SubscribersPage subscribers = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
-        return subscribers.getResults()
+
+        return new DatasetPage(subscribers.getResults()
                 .stream()
                 .map(row -> fieldsHolder.transformRow(row))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), null);
     }
 
     @Override

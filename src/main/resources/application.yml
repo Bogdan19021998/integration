@@ -51,6 +51,9 @@ ai.distil.integrations.connections:
       baseUrl: https://us3.api.mailchimp.com/3.0
     campaignMonitor:
       baseUrl: https://api.createsend.com/api/v3.2
+    salesforce:
+      baseUrl: https://login.salesforce.com
+      apiVersion: v46.0
 
   jdbc:
     mySql:

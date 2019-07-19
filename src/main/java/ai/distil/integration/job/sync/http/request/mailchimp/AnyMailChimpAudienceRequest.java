@@ -1,10 +1,9 @@
 package ai.distil.integration.job.sync.http.request.mailchimp;
 
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.asynchttpclient.Param;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -18,6 +17,6 @@ public class AnyMailChimpAudienceRequest extends MailChimpAudiencesRequest {
 
     @Override
     public List<Param> params() {
-        return buildDefaultPageParams(PageRequest.of(0, 1));
+        return buildDefaultPageParams(new DatasetPageRequest(0, 1, null));
     }
 }
