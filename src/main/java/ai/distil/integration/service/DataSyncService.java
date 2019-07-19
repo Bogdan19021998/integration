@@ -122,13 +122,13 @@ public class DataSyncService {
         progressAggregator.setCurrentRowsCount(rowsCount);
 
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
-        saveDataSourceHistory(currentSchema.getDataSourceForeignKey(), trackingData);
+        saveDataSourceHistory(tenantId, currentSchema.getDataSourceForeignKey(), trackingData);
 
         return trackingData;
     }
 
 
-    public void saveDataSourceHistory(Long dataSourceId, SyncProgressTrackingData trackingData) {
+    public void saveDataSourceHistory(String tenantId, Long dataSourceId, SyncProgressTrackingData trackingData) {
         boolean numberOfRecordsMatch = trackingData.getProcessed() == trackingData.getCurrentRowsCount();
 
         String notUniquePrimaryKeyError = numberOfRecordsMatch ? null : SyncErrors.NUMBER_OF_RECORDS_NOT_MATCH;
@@ -148,7 +148,7 @@ public class DataSyncService {
                 notUniquePrimaryKeyError
         );
 
-        dataSourceProxy.save(dataSourceHistory);
+        dataSourceProxy.save(tenantId, dataSourceHistory);
     }
 
 }
