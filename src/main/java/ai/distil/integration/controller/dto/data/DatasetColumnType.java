@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.JDBCType;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -42,85 +41,6 @@ public enum DatasetColumnType {
         return DatasetColumnType.valueOf(attributeType.toString());
     }
 
-    public static DatasetColumnType simplifyJdbcType(JDBCType type, boolean unsigned) {
-        switch (type) {
-            case BOOLEAN:
-            case BIT:
-                return DatasetColumnType.BOOLEAN;
-            case TINYINT:
-            case SMALLINT:
-                return DatasetColumnType.INTEGER;
-
-            case INTEGER:
-                //Integer is set to BIGINT too - as it can be an unsigned integer, which can push it into the bounds of a Long
-                if (unsigned) {
-                    return DatasetColumnType.BIGINT;
-                } else {
-                    return DatasetColumnType.INTEGER;
-                }
-            case BIGINT:
-                return DatasetColumnType.BIGINT;
-            case FLOAT:
-            case REAL:
-                return DatasetColumnType.FLOAT;
-            case DOUBLE:
-                return DatasetColumnType.DOUBLE;
-            case NUMERIC:
-            case DECIMAL:
-                return DatasetColumnType.DECIMAL;
-            case CHAR:
-            case VARCHAR:
-            case LONGVARCHAR:
-            case NCHAR:
-            case NVARCHAR:
-            case LONGNVARCHAR:
-            case SQLXML:
-                return DatasetColumnType.STRING;
-            case DATE:
-                return DatasetColumnType.DATE;
-            case TIMESTAMP:
-            case TIMESTAMP_WITH_TIMEZONE:
-                return DatasetColumnType.TIMESTAMP;
-            case TIME:
-            case TIME_WITH_TIMEZONE:
-                return DatasetColumnType.TIME;
-            case BINARY:
-                break;
-            case VARBINARY:
-                break;
-            case LONGVARBINARY:
-                break;
-            case NULL:
-                break;
-            case OTHER:
-                break;
-            case JAVA_OBJECT:
-                break;
-            case DISTINCT:
-                break;
-            case STRUCT:
-                break;
-            case ARRAY:
-                break;
-            case BLOB:
-                break;
-            case CLOB:
-                break;
-            case REF:
-                break;
-            case DATALINK:
-                break;
-            case ROWID:
-                break;
-            case REF_CURSOR:
-                break;
-            case NCLOB:
-                break;
-        }
-
-        return DatasetColumnType.UNKNOWN;
-    }
-
     public static DatasetColumnType simplifyJavaType(Object value) {
         if(value == null) {
             return DatasetColumnType.UNKNOWN;
@@ -129,7 +49,7 @@ public enum DatasetColumnType {
         return simplifyJavaType(value.getClass());
     }
 
-//todo extend, think about other scenarios/types
+//  todo extend, think about other scenarios/types
     public static DatasetColumnType simplifyJavaType(Class<?> type) {
         if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
             return DatasetColumnType.BOOLEAN;

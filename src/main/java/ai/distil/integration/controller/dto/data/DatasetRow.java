@@ -1,10 +1,10 @@
 package ai.distil.integration.controller.dto.data;
 
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,7 +15,15 @@ public class DatasetRow {
 
 
     public static class DatasetRowBuilder {
-        private DatasetRow row = new DatasetRow(Lists.newArrayList());
+        private final DatasetRow row;
+
+        public DatasetRowBuilder() {
+            this(8);
+        }
+
+        public DatasetRowBuilder(Integer initialSize) {
+            this.row = new DatasetRow(new ArrayList<>(initialSize));
+        }
 
         public DatasetRowBuilder addValue(String alias, Object value) {
             row.getValues().add(new DatasetValue(value, alias));

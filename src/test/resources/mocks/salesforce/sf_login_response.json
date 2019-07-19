@@ -1,0 +1,8 @@
+{
+  "access_token": "token",
+  "instance_url": "url",
+  "id": "someid",
+  "token_type": "Bearer",
+  "issued_at": "1563462709816",
+  "signature": "somesignature"
+}

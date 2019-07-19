@@ -7,6 +7,8 @@ import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
+import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
+import ai.distil.integration.job.sync.http.sf.holder.SalesforceFieldsHolder;
 import ai.distil.integration.job.sync.jdbc.MsSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
@@ -24,6 +26,7 @@ public class ConnectionFactory {
     private final RestService restService;
     private final MailChimpMembersFieldsHolder mailChimpMembersFieldsHolder;
     private final CampaignMonitorFieldsHolder campaignMonitorFieldsHolder;
+    private final SalesforceFieldsHolder salesforceFieldsHolder;
 
     public AbstractConnection buildConnection(DTOConnection dtoConnection) {
         AbstractConnection abstractConnection = buildSimpleConnection(dtoConnection);
@@ -50,6 +53,8 @@ public class ConnectionFactory {
                 return new MailChimpHttpConnection(connection, restService, mailChimpMembersFieldsHolder);
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorHttpConnection(connection, restService, campaignMonitorFieldsHolder);
+            case SALESFORCE:
+                return new SalesforceHttpConnection(connection, restService, salesforceFieldsHolder);
             default:
                 throw new UnsupportedOperationException();
         }

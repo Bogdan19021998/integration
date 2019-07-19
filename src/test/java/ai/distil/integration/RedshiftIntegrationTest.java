@@ -1,7 +1,6 @@
 package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
@@ -16,24 +15,19 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
 // these tests will work, only if you run the ms sql locally and ingest sample data there, check test/resources/seeds/mssql_seeds.sql
 // run development/mssql/docker-compose.yml for set up the sqlserver
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class RedshiftIntegrationTest {
+public class RedshiftIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private ConnectionFactory connectionFactory;
 
     @Autowired
     private DataSyncService dataSyncService;
-
-    @MockBean
-    @Autowired
-    private DataSourceProxy dataSourceProxy;
 
     private static final String DEFAULT_DB_NAME = "distil_test";
     private static final String DEFAULT_SCHEMA_NAME = "sync";
@@ -77,11 +71,14 @@ public class RedshiftIntegrationTest {
                 "vitaliy",
                 "JtL4A7+Waq",
                 null,
+                null,
+                null,
                 "dwh.clgb5kxf1w5l.eu-west-2.redshift.amazonaws.com",
                 String.valueOf(5439),
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_DB_NAME,
-                false, null, -1, null, null, null,
+                false, null, -1,
+                null, null, null,
                 null
         ));
         return connectionDTO;
