@@ -75,10 +75,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
                 dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
             } else {
+                log.info("The data source no longer exists?? - updating the datasource details");
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
                 return;
             }
-
 
         } catch (Exception e) {
             connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.LAST_SYNC_FAILED));

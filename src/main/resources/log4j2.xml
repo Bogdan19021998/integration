@@ -6,6 +6,15 @@
         </Console>
     </Appenders>
     <Loggers>
+        <Logger name="io.netty" level="ERROR" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
+        <Logger name="com.datastax" level="ERROR" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
+        <Logger name="ai.distil" level="DEBUG" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="CONSOLE"/>
         </Root>

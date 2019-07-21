@@ -20,7 +20,7 @@ public class ConnectionService {
         try (AbstractConnection abstractConnection = connectionFactory.buildConnection(dtoConnection)) {
             return abstractConnection.isAvailable();
         } catch (Exception e) {
-            log.debug("Can't connect to the external datasource", e);
+            log.error("Can't connect to the external datasource", e);
             return false;
         }
     }
@@ -29,7 +29,7 @@ public class ConnectionService {
         try (AbstractConnection abstractConnection = connectionFactory.buildConnection(dtoConnection)) {
             return abstractConnection.getAllDataSources();
         } catch (Exception e) {
-            log.debug("Can't define data sources", e);
+            log.error("Can't define data sources", e);
             return null;
         }
     }

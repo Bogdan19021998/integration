@@ -67,6 +67,8 @@ public class DataSyncService {
      * @return new schema definition
      */
     public DataSourceDataHolder syncSchema(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+
+        log.debug("Syncing schema / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
         cassandraSyncRepository.createTableIfNotExists(tenantId, currentSchema, true);
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
@@ -90,15 +92,24 @@ public class DataSyncService {
     }
 
     public SyncProgressTrackingData reSyncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+
+        log.debug("Re - Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+
         DataSourceDataHolder updatedSchema = this.syncSchema(tenantId, currentSchema, connection);
         return syncDataSource(tenantId, updatedSchema, connection);
     }
 
     public SyncProgressTrackingData syncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
+
+        log.debug("Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+
         AbstractParser parser = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE);
 
         Map<String, String> allExistingRows = cassandraSyncRepository.getAllRowsIdsAndHashes(tenantId, currentSchema);
+
         int allRowsCountBeforeUpdate = allExistingRows.size();
+
+        log.debug("Existing row count : {}", allRowsCountBeforeUpdate);
 
         ProgressAggregator progressAggregator = new ProgressAggregator();
         progressAggregator.startTracking();
@@ -109,6 +120,14 @@ public class DataSyncService {
 //          remove the row from the all existing rows map, then left rows must be deleted after the sync
             allExistingRows.remove(ingestionResult.getPrimaryKey());
             progressAggregator.aggregate(ingestionResult);
+
+            if(progressAggregator.getConsecutiveErrors()>5){
+                throw new RuntimeException("Too many errors have occurred consecutively - aborting the sync");
+            }
+
+            if(progressAggregator.getSyncTrackingData().getProcessed()%1000 == 0) {
+                log.debug("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+            }
         });
 
         allExistingRows.forEach((primaryKey, hash) ->
@@ -122,6 +141,9 @@ public class DataSyncService {
         progressAggregator.setCurrentRowsCount(rowsCount);
 
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
+
+        log.debug("Tracking Data : {}", trackingData);
+
         saveDataSourceHistory(tenantId, currentSchema.getDataSourceForeignKey(), trackingData);
 
         return trackingData;
@@ -129,6 +151,9 @@ public class DataSyncService {
 
 
     public void saveDataSourceHistory(String tenantId, Long dataSourceId, SyncProgressTrackingData trackingData) {
+
+        log.debug("Saving data source history");
+
         boolean numberOfRecordsMatch = trackingData.getProcessed() == trackingData.getCurrentRowsCount();
 
         String notUniquePrimaryKeyError = numberOfRecordsMatch ? null : SyncErrors.NUMBER_OF_RECORDS_NOT_MATCH;

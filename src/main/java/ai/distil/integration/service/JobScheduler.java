@@ -46,6 +46,9 @@ public class JobScheduler {
     }
 
     public boolean scheduleJob(JobDefinitionEnum jobDefinition, IJobRequest jobRequest) {
+
+        log.debug("Scheduling new job: {}", jobDefinition);
+
         if (!jobDefinition.isRequestTypeCorrect(jobRequest)) {
             throw new IllegalStateException("Job request data type is incorrect, can't schedule a job.");
         }
@@ -82,6 +85,7 @@ public class JobScheduler {
     }
 
     public boolean scheduleOneTimeJobNow(JobDefinitionEnum jobDefinition, IJobRequest jobRequest) {
+
         String jobKey = String.format("ONE_TIME_%s", jobDefinition.getJobKey(jobRequest));
         String triggerKey = String.format("ONE_TIME_%s", jobDefinition.getTriggerKey(jobRequest));
         String groupKey = jobDefinition.getGroup();
@@ -93,13 +97,16 @@ public class JobScheduler {
         Trigger cronTriggerBean = JobUtils.createSingleTrigger(triggerKey, null, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW, JobPriority.HIGH);
 
         try {
+
+            log.info("Scheduling one time job - {}", jobKey);
+
             Scheduler scheduler = fastSchedulerFactoryBean.getScheduler();
             scheduler.scheduleJob(jobDetail, cronTriggerBean);
 
-            log.info("Scheduling one time job - {}", jobKey);
             return true;
         } catch (SchedulerException e) {
-            log.info("Something happen while scheduling one time job - {}", jobKey);
+            log.error("Something happen while scheduling one time job - {}", jobKey);
+
             //todo choose more appropriate exception
             throw new RuntimeException(e);
         }
