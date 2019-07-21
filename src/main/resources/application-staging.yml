@@ -1,29 +1,12 @@
-spring:
-  profiles.active: local
-  main.banner-mode: 'off'
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-      use-new-id-generator-mappings: true
-    properties:
-      hibernate:
-        default_schema: integrations
-        temp.use_jdbc_metadata_defaults: false
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQL95Dialect
-  flyway:
-    schemas: integrations
-
 spring.datasource:
-  url: jdbc:postgresql://distil-staging-postgres.postgres.database.azure.com:5432/distil?searchpath=distil
-  username: distil_admin@distil-staging-postgres
-  password: "!qaz2wsXX"
   driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=distil
+  username: postgres
+  password: 1qaz2wsXX
 
 cassandra:
   servers:
-    - 40.127.201.110
+    - 10.1.3.5
   keyspace: distil
   accountKeyspaceReplicationOptions:
     class: SimpleStrategy
@@ -33,28 +16,9 @@ ai:
   distil:
     api:
       integrations:
-        url: http://localhost:8087
+        url: http://localhost:8889
       internal:
-        url: http://localhost:8086
-
-app:
-  name: distil_integration
-
-logging.level.org.springframework: ERROR
+        url: http://localhost:8888
 
 server:
-  port: 80
-
-ai.distil.integrations.connections:
-  mySql:
-    protocol: mysql
-    props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
-  postgreSql:
-    protocol: postgresql
-    props: ""
-  msSql:
-    protocol: sqlserver
-    props: ";integratedSecurity=true"
-  redshift:
-    protocol: redshift
-    props: ""
+  port: 8889
