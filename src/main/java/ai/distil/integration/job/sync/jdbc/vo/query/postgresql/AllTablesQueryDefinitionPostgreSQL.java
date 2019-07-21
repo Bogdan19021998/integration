@@ -20,6 +20,7 @@ public class AllTablesQueryDefinitionPostgreSQL extends AbstractAllTablesQueryDe
     public static final String DEFAULT_SQL_QUERY = "SELECT table_name, table_type " +
             " FROM information_schema.tables " +
             " WHERE table_schema = ? " +
+            " AND UPPER(table_name) like '%DISTIL%'" +
             " ORDER BY table_schema, table_name";
     private String schema;
 
