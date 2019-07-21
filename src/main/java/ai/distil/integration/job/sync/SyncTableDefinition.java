@@ -43,7 +43,11 @@ public enum SyncTableDefinition {
     ORDER("ORDER", "orders", DataSourceType.ORDER,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
                 put(PRIMARY_KEY, Sets.newHashSet("ID"));
-            }});
+            }}),
+    PURCHASE_HISTORY("PURCHASE_HISTORY", "orders", DataSourceType.ORDER,
+            new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
+                put(PRIMARY_KEY, Sets.newHashSet("ID"));
+    }});
 
     private static final String DISTIL_MARKER = "DISTIL";
 
