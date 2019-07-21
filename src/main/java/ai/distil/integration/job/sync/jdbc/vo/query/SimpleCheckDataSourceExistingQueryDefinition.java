@@ -1,14 +1,18 @@
 package ai.distil.integration.job.sync.jdbc.vo.query;
 
-import lombok.AllArgsConstructor;
-
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
 
-@AllArgsConstructor
 public class SimpleCheckDataSourceExistingQueryDefinition extends AbstractQueryDefinition<Boolean> {
+
+    private String schemaName;
     private String tableName;
+
+    public SimpleCheckDataSourceExistingQueryDefinition(String schemaName, String tableName) {
+        this.schemaName = schemaName;
+        this.tableName = tableName;
+    }
 
     @Override
     public List<Object> getQueryParams() {
@@ -22,6 +26,6 @@ public class SimpleCheckDataSourceExistingQueryDefinition extends AbstractQueryD
 
     @Override
     public String getQuery() {
-        return String.format("select * from %s limit 0", tableName);
+        return String.format("select * from %s.%s limit 0", schemaName, tableName);
     }
 }

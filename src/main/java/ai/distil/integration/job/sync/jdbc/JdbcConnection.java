@@ -47,7 +47,7 @@ public abstract class JdbcConnection extends AbstractConnection {
 
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
-        SimpleCheckDataSourceExistingQueryDefinition queryDef = new SimpleCheckDataSourceExistingQueryDefinition(dataSource.getDataSourceId());
+        SimpleCheckDataSourceExistingQueryDefinition queryDef = new SimpleCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
         String query = queryDef.getQuery();
         try (QueryWrapper queryWrapper = this.query(query, queryDef.getQueryParams())) {
             return queryDef.mapResultSet(queryWrapper.getResultSet());
@@ -216,9 +216,10 @@ public abstract class JdbcConnection extends AbstractConnection {
                 .map(attr -> String.format("%1$s as %1$s", quoteString(attr.getAttributeSourceName())))
                 .collect(Collectors.joining(", "));
 
-        return String.format("SELECT %s FROM %s",
+        return String.format("SELECT %s FROM %s.%s",
                 fieldsList,
-                getTableName(dataSource.getDataSourceId()));
+                quoteString(getConnectionData().getConnectionSettings().getSchema()),
+                quoteString(dataSource.getDataSourceId()));
     }
 
     private Connection getConnection(boolean close) {
