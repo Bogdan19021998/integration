@@ -130,20 +130,31 @@ public class DataSyncService {
             }
         });
 
-        allExistingRows.forEach((primaryKey, hash) ->
-                cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
+        log.info("Finished processing {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
 
+        if(allExistingRows.size()>0) {
+            log.debug("Deleting {} records from Cassandra that no longer exist in source", allExistingRows.size());
+
+            allExistingRows.forEach((primaryKey, hash) ->
+                cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
+        }
+
+        log.trace("Stopping tacking");
         progressAggregator.stopTracking();
 
+        log.trace("setDeletedCount");
         progressAggregator.setDeletedCount(allExistingRows.size());
 
+        log.trace("Getting rows count");
         long rowsCount = cassandraSyncRepository.getRowsCount(tenantId, currentSchema);
+
+        log.trace("Setting rows count");
         progressAggregator.setCurrentRowsCount(rowsCount);
 
+        log.trace("Getting sync tracking data");
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
 
-        log.debug("Tracking Data : {}", trackingData);
-
+        log.debug("Saving sync tracking Data : {}", trackingData);
         saveDataSourceHistory(tenantId, currentSchema.getDataSourceForeignKey(), trackingData);
 
         return trackingData;

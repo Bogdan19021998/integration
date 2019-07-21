@@ -12,7 +12,7 @@
         <Logger name="com.datastax" level="ERROR" additivity="false">
             <AppenderRef ref="CONSOLE"/>
         </Logger>
-        <Logger name="ai.distil" level="DEBUG" additivity="false">
+        <Logger name="ai.distil" level="TRACE" additivity="false">
             <AppenderRef ref="CONSOLE"/>
         </Logger>
         <Root level="INFO">
