@@ -6,10 +6,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Date;
 
-
 public class ProgressAggregator {
     @Getter
     private SyncProgressTrackingData syncTrackingData;
+
+    @Getter
+    private long consecutiveErrors = 0;
 
     public ProgressAggregator() {
         this.syncTrackingData = new SyncProgressTrackingData();
@@ -19,15 +21,20 @@ public class ProgressAggregator {
         switch (ingestionResult.getIngestionStatus()) {
             case CREATED:
                 this.syncTrackingData.incrementCreatesCounter();
+                consecutiveErrors = 0;
                 break;
             case NOT_CHANGED:
                 this.syncTrackingData.incrementNotChangedCounter();
+                consecutiveErrors = 0;
                 break;
             case UPDATED:
                 this.syncTrackingData.incrementUpdatesCounter();
+                consecutiveErrors = 0;
                 break;
             case ERROR:
                 this.syncTrackingData.incrementErrorsCount();
+                consecutiveErrors++;
+                break;
             default:
                 throw new NotImplementedException();
         }
