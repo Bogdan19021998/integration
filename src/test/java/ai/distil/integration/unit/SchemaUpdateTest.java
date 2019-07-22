@@ -8,6 +8,7 @@ import ai.distil.integration.service.vo.AttributeChangeType;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.func.FunctionChecked;
 import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Assertions;
@@ -72,6 +73,7 @@ public class SchemaUpdateTest {
         res.setAttributeSourceName(sourceName);
         res.setAttributeDistilName(sourceName);
         res.setAttributeType(attributeType);
+        res.setAttributeDataTag(DataSourceSchemaAttributeTag.NONE);
 
         return res;
     }

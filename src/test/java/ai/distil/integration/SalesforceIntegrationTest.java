@@ -71,7 +71,7 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
             List<DTODataSource> allDataSources = connection.getAllDataSources();
             Assertions.assertEquals(2, allDataSources.size());
             Assertions.assertEquals(137, allDataSources.get(0).getAttributes().size());
-            Assertions.assertEquals(479, allDataSources.get(1).getAttributes().size());
+            Assertions.assertEquals(481, allDataSources.get(1).getAttributes().size());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

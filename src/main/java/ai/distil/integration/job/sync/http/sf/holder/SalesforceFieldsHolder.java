@@ -20,27 +20,27 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
     private static Set<String> EXCLUDE_FIELDS = Sets.newHashSet("Address", "attributes", "MailingAddress");
 
     private static Map<String, DataSourceAttributeType> DEFAULT_ATTRIBUTES_TYPE = new HashMap<String, DataSourceAttributeType>() {{
-        this.put("xsd:string", DataSourceAttributeType.TEXT);
-        this.put("tns:ID", DataSourceAttributeType.TEXT);
+        this.put("XSD:STRING", DataSourceAttributeType.TEXT);
+        this.put("TNS:ID", DataSourceAttributeType.TEXT);
 
-        this.put("xsd:boolean", DataSourceAttributeType.BOOLEAN);
-        this.put("xsd:double", DataSourceAttributeType.DOUBLE);
-        this.put("xsd:decimal", DataSourceAttributeType.DECIMAL);
-        this.put("xsd:float", DataSourceAttributeType.FLOAT);
+        this.put("XSD:BOOLEAN", DataSourceAttributeType.BOOLEAN);
+        this.put("XSD:DOUBLE", DataSourceAttributeType.DOUBLE);
+        this.put("XSD:DECIMAL", DataSourceAttributeType.DECIMAL);
+        this.put("XSD:FLOAT", DataSourceAttributeType.FLOAT);
 
-        this.put("xsd:byte", DataSourceAttributeType.INTEGER);
-        this.put("xsd:int", DataSourceAttributeType.INTEGER);
-        this.put("xsd:integer", DataSourceAttributeType.INTEGER);
-        this.put("xsd:short", DataSourceAttributeType.INTEGER);
-        this.put("xsd:signedInt", DataSourceAttributeType.INTEGER);
-        this.put("xsd:unsignedShort", DataSourceAttributeType.INTEGER);
+        this.put("XSD:BYTE", DataSourceAttributeType.INTEGER);
+        this.put("XSD:INT", DataSourceAttributeType.INTEGER);
+        this.put("XSD:INTEGER", DataSourceAttributeType.INTEGER);
+        this.put("XSD:SHORT", DataSourceAttributeType.INTEGER);
+        this.put("XSD:SIGNEDINT", DataSourceAttributeType.INTEGER);
+        this.put("XSD:UNSIGNEDSHORT", DataSourceAttributeType.INTEGER);
 
-        this.put("xsd:long", DataSourceAttributeType.BIGINT);
-        this.put("xsd:unsignedInt", DataSourceAttributeType.BIGINT);
+        this.put("XSD:LONG", DataSourceAttributeType.BIGINT);
+        this.put("XSD:UNSIGNEDINT", DataSourceAttributeType.BIGINT);
 
 //      TODO think about it
-        this.put("xsd:date", DataSourceAttributeType.TEXT);
-        this.put("xsd:dateTime", DataSourceAttributeType.TEXT);
+        this.put("XSD:DATE", DataSourceAttributeType.TEXT);
+        this.put("XSD:DATETIME", DataSourceAttributeType.TEXT);
     }};
 
     private static Map<DataSourceSchemaAttributeTag, Set<String>> DEFAULT_ATTRIBUTES_TAGS = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
@@ -50,7 +50,7 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LNAME", "LASTNAME", "SURNAME"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_MOBILE_NUMBER, Sets.newHashSet("PHONE", "MOBILENUMBER", "TELEPHONE", "TELNUMBER", "PHONENUMBER"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, Sets.newHashSet("COUNTRY", "COUNTRYCODE"));
-        this.put(DataSourceSchemaAttributeTag.PRIMARY_KEY, Sets.newHashSet("ID"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, Sets.newHashSet("ID"));
     }};
 
     @Override

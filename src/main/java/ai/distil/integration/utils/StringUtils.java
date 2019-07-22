@@ -17,4 +17,12 @@ public class StringUtils {
         }
         return str.trim().toLowerCase();
     }
+
+    public static String trimAndUppercase(String str) {
+        if (str == null || EMPTY_STRING.equals(str)) {
+            return null;
+        }
+        return str.trim().toUpperCase();
+    }
+
 }

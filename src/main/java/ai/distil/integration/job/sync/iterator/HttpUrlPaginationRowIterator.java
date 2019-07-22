@@ -11,10 +11,10 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
-public class HttpPaginationRowIterator implements IRowIterator {
+public class HttpUrlPaginationRowIterator implements IRowIterator {
 
     private boolean allRetrieved = false;
-
+    private String nextPageUrl;
     private Iterator<DatasetRow> buffer;
 
     private final AbstractHttpConnection connection;
@@ -47,13 +47,14 @@ public class HttpPaginationRowIterator implements IRowIterator {
     }
 
     private void fillNextBuffer() {
-        DatasetPageRequest page = new DatasetPageRequest(currentPage.get(), defaultPageSize, null);
+        DatasetPageRequest page = new DatasetPageRequest(currentPage.get(), defaultPageSize, nextPageUrl);
 
         DatasetPage nextPage = connection.getNextPage(dataSourceHolder, page);
 
+        this.nextPageUrl = nextPage.getNextPageUrl();
         this.buffer = nextPage.getRows().iterator();
 
-        allRetrieved = nextPage.getRows().size() != defaultPageSize;
+        allRetrieved = this.nextPageUrl == null;
         currentPage.incrementAndGet();
     }
 

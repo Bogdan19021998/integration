@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
-import static ai.distil.model.types.DataSourceSchemaAttributeTag.PRIMARY_KEY;
+import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 
 public enum SyncTableDefinition {
 
     CUSTOMER("CUSTOMER", "customers", DataSourceType.CUSTOMER,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-                put(PRIMARY_KEY, Sets.newHashSet("ID"));
+                put(CUSTOMER_EXTERNAL_ID, Sets.newHashSet("ID"));
                 put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAIL", "EMAILADDRESS"));
                 put(DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE, Sets.newHashSet("POSTCODE"));
                 put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FIRSTNAME", "GIVENNAME"));
@@ -28,26 +28,26 @@ public enum SyncTableDefinition {
     ),
     PRODUCT("PRODUCT", "products", DataSourceType.PRODUCT,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-                put(PRIMARY_KEY, Sets.newHashSet("ID"));
+                put(PRODUCT_EXTERNAL_ID, Sets.newHashSet("ID"));
                 put(DataSourceSchemaAttributeTag.PRODUCT_NAME, Sets.newHashSet("NAME", "TITLE"));
                 put(DataSourceSchemaAttributeTag.PRODUCT_SHOP_URL, Sets.newHashSet("URL", "PRODUCTURL", "LINK", "SHOPURL"));
                 put(DataSourceSchemaAttributeTag.PRODUCT_IMAGE_URL, Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"));
             }}),
     CONTENT("CONTENT", "content", DataSourceType.CONTENT,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-                put(PRIMARY_KEY, Sets.newHashSet("ID"));
+                put(CONTENT_EXTERNAL_ID, Sets.newHashSet("ID"));
                 put(DataSourceSchemaAttributeTag.CONTENT_TITLE, Sets.newHashSet("NAME", "TITLE"));
                 put(DataSourceSchemaAttributeTag.CONTENT_URL, Sets.newHashSet("URL", "CONTENTURL", "LINK"));
                 put(DataSourceSchemaAttributeTag.CONTENT_IMAGE_URL, Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"));
             }}),
     ORDER("ORDER", "orders", DataSourceType.ORDER,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-                put(PRIMARY_KEY, Sets.newHashSet("ID"));
+                put(ORDER_EXTERNAL_ID, Sets.newHashSet("ID"));
             }}),
     PURCHASE_HISTORY("PURCHASE_HISTORY", "orders", DataSourceType.ORDER,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-                put(PRIMARY_KEY, Sets.newHashSet("ID"));
-    }});
+                put(ORDER_EXTERNAL_ID, Sets.newHashSet("ID"));
+            }});
 
     private static final String DISTIL_MARKER = "DISTIL";
 
@@ -69,13 +69,13 @@ public enum SyncTableDefinition {
         this.attributeTags = attributeTags;
         this.dataSourceType = dataSourceType;
 
-        this.eligibleTablesNames = Sets.newHashSet(
+        this.eligibleTablesNames = Stream.of(
                 buildSingularAndPluralNames("%s_%s", DISTIL_MARKER, baseSourceTableName),
                 buildSingularAndPluralNames("%s%s", DISTIL_MARKER, baseSourceTableName),
                 buildSingularAndPluralNames("%s-%s", DISTIL_MARKER, baseSourceTableName),
                 buildSingularAndPluralNames("V_%s_%s", DISTIL_MARKER, baseSourceTableName),
                 buildSingularAndPluralNames("V-%s-%s", DISTIL_MARKER, baseSourceTableName)
-        ).stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        ).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public static Optional<SyncTableDefinition> identifySyncTableDefinition(String tableName) {
@@ -95,7 +95,7 @@ public enum SyncTableDefinition {
                 .filter(entry -> entry.getValue().contains(column))
                 .findFirst()
                 .map(Map.Entry::getKey)
-                .orElse(null);
+                .orElse(DataSourceSchemaAttributeTag.NONE);
     }
 
     public boolean isTableNameFitNamingConvention(String tableName) {

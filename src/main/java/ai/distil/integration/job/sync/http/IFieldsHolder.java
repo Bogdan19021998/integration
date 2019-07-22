@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.http;
 
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.MapUtils;
+import ai.distil.integration.utils.StringUtils;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 
@@ -31,13 +32,13 @@ public interface IFieldsHolder<T> {
     }
 
     default DataSourceAttributeType defineType(String type) {
-        return getDataTypeMapping().getOrDefault(type, DataSourceAttributeType.UNKNOWN);
+        return getDataTypeMapping().getOrDefault(StringUtils.trimAndUppercase(type), DataSourceAttributeType.UNKNOWN);
     }
 
     default DataSourceSchemaAttributeTag tryToDefineTag(String fieldName, String columnType) {
         return defineTag(fieldName, getAttributesTagsMappingByName())
                 .orElseGet(() -> defineTag(columnType, getAttributesTagsMappingByType())
-                        .orElse(null));
+                        .orElse(DataSourceSchemaAttributeTag.NONE));
 
     }
 

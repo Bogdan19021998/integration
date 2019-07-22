@@ -112,9 +112,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                         syncResult.stream().peek(row -> {
                             row.keySet().removeAll(DYNAMIC_FIELDS_TO_AVOID);
                             row.forEach((s, o) -> row.put(s, String.valueOf(o)));
-                        }).forEach(row -> {
-                            Assertions.assertTrue(expectedResult.contains(row));
-                        });
+                        }).forEach(row -> Assertions.assertTrue(expectedResult.contains(row)));
                     });
         }
 

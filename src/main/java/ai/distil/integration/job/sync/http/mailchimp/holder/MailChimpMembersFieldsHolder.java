@@ -46,14 +46,14 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     private static final Set<String> PROPERTIES_KEYS = Sets.newHashSet("properties", "additionalProperties");
 
     private static final Map<String, DataSourceAttributeType> MAIL_CHIMP_TYPE_TO_ATTR_TYPE = ImmutableMap.of(
-            "string", DataSourceAttributeType.STRING,
-            "number", DataSourceAttributeType.DOUBLE,
-            "integer", DataSourceAttributeType.BIGINT,
-            "boolean", DataSourceAttributeType.BOOLEAN
+            "STRING", DataSourceAttributeType.STRING,
+            "NUMBER", DataSourceAttributeType.DOUBLE,
+            "INTEGER", DataSourceAttributeType.BIGINT,
+            "BOOLEAN", DataSourceAttributeType.BOOLEAN
     );
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-        this.put(DataSourceSchemaAttributeTag.PRIMARY_KEY, Sets.newHashSet("ID"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, Sets.newHashSet("ID"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAIL_ADDRESS"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FNAME", "FIRSTNAME", "GIVENNAME"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LNAME", "SECONDNAME", "SURNAME"));
@@ -166,7 +166,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
                 return Stream.of(new SimpleDataSourceField(
                         buildFieldName(currentPath, fieldName),
                         String.valueOf(fieldDefinition.get(DISPLAY_NAME_KEY)),
-                        getDataTypeMapping().get(currentType),
+                        defineType(currentType),
                         tryToDefineTag(fieldName, currentType)
                 ));
             }

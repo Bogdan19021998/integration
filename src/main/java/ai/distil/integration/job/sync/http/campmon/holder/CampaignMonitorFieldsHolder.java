@@ -25,17 +25,17 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     private static final String VALUE_FIELD = "Value";
 
     private static final Map<String, DataSourceAttributeType> DATA_TYPE_MAPPING = new HashMap<String, DataSourceAttributeType>() {{
-        this.put("Text", DataSourceAttributeType.STRING);
+        this.put("TEXT", DataSourceAttributeType.STRING);
 // campaign monitor returns data as strings, but type is number, try to deal with it
 //        todo add transformer
-        this.put("Number", DataSourceAttributeType.STRING);
-        this.put("MultiSelectOne", DataSourceAttributeType.STRING);
-        this.put("Date", DataSourceAttributeType.STRING);
-        this.put("MultiSelectMany", DataSourceAttributeType.STRING);
+        this.put("NUMBER", DataSourceAttributeType.STRING);
+        this.put("MULTISELECTONE", DataSourceAttributeType.STRING);
+        this.put("DATE", DataSourceAttributeType.STRING);
+        this.put("MULTISELECTMANY", DataSourceAttributeType.STRING);
     }};
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING_FOR_NAMES = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-        this.put(DataSourceSchemaAttributeTag.PRIMARY_KEY, Sets.newHashSet("EMAILADDRESS"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, Sets.newHashSet("EMAILADDRESS"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE, Sets.newHashSet("POSTCODE", "ZIP"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FNAME", "FIRSTNAME", "GIVENNAME"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LNAME", "LASTNAME", "SURNAME"));

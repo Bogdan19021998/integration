@@ -23,7 +23,6 @@ import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -75,8 +74,9 @@ public class MailChimpIntegrationTest {
         DataSourceDataHolder dataHolder = DataSourceDataHolder.mapFromDTODataSourceEntity(existDataSource);
 
         HttpPaginationRowIterator httpPaginationRowIterator = new HttpPaginationRowIterator(connection, dataHolder, new AtomicInteger(0), 2);
-        List<DatasetRow> rows = new ArrayList<>(Lists.newArrayList(httpPaginationRowIterator));
-        Assertions.assertEquals(rows.size(), 5);
+        List<DatasetRow> rows = new ArrayList<>();
+        httpPaginationRowIterator.forEachRemaining(rows::add);
+        Assertions.assertEquals(5, rows.size());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class MailChimpIntegrationTest {
     public void reSyncMailChimpWithDynamicFields() throws Exception {
         String tenantId = "35";
 
-        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("org_%s", tenantId)).ifExists());
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
         DTOConnection connectionDTO = defaultConnection();
 
         Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {}))

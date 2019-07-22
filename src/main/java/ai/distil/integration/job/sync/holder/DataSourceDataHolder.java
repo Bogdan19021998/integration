@@ -2,7 +2,6 @@ package ai.distil.integration.job.sync.holder;
 
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
-import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
@@ -52,14 +51,14 @@ public class DataSourceDataHolder {
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
         return ImmutableList.copyOf(attributes.stream()
-                .filter(attr -> !DataSourceSchemaAttributeTag.PRIMARY_KEY.equals(attr.getAttributeDataTag()))
+                .filter(attribute -> !attribute.getAttributeDataTag().isPrimaryKey())
                 .collect(Collectors.toList()));
     }
 
     private DTODataSourceAttribute definePrimaryKey(List<DTODataSourceAttribute> attributes) {
 //      todo make a decision about throwing the exception if there is no primary key
         return attributes.stream()
-                .filter(attr -> DataSourceSchemaAttributeTag.PRIMARY_KEY.equals(attr.getAttributeDataTag()))
+                .filter(attribute -> attribute.getAttributeDataTag() != null && attribute.getAttributeDataTag().isPrimaryKey())
                 .findFirst()
                 .orElse(null);
     }

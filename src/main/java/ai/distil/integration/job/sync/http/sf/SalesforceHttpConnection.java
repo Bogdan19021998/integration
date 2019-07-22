@@ -17,11 +17,14 @@ import ai.distil.integration.job.sync.http.sf.request.SalesforceLoginRequest;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceDataPage;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceListFields;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
+import ai.distil.integration.job.sync.iterator.HttpUrlPaginationRowIterator;
+import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
 import ai.distil.model.types.DataSourceType;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class SalesforceHttpConnection extends AbstractHttpConnection {
@@ -56,6 +59,11 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
         List<DatasetRow> rows = dataPage.getRecords().stream().map(this.fieldsHolder::transformRow).collect(Collectors.toList());
 
         return new DatasetPage(rows, dataPage.getNextRecordsUrl());
+    }
+
+    @Override
+    public IRowIterator getIterator(DataSourceDataHolder dataSource) {
+        return new HttpUrlPaginationRowIterator(this, dataSource, new AtomicInteger(getDefaultPageNumber()), getDefaultPageSize());
     }
 
     @Override
