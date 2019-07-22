@@ -99,7 +99,7 @@ public abstract class JdbcConnection extends AbstractConnection {
 
         return new DTODataSource(null,
                 this.getConnectionData().getId(),
-                generateTableName(sourceTableName),
+                sourceTableName,
                 tableDefinition.getDescription(),
                 sourceTableName,
                 syncSchedule,
@@ -109,6 +109,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                 null,
                 null,
                 columns,
+                generateTableName(sourceTableName),
                 null
         );
     }

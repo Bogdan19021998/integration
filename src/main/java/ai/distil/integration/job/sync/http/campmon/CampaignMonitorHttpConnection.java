@@ -98,7 +98,7 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
         return new DTODataSource(
                 null,
                 this.getConnectionData().getId(),
-                generateTableName(link.getListId()),
+                link.getName(),
                 null,
                 link.getListId(),
                 syncSchedule,
@@ -108,6 +108,7 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                 0,
                 0,
                 this.findDataSourceAttributes(link),
+                generateTableName(link.getListId()),
                 null
         );
     }

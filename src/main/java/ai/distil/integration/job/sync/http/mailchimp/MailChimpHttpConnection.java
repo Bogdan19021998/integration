@@ -97,7 +97,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     private DTODataSource buildDataSource(Audience audience) {
         return new DTODataSource(null,
                 this.getConnectionData().getId(),
-                buildTableName(DataSourceType.CUSTOMER, audience.getId()),
+                audience.getName(),
                 null,
                 audience.getId(),
                 null,
@@ -108,6 +108,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 null,
                 null,
                 getDataSourceAttributes(audience.getId()),
+                buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null
         );
     }

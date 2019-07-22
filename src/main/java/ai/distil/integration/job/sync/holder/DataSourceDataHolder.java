@@ -43,7 +43,9 @@ public class DataSourceDataHolder {
     }
 
     public static DataSourceDataHolder mapFromDTODataSourceEntity(DTODataSource dataSource) {
-        return new DataSourceDataHolder(dataSource.getSourceTableName(), dataSource.getName(),
+        return new DataSourceDataHolder(
+                dataSource.getSourceTableName(),
+                dataSource.getDestinationTableName(),
                 dataSource.getAttributes(),
                 dataSource.getDataSourceType(),
                 dataSource.getId());
