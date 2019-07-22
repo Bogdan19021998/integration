@@ -48,7 +48,6 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
     @Override
     public DatasetPage getNextPage(DataSourceDataHolder dataSource, DatasetPageRequest pageRequest) {
         List<String> allFields = dataSource.getAllAttributes().stream()
-                .filter(DTODataSourceAttribute::getSyncAttribute)
                 .map(DTODataSourceAttribute::getAttributeSourceName)
                 .collect(Collectors.toList());
 

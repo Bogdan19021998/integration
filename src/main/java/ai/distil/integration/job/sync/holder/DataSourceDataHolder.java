@@ -52,7 +52,9 @@ public class DataSourceDataHolder {
     }
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
-        return ImmutableList.copyOf(attributes.stream()
+        return ImmutableList.copyOf(attributes
+                .stream()
+                .filter(DTODataSourceAttribute::getSyncAttribute)
                 .filter(attribute -> !attribute.getAttributeDataTag().isPrimaryKey())
                 .collect(Collectors.toList()));
     }

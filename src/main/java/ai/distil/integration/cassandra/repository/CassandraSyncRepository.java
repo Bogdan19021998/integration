@@ -234,7 +234,6 @@ public class CassandraSyncRepository {
 
         holder.getAttributesWithoutPrimaryKey()
                 .stream()
-                .filter(DTODataSourceAttribute::getSyncAttribute)
                 .forEach(datasetColumn -> createSchema.addColumn(datasetColumn.getAttributeDistilName(),
                         DatasetColumnType.mapFromSystemType(datasetColumn.getAttributeType()).getCassandraType()));
 

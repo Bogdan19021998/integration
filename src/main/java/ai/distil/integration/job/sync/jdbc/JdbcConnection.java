@@ -72,7 +72,6 @@ public abstract class JdbcConnection extends AbstractConnection {
 
             ResultSet resultSet = query.getResultSet();
             while (resultSet.next()) {
-
                 ColumnDefinition columnDefinition = schemaQueryDefinition.mapResultSet(resultSet);
                 String sourceColumnName = columnDefinition.getColumnName();
 
@@ -208,12 +207,7 @@ public abstract class JdbcConnection extends AbstractConnection {
     }
 
     private String selectAllAvailableFieldsStatement(DataSourceDataHolder dataSource) {
-        List<DTODataSourceAttribute> dataSourceAttributes = dataSource.getAllAttributes()
-                .stream()
-                .filter(DTODataSourceAttribute::getSyncAttribute)
-                .collect(Collectors.toList());
-
-        String fieldsList = dataSourceAttributes.stream()
+        String fieldsList = dataSource.getAllAttributes().stream()
                 .map(attr -> String.format("%1$s as %1$s", quoteString(attr.getAttributeSourceName())))
                 .collect(Collectors.joining(", "));
 
