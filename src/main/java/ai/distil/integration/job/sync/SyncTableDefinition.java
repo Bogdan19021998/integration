@@ -29,9 +29,18 @@ public enum SyncTableDefinition {
     PRODUCT("PRODUCT", "products", DataSourceType.PRODUCT,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
                 put(PRODUCT_EXTERNAL_ID, Sets.newHashSet("ID"));
+
                 put(DataSourceSchemaAttributeTag.PRODUCT_NAME, Sets.newHashSet("NAME", "TITLE"));
                 put(DataSourceSchemaAttributeTag.PRODUCT_SHOP_URL, Sets.newHashSet("URL", "PRODUCTURL", "LINK", "SHOPURL"));
                 put(DataSourceSchemaAttributeTag.PRODUCT_IMAGE_URL, Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"));
+                put(DataSourceSchemaAttributeTag.PRODUCT_THUMBNAIL_URL, Sets.newHashSet("THUMBNAIL", "THUMBNAILURL", "THUMBNAILIMAGE", "THUMBNAILLINK"));
+                put(DataSourceSchemaAttributeTag.PRODUCT_PRECIS, Sets.newHashSet("PRECIS"));
+
+                put(DataSourceSchemaAttributeTag.PRODUCT_AVAILABLE, Sets.newHashSet("AVAILABLE", "ISAVAILABLE"));
+                put(DataSourceSchemaAttributeTag.PRODUCT_LIST_PRICE_EX_TAX, Sets.newHashSet("LISTPRICEEXTAX"));
+                put(DataSourceSchemaAttributeTag.PRODUCT_LIST_PRICE_INC_TAX, Sets.newHashSet("LISTPRICEINCTAX"));
+                put(DataSourceSchemaAttributeTag.PRODUCT_PRICE_BREAKS_DESCRIPTION, Sets.newHashSet("PRODUCTPRICEBREAKSDESCRIPTION", "PRICEBREAKSDESCRIPTION"));
+
             }}),
     CONTENT("CONTENT", "content", DataSourceType.CONTENT,
             new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{

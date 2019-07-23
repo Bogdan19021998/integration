@@ -68,7 +68,7 @@ public class DataSyncService {
      */
     public DataSourceDataHolder syncSchema(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
 
-        log.debug("Syncing schema / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+        log.debug("Syncing schema / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
         cassandraSyncRepository.createTableIfNotExists(tenantId, currentSchema, true);
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
@@ -85,7 +85,7 @@ public class DataSyncService {
 
 
         return new DataSourceDataHolder(newSchema.getDataSourceId(),
-                newSchema.getDistilTableName(),
+                newSchema.getDataSourceCassandraTableName(),
                 newAttributes,
                 newSchema.getDataSourceType(),
                 currentSchema.getDataSourceForeignKey());
@@ -93,7 +93,7 @@ public class DataSyncService {
 
     public SyncProgressTrackingData reSyncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
 
-        log.debug("Re - Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+        log.debug("Re - Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil Cassandra table name: {}", tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
 
         DataSourceDataHolder updatedSchema = this.syncSchema(tenantId, currentSchema, connection);
         return syncDataSource(tenantId, updatedSchema, connection);
@@ -101,7 +101,7 @@ public class DataSyncService {
 
     public SyncProgressTrackingData syncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
 
-        log.debug("Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil table name: {}", tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+        log.debug("Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil Cassandra table name: {}", tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
 
         AbstractParser parser = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE);
 
@@ -126,11 +126,11 @@ public class DataSyncService {
             }
 
             if(progressAggregator.getSyncTrackingData().getProcessed()%1000 == 0) {
-                log.debug("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+                log.debug("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
             }
         });
 
-        log.info("Finished processing {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceId(), currentSchema.getDistilTableName());
+        log.info("Finished processing {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
 
         if(allExistingRows.size()>0) {
             log.debug("Deleting {} records from Cassandra that no longer exist in source", allExistingRows.size());

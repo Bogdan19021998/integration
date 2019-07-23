@@ -72,7 +72,7 @@ public class CassandraSyncRepository {
 
     public ResultSet selectAll(String tenantId, @NotNull DataSourceDataHolder holder) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         Select selectStatement = QueryBuilder.select().all().from(keyspaceName, tableName);
         return connection.getSession().executeAsync(selectStatement).getUninterruptibly();
@@ -80,7 +80,7 @@ public class CassandraSyncRepository {
 
     public void applySchemaChanges(String tenantId, @NotNull DataSourceDataHolder holder, AttributeChangeInfo changeAttributeType) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         DTODataSourceAttribute oldAttribute = changeAttributeType.getOldAttribute();
         DTODataSourceAttribute newAttribute = changeAttributeType.getNewAttribute();
@@ -147,7 +147,7 @@ public class CassandraSyncRepository {
 
     public ResultSetFuture deleteFromTable(String tenantId, DataSourceDataHolder holder, String primaryKey, boolean sync) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         Delete.Where delete = QueryBuilder.delete()
                 .from(keyspaceName, tableName)
@@ -170,7 +170,7 @@ public class CassandraSyncRepository {
         String keyspaceName = buildKeyspaceName(tenantId);
 
         Select select = QueryBuilder.select(PRIMARY_KEY_COLUMN, HASH_COLUMN)
-                .from(keyspaceName, holder.getDistilTableName());
+                .from(keyspaceName, holder.getDataSourceCassandraTableName());
 
         ResultSet resultSet = connection.getSession().execute(select);
 
@@ -191,7 +191,7 @@ public class CassandraSyncRepository {
 
     public long getRowsCount(String tenantId, @NotNull DataSourceDataHolder holder) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         ResultSet resultSet = connection.getSession().execute(QueryBuilder.select().countAll().from(keyspaceName, tableName));
         Long rowsCount = resultSet.one().get(0, Long.class);
@@ -202,7 +202,7 @@ public class CassandraSyncRepository {
 
     public void dropTableIfExists(String tenantId, @NotNull DataSourceDataHolder holder) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         Drop dropStatement = SchemaBuilder.dropTable(keyspaceName, tableName).ifExists();
 
@@ -211,7 +211,7 @@ public class CassandraSyncRepository {
 
     public ResultSetFuture createTableIfNotExists(String tenantId, @NotNull DataSourceDataHolder holder, boolean sync) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         createKeySpaceIfNotExists(keyspaceName, true);
 
@@ -220,7 +220,7 @@ public class CassandraSyncRepository {
         if (primaryKey == null) {
             throw new IllegalStateException(String.format("We can't create the table without the primary key. Organization - %s, Table - %s",
                     tenantId,
-                    holder.getDistilTableName()));
+                    holder.getDataSourceCassandraTableName()));
         }
 
         Create createSchema = SchemaBuilder.createTable(keyspaceName, tableName)
@@ -266,7 +266,7 @@ public class CassandraSyncRepository {
     private InsertStatementWrapper buildInsertStatement(String tenantId, @NotNull DataSourceDataHolder holder, DatasetRow row) {
         Hasher hasher = Hashing.sha1().newHasher();
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDistilTableName();
+        String tableName = holder.getDataSourceCassandraTableName();
 
         Insert insertBuilder = QueryBuilder.insertInto(keyspaceName, tableName);
 

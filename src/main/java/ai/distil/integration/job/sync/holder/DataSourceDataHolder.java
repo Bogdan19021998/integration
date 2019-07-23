@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DataSourceDataHolder {
+
     @Getter
-    private String distilTableName;
+    private String dataSourceCassandraTableName;
 
     @Getter
 //  DataSource id in database
@@ -31,15 +32,20 @@ public class DataSourceDataHolder {
     @Getter
     private DTODataSourceAttribute primaryKey;
 
-    public DataSourceDataHolder(String sourceTableName, String distilTableName, List<DTODataSourceAttribute> attributes, DataSourceType dataSourceType, Long dataSourceForeignKey) {
-        this.distilTableName = distilTableName;
-        this.dataSourceId = sourceTableName;
+    public DataSourceDataHolder(String sourceTableName, String dataSourceCassandraTableName, List<DTODataSourceAttribute> attributes, DataSourceType dataSourceType, Long dataSourceForeignKey) {
 
-        this.allAttributes = attributes;
-        this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(attributes);
-        this.primaryKey = definePrimaryKey(attributes);
+        this.dataSourceId = sourceTableName;
+        this.dataSourceCassandraTableName = dataSourceCassandraTableName;
         this.dataSourceType = dataSourceType;
         this.dataSourceForeignKey = dataSourceForeignKey;
+
+        //filter out any customer_key attributes
+        this.allAttributes = attributes.stream().filter(attribute -> !attribute.getAttributeDistilName().endsWith("customer_key")).collect(
+            Collectors.toList());
+
+        //Inferred
+        this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(this.allAttributes);
+        this.primaryKey = definePrimaryKey(this.allAttributes);
     }
 
     public static DataSourceDataHolder mapFromDTODataSourceEntity(DTODataSource dataSource) {
