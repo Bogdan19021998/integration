@@ -18,6 +18,7 @@ import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -27,6 +28,8 @@ import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 @Slf4j
 @DisallowConcurrentExecution
 public class SyncDataSourceJob extends QuartzJobBean {
+
+    private static final String DATASOURCE_ID = "datasource_id";
 
     @Autowired
     private SimpleSyncProgressListener syncProgressListener;
@@ -59,13 +62,13 @@ public class SyncDataSourceJob extends QuartzJobBean {
 // use plain return instead of an exception, because quartz will re-run the job
             return;
         }
-
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
 
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
+            MDC.put(DATASOURCE_ID, String.valueOf(request.getDataSourceId()));
 
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);
 
@@ -84,6 +87,8 @@ public class SyncDataSourceJob extends QuartzJobBean {
             connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.LAST_SYNC_FAILED));
             log.error("The error happened while running the job, do not rethrow exception because of retry policy", e);
             return;
+        } finally {
+            MDC.clear();
         }
 
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNCED));
