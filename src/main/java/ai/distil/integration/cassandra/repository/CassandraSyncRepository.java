@@ -46,7 +46,6 @@ public class CassandraSyncRepository {
     public static final Integer DEFAULT_PARTITION_FACTOR = 1000;
 
     private static final String PARTITION_COLUMN = "p";
-    private static final String PRIMARY_KEY_COLUMN = "k";
     private static final String HASH_COLUMN = "h";
     private static final String CREATED_AT_COLUMN = "c";
     private static final String UPDATED_AT_COLUMN = "u";
@@ -149,10 +148,12 @@ public class CassandraSyncRepository {
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();
 
+        DTODataSourceAttribute primaryKeyColumn = holder.getPrimaryKey();
+
         Delete.Where delete = QueryBuilder.delete()
                 .from(keyspaceName, tableName)
                 .where(eq(PARTITION_COLUMN, partitionColumnValue(primaryKey)))
-                .and(eq(PRIMARY_KEY_COLUMN, primaryKey));
+                .and(eq(primaryKeyColumn.getAttributeDistilName(), primaryKey));
 
         ResultSetFuture resultSetFuture = connection.getSession().executeAsync(delete);
 
@@ -168,8 +169,9 @@ public class CassandraSyncRepository {
         Class<String> stringClazz = String.class;
 
         String keyspaceName = buildKeyspaceName(tenantId);
+        String primaryKeyColumn = holder.getPrimaryKey().getAttributeDistilName();
 
-        Select select = QueryBuilder.select(PRIMARY_KEY_COLUMN, HASH_COLUMN)
+        Select select = QueryBuilder.select(primaryKeyColumn, HASH_COLUMN)
                 .from(keyspaceName, holder.getDataSourceCassandraTableName());
 
         ResultSet resultSet = connection.getSession().execute(select);
@@ -181,7 +183,7 @@ public class CassandraSyncRepository {
 
 //      use plain for, because it has better performance
         for (Row row : allRows) {
-            String primaryKey = row.get(PRIMARY_KEY_COLUMN, stringClazz);
+            String primaryKey = row.get(primaryKeyColumn, stringClazz);
             String hash = row.get(HASH_COLUMN, stringClazz);
             resultMap.put(primaryKey, hash);
         }
@@ -226,7 +228,7 @@ public class CassandraSyncRepository {
         Create createSchema = SchemaBuilder.createTable(keyspaceName, tableName)
                 .ifNotExists()
                 .addPartitionKey(PARTITION_COLUMN, DataType.bigint())
-                .addClusteringColumn(PRIMARY_KEY_COLUMN, DataType.text())
+                .addClusteringColumn(primaryKey.getAttributeDistilName(), DataType.text())
                 .addColumn(HASH_COLUMN, DataType.text())
                 .addColumn(CREATED_AT_COLUMN, DataType.timestamp())
                 .addColumn(UPDATED_AT_COLUMN, DataType.timestamp());
@@ -267,6 +269,7 @@ public class CassandraSyncRepository {
         Hasher hasher = Hashing.sha1().newHasher();
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();
+        DTODataSourceAttribute primaryKey = holder.getPrimaryKey();
 
         Insert insertBuilder = QueryBuilder.insertInto(keyspaceName, tableName);
 
@@ -280,11 +283,11 @@ public class CassandraSyncRepository {
             if (value != null && value.getValue() != null) {
                 Object valueForSave = convertToCassandraType(value.getValue(), DatasetColumnType.mapFromSystemType(attribute.getAttributeType()).getCassandraType());
 
-                if (holder.getPrimaryKey().getAttributeSourceName().equals(value.getAlias())) {
+                if (primaryKey.getAttributeSourceName().equals(value.getAlias())) {
                     String stringValue = valueForSave.toString();
                     primaryKeyValue = stringValue;
                     insertBuilder.value(PARTITION_COLUMN, partitionColumnValue(stringValue));
-                    insertBuilder.value(PRIMARY_KEY_COLUMN, stringValue);
+                    insertBuilder.value(primaryKey.getAttributeDistilName(), stringValue);
                 } else {
                     hasher.putObject(value, DATASET_ROW_FUNNEL);
                     insertBuilder.value(attribute.getAttributeDistilName(), valueForSave);

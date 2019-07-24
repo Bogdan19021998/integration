@@ -135,7 +135,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                     "ctime_field_1123633416", "cdec_field_59113085", "cblob_field_61622744", "cint_field_319859882",
                     "ctinyint_field_1085818454", "creal_field_1659752679", "cfixed_field_1392739439", "cnumeric_field_2053119672",
                     "cyear_field_2005292424", "cchar_field_1190608593", "cfloat_field_1470697129", "cenum_field_1103293380",
-                    "c", "cmediumint_field_724324139", "h", "cdouble_precision_field_351236491", "k", "cinteger_field_729932103",
+                    "c", "cmediumint_field_724324139", "cid_3355", "cdouble_precision_field_351236491", "h", "cinteger_field_729932103",
                     "cnull_field_2032121790", "csmallint_field_515715197", "p", "u", "cbit_field_36977848", "cdouble_field_1376821004",
                     "cdatetime_field_402323254", "cdate_field_862386473", "cbinary_field_340675388", "cdecimal_field_1901500044");
 
