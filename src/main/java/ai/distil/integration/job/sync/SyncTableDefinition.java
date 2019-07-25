@@ -23,7 +23,7 @@ public enum SyncTableDefinition {
                 put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FIRSTNAME", "GIVENNAME"));
                 put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LASTNAME", "SURNAME"));
                 put(DataSourceSchemaAttributeTag.CUSTOMER_MOBILE_NUMBER, Sets.newHashSet("MOBILENUMBER", "TELEPHONE", "TELNUMBER", "PHONENUMBER"));
-                put(DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, Sets.newHashSet("EMAIL", "EMAILADDRESS", "COUNTRY", "COUNTRYCODE"));
+                put(DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, Sets.newHashSet("COUNTRY", "COUNTRYCODE"));
             }}
     ),
     PRODUCT("PRODUCT", "products", DataSourceType.PRODUCT,
@@ -67,8 +67,6 @@ public enum SyncTableDefinition {
     @Getter
     private final DataSourceType dataSourceType;
 
-    private final Set<String> eligibleTablesNames;
-
     @Getter
     private final Map<DataSourceSchemaAttributeTag, Set<String>> attributeTags;
 
@@ -77,14 +75,6 @@ public enum SyncTableDefinition {
         this.distilTableName = distilTableName;
         this.attributeTags = attributeTags;
         this.dataSourceType = dataSourceType;
-
-        this.eligibleTablesNames = Stream.of(
-                buildSingularAndPluralNames("%s_%s", DISTIL_MARKER, baseSourceTableName),
-                buildSingularAndPluralNames("%s%s", DISTIL_MARKER, baseSourceTableName),
-                buildSingularAndPluralNames("%s-%s", DISTIL_MARKER, baseSourceTableName),
-                buildSingularAndPluralNames("V_%s_%s", DISTIL_MARKER, baseSourceTableName),
-                buildSingularAndPluralNames("V-%s-%s", DISTIL_MARKER, baseSourceTableName)
-        ).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public static Optional<SyncTableDefinition> identifySyncTableDefinition(String tableName) {
@@ -108,14 +98,6 @@ public enum SyncTableDefinition {
     }
 
     public boolean isTableNameFitNamingConvention(String tableName) {
-        return this.eligibleTablesNames.contains(tableName.trim().toUpperCase());
+        return  tableName.toUpperCase().contains(DISTIL_MARKER) && tableName.toUpperCase().contains(this.baseSourceTableName.toUpperCase());
     }
-
-    private Set<String> buildSingularAndPluralNames(String pattern, String... values) {
-        return Sets.newHashSet(
-                String.format(pattern, (Object[]) values),
-                String.format(pattern, (Object[]) values) + "S"
-        );
-    }
-
 }
