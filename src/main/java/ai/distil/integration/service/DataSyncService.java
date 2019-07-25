@@ -72,10 +72,12 @@ public class DataSyncService {
         cassandraSyncRepository.createTableIfNotExists(tenantId, currentSchema, true);
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
-        newSchema.getAllAttributes().forEach(attribute -> attribute.setDateLastVerified(new Date()));
 
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
         attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, newSchema, attr));
+
+        newSchema.getAllAttributes().forEach(attribute -> attribute.setDateLastVerified(new Date()));
+
 
         List<DTODataSourceAttribute> newAttributes = attributesChangeInfo.stream()
                 .filter(attr -> attr.getNewAttribute() != null)

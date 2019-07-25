@@ -138,7 +138,9 @@ public abstract class JdbcConnection extends AbstractConnection {
 
     @Override
     public List<DTODataSource> getAllDataSources() {
-        return getAllTables().stream().map(this::getDataSource).collect(Collectors.toList());
+        return getAllTables().stream()
+                .map(this::getDataSource)
+                .collect(Collectors.toList());
     }
 
     //    mysql, postgres, etc...

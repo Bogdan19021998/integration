@@ -12,6 +12,7 @@ import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
+import ai.distil.integration.utils.ColumnsUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
 import com.datastax.driver.core.ColumnDefinitions;
@@ -88,16 +89,17 @@ public class MySqlSyncTest extends AbstractSyncTest {
         DTOConnection connectionDTO = getDefaultConnection();
 
         String tenantId = "5";
-        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("%s_%s", CassandraSyncRepository.KEYSPACE_PREFIX, tenantId)).ifExists());
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(CassandraSyncRepository.KEYSPACE_PREFIX + tenantId).ifExists());
 
-        Set<Map<String, Object>> expectedResult = objectMapper.readValue(this.getClass().getClassLoader().getResourceAsStream(MYSQL_SYNC_RESULTS_FILE),
-                new TypeReference<Set<TreeMap<String, Object>>>() {
-                });
-
-        expectedResult.forEach(r -> {
+        List<Map<String, Object>> expectedResult = ((List<Map<String, Object>>) objectMapper.readValue(this.getClass().getClassLoader().getResourceAsStream(MYSQL_SYNC_RESULTS_FILE),
+                new TypeReference<List<TreeMap<String, Object>>>() {
+                })).stream().map(r -> {
+            Map<String, Object> result = new TreeMap<>();
             r.keySet().removeAll(DYNAMIC_FIELDS_TO_AVOID);
-            r.forEach((s, o) -> r.put(s, String.valueOf(o)));
-        });
+
+            r.forEach((s, o) -> result.put(ColumnsUtils.normalizeKeyForComparison(s), String.valueOf(o)));
+            return result;
+        }).collect(Collectors.toList());
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
@@ -107,12 +109,18 @@ public class MySqlSyncTest extends AbstractSyncTest {
                         SyncProgressTrackingData syncTrackingData = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
                         Assertions.assertEquals(expectedResult.size(), syncTrackingData.getCurrentRowsCount());
 
-                        List<Map<String, Object>> syncResult = cassandraSyncRepository.selectAllToMap(tenantId, dataSource);
+                        List<Map<String, Object>> syncResult = cassandraSyncRepository.selectAllToMap(tenantId, dataSource).stream().map(m -> {
+                            Map<String, Object> result = new HashMap<>();
+                            m.forEach((s, o) -> result.put(ColumnsUtils.normalizeKeyForComparison(s), o));
+                            return result;
+                        }).collect(Collectors.toList());
 
                         syncResult.stream().peek(row -> {
                             row.keySet().removeAll(DYNAMIC_FIELDS_TO_AVOID);
                             row.forEach((s, o) -> row.put(s, String.valueOf(o)));
-                        }).forEach(row -> Assertions.assertTrue(expectedResult.contains(row)));
+                        }).forEach(row -> {
+                            Assertions.assertTrue(expectedResult.contains(row));
+                        });
                     });
         }
 
@@ -123,6 +131,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         DTOConnection connectionDTO = getDefaultConnection();
 
         String tenantId = "4";
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(CassandraSyncRepository.KEYSPACE_PREFIX + tenantId).ifExists());
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
             DTODataSource allDataSources = connection.getAllDataSources().get(0);
@@ -137,7 +146,10 @@ public class MySqlSyncTest extends AbstractSyncTest {
                     "cyear_field_2005292424", "cchar_field_1190608593", "cfloat_field_1470697129", "cenum_field_1103293380",
                     "c", "cmediumint_field_724324139", "cid_3355", "cdouble_precision_field_351236491", "h", "cinteger_field_729932103",
                     "cnull_field_2032121790", "csmallint_field_515715197", "p", "u", "cbit_field_36977848", "cdouble_field_1376821004",
-                    "cdatetime_field_402323254", "cdate_field_862386473", "cbinary_field_340675388", "cdecimal_field_1901500044");
+                    "cdatetime_field_402323254", "cdate_field_862386473", "cbinary_field_340675388", "cdecimal_field_1901500044")
+                    .stream()
+                    .map(ColumnsUtils::normalizeKeyForComparison)
+                    .collect(Collectors.toSet());
 
             AtomicInteger rowsCounter = new AtomicInteger();
             Set<String> actualColumns = new HashSet<>();
@@ -148,7 +160,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                 rowsCounter.incrementAndGet();
                 actualColumns.addAll(columnDefinitions.asList()
                         .stream()
-                        .map(ColumnDefinitions.Definition::getName)
+                        .map(cd -> ColumnsUtils.normalizeKeyForComparison(cd.getName()))
                         .collect(Collectors.toSet()));
             });
 
@@ -171,9 +183,9 @@ public class MySqlSyncTest extends AbstractSyncTest {
             dataSyncService.reSyncDataSource(tenantId, dataSourceDataHolder, connection);
 //          removed gender, added test_new_1 and test_new_2
             Set<String> expectedNewColumns = new HashSet<>(expectedColumns);
-            expectedNewColumns.remove("ctimestamp_field_1145404271");
-            expectedNewColumns.add("ctest_new_2_2065383270");
-            expectedNewColumns.add("ctest_new_1_2065383269");
+            expectedNewColumns.remove("ctimestamp_field");
+            expectedNewColumns.add("ctest_new_2");
+            expectedNewColumns.add("ctest_new_1");
 
             int expectedNewRowsCount = 4;
 
@@ -186,7 +198,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                 newRowsCounter.incrementAndGet();
                 newActualColumns.addAll(columnDefinitions.asList()
                         .stream()
-                        .map(ColumnDefinitions.Definition::getName)
+                        .map(cd -> ColumnsUtils.normalizeKeyForComparison(cd.getName()))
                         .collect(Collectors.toSet()));
             });
 
