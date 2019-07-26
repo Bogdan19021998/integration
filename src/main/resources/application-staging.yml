@@ -59,7 +59,8 @@ spring.datasource:
 
 cassandra:
   servers:
-    - 10.1.3.5
+#   todo deal with local network setup
+    - 40.127.201.110
   keyspace: distil
   accountKeyspaceReplicationOptions:
     class: SimpleStrategy
