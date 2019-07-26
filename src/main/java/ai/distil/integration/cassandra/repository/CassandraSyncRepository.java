@@ -10,6 +10,7 @@ import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
 import ai.distil.integration.utils.ListUtils;
+import ai.distil.integration.utils.RetryUtils;
 import ai.distil.integration.utils.StringUtils;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Delete;
@@ -174,7 +175,7 @@ public class CassandraSyncRepository {
         Select select = QueryBuilder.select(primaryKeyColumn, HASH_COLUMN)
                 .from(keyspaceName, holder.getDataSourceCassandraTableName());
 
-        ResultSet resultSet = connection.getSession().execute(select);
+        ResultSet resultSet = RetryUtils.defaultCassandraReadTimeoutRetry(() -> connection.getSession().execute(select));
 
         List<Row> allRows = resultSet.all();
 
@@ -195,7 +196,8 @@ public class CassandraSyncRepository {
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();
 
-        ResultSet resultSet = connection.getSession().execute(QueryBuilder.select().countAll().from(keyspaceName, tableName));
+        ResultSet resultSet = RetryUtils.defaultCassandraReadTimeoutRetry(() ->
+                connection.getSession().execute(QueryBuilder.select().countAll().from(keyspaceName, tableName)));
         Long rowsCount = resultSet.one().get(0, Long.class);
 
         return rowsCount == null ? 0 : rowsCount;
