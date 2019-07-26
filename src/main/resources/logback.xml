@@ -11,14 +11,14 @@
         </encoder>
     </appender>
 
-    <springProfile name="prod,dev">
+    <springProfile name="prod,staging">
         <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
-            <graylogHost>localhost</graylogHost>
+            <graylogHost>10.1.3.5</graylogHost>
             <graylogPort>12201</graylogPort>
             <maxChunkSize>508</maxChunkSize>
             <useCompression>true</useCompression>
             <encoder class="de.siegmar.logbackgelf.GelfEncoder">
-                <originHost>localhost</originHost>
+                <originHost>distil-staging-cassandra-1.northeurope.cloudapp.azure.com</originHost>
                 <includeRawMessage>false</includeRawMessage>
                 <includeMarker>true</includeMarker>
                 <includeMdcData>true</includeMdcData>
@@ -33,6 +33,7 @@
                 </fullPatternLayout>
                 <numbersAsString>false</numbersAsString>
                 <staticField>ms:integrations</staticField>
+                <staticField>env:${ACTIVE_PROFILE}</staticField>
             </encoder>
         </appender>
     </springProfile>
