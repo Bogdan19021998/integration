@@ -54,7 +54,7 @@ hystrix:
 spring.datasource:
   url: jdbc:postgresql://distil-staging-postgres.postgres.database.azure.com:5432/distil?searchpath=integrations
   username: distil_admin@distil-staging-postgres
-  password: !qaz2wsXX
+  password: "!qaz2wsXX"
   driver-class-name: org.postgresql.Driver
 
 cassandra:
