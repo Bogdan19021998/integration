@@ -74,6 +74,7 @@ public class SchemaUpdateTest {
         res.setAttributeDistilName(sourceName);
         res.setAttributeType(attributeType);
         res.setAttributeDataTag(DataSourceSchemaAttributeTag.NONE);
+        res.setSyncAttribute(true);
 
         return res;
     }

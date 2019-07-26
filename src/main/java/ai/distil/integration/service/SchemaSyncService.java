@@ -32,6 +32,11 @@ public class SchemaSyncService {
 
 //          removing attribute from the map, then after all iterations will be done only new attributes remains
             DTODataSourceAttribute newAttribute = newAttributesByName.remove(attributeSourceName);
+//          todo this is a bad decision, but the easiest one, consider refactoring
+            if(newAttribute != null) {
+                newAttribute.setAttributeDistilName(oldAttribute.getAttributeDistilName());
+            }
+
             AttributeChangeType attributeChangeType = AttributeChangeType.defineAttributeType(oldAttribute, newAttribute);
             return new AttributeChangeInfo(oldAttribute.getId(), oldAttribute, newAttribute, attributeChangeType);
         }).collect(Collectors.toList());

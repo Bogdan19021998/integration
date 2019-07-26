@@ -9,6 +9,7 @@ import ai.distil.model.org.ConnectionSettings;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 // it's better to keep connections stateless, these connections not related to jdbc connections
 // but for some cases (e.g. ssh port forwarding), connections will be stateful and we'll to close them, for release ports
@@ -52,10 +53,7 @@ public abstract class AbstractConnection implements AutoCloseable {
     }
 
     protected String generateColumnName(String sourceColumnName) {
-
-        return COLUMN_NAME_PREFIX + String.format("%s_%s",
-                sourceColumnName.replaceAll(NAMING_PATTERN, ""),
-                Math.abs(sourceColumnName.hashCode()));
+        return COLUMN_NAME_PREFIX + sourceColumnName.replaceAll(NAMING_PATTERN, "") + "_" + Math.abs(UUID.randomUUID().hashCode());
     }
 
 
