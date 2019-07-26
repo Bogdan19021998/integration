@@ -51,3 +51,28 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 30000
+
+spring.datasource:
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=integrations
+  username: postgres
+  password: 1qaz2wsXX
+  driver-class-name: org.postgresql.Driver
+
+cassandra:
+  servers:
+    - localhost
+  keyspace: distil
+  accountKeyspaceReplicationOptions:
+    class: SimpleStrategy
+    replication_factor: 1
+
+ai:
+  distil:
+    api:
+      integrations:
+        url: http://localhost:8087
+      internal:
+        url: http://localhost:8086
+
+server:
+  port: 8087

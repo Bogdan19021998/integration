@@ -1,8 +1,61 @@
+spring:
+  main.banner-mode: 'off'
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: true
+    properties:
+      hibernate:
+        default_schema: integrations
+        temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+  flyway:
+    schemas: integrations
+
+app:
+  name: distil_integration
+
+logging.level.org.springframework: ERROR
+
+ai.distil.integrations.connections:
+  http:
+    mailChimp:
+      baseUrl: https://us3.api.mailchimp.com/3.0
+    campaignMonitor:
+      baseUrl: https://api.createsend.com/api/v3.2
+    salesforce:
+      baseUrl: https://login.salesforce.com
+      apiVersion: v46.0
+
+  jdbc:
+    mySql:
+      protocol: mysql
+      props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
+    postgreSql:
+      protocol: postgresql
+      props: ""
+    msSql:
+      protocol: sqlserver
+      props: ";integratedSecurity=true"
+    redshift:
+      protocol: redshift
+      props: ""
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
+
 spring.datasource:
+  url: jdbc:postgresql://distil-staging-postgres.postgres.database.azure.com:5432/distil?searchpath=integrations
+  username: distil_admin@distil-staging-postgres
+  password: !qaz2wsXX
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/distil?searchpath=distil
-  username: postgres
-  password: 1qaz2wsXX
 
 cassandra:
   servers:
@@ -16,9 +69,9 @@ ai:
   distil:
     api:
       integrations:
-        url: http://localhost:8889
+        url: https://distil-integrations.azurewebsites.net
       internal:
-        url: http://localhost:8888
+        url: http://localhost:8086
 
 server:
-  port: 8889
+  port: 80
