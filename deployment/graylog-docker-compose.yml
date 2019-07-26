@@ -1,30 +1,27 @@
-version: '2'
+version: '3'
 services:
   mongodb:
     image: mongo:3
+    restart: always
     volumes:
-      - ./data/mongo:/data/db
+      - /data/graylog/mongo:/data/db
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.1
+    restart: always
     environment:
       - http.host=0.0.0.0
       - transport.host=localhost
       - network.host=0.0.0.0
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
-      - ./data/mongo:/usr/share/elasticsearch/data
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    mem_limit: 1g
+      - esdata:/usr/share/elasticsearch/data
   graylog:
     image: graylog/graylog:3.0
+    restart: always
     environment:
       - GRAYLOG_PASSWORD_SECRET=mfyz11sanane22banane
-      # Password: admin
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://distil-staging-cassandra-1.northeurope.cloudapp.azure.com:9000/
     links:
       - mongodb:mongo
       - elasticsearch
@@ -38,3 +35,6 @@ services:
       - 1514:1514/udp # Syslog UDP
       - 12201:12201 # GELF TCP
       - 12201:12201/udp # GELF UDP
+
+volumes:
+  esdata:
