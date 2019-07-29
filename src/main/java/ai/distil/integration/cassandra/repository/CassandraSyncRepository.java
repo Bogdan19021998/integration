@@ -75,7 +75,7 @@ public class CassandraSyncRepository {
         String tableName = holder.getDataSourceCassandraTableName();
 
         Select selectStatement = QueryBuilder.select().all().from(keyspaceName, tableName);
-        return connection.getSession().executeAsync(selectStatement).getUninterruptibly();
+        return RetryUtils.defaultCassandraTimeoutRetry(() -> connection.getSession().executeAsync(selectStatement).getUninterruptibly());
     }
 
     public void applySchemaChanges(String tenantId, @NotNull DataSourceDataHolder holder, AttributeChangeInfo changeAttributeType) {
@@ -106,7 +106,7 @@ public class CassandraSyncRepository {
         SchemaStatement deleteColumnStatement = SchemaBuilder.alterTable(keyspaceName, tableName)
                 .dropColumn(attribute.getAttributeDistilName());
 
-        this.connection.getSession().execute(deleteColumnStatement);
+        RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(deleteColumnStatement));
     }
 
     public void addColumn(String keyspaceName, String tableName, DTODataSourceAttribute attribute) {
@@ -114,7 +114,7 @@ public class CassandraSyncRepository {
                 .addColumn(attribute.getAttributeDistilName())
                 .type(DatasetColumnType.mapFromSystemType(attribute.getAttributeType()).getCassandraType());
 
-        this.connection.getSession().execute(addColumnStatement);
+        RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(addColumnStatement));
     }
 
     public IngestionResult insertWithStats(String tenantId, @NotNull DataSourceDataHolder holder, DatasetRow row, Map<String, String> existingRows, boolean sync) {
@@ -127,17 +127,21 @@ public class CassandraSyncRepository {
                 insert.value(CREATED_AT_COLUMN, new Date());
             }
 
-            ResultSetFuture resultSetFuture = null;
+            return RetryUtils.defaultCassandraTimeoutRetry(() -> {
 
-            if (!IngestionStatus.NOT_CHANGED.equals(ingestionStatus)) {
-                resultSetFuture = connection.getSession().executeAsync(insert);
-            }
+                ResultSetFuture resultSetFuture = null;
 
-            if (sync && resultSetFuture != null) {
-                resultSetFuture.getUninterruptibly();
-            }
+                if (!IngestionStatus.NOT_CHANGED.equals(ingestionStatus)) {
+                    resultSetFuture = connection.getSession().executeAsync(insert);
+                }
 
-            return new IngestionResult(resultSetFuture, ingestionStatus, insertStatement.getPrimaryKey());
+                if (sync && resultSetFuture != null) {
+                    resultSetFuture.getUninterruptibly();
+                }
+
+                return new IngestionResult(resultSetFuture, ingestionStatus, insertStatement.getPrimaryKey());
+            });
+
         } catch (Exception e) {
             log.error("Can't ingest row", e);
             return new IngestionResult(null, IngestionStatus.ERROR, null);
@@ -156,13 +160,16 @@ public class CassandraSyncRepository {
                 .where(eq(PARTITION_COLUMN, partitionColumnValue(primaryKey)))
                 .and(eq(primaryKeyColumn.getAttributeDistilName(), primaryKey));
 
-        ResultSetFuture resultSetFuture = connection.getSession().executeAsync(delete);
+        return RetryUtils.defaultCassandraTimeoutRetry(() -> {
+            ResultSetFuture resultSetFuture = connection.getSession().executeAsync(delete);
 
-        if (sync) {
-            resultSetFuture.getUninterruptibly();
-        }
+            if (sync) {
+                resultSetFuture.getUninterruptibly();
+            }
 
-        return resultSetFuture;
+            return resultSetFuture;
+        });
+
     }
 
     //      key is an id, value is a hash
@@ -175,7 +182,7 @@ public class CassandraSyncRepository {
         Select select = QueryBuilder.select(primaryKeyColumn, HASH_COLUMN)
                 .from(keyspaceName, holder.getDataSourceCassandraTableName());
 
-        ResultSet resultSet = RetryUtils.defaultCassandraReadTimeoutRetry(() -> connection.getSession().execute(select));
+        ResultSet resultSet = RetryUtils.defaultCassandraTimeoutRetry(() -> connection.getSession().execute(select));
 
         List<Row> allRows = resultSet.all();
 
@@ -196,7 +203,7 @@ public class CassandraSyncRepository {
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();
 
-        ResultSet resultSet = RetryUtils.defaultCassandraReadTimeoutRetry(() ->
+        ResultSet resultSet = RetryUtils.defaultCassandraTimeoutRetry(() ->
                 connection.getSession().execute(QueryBuilder.select().countAll().from(keyspaceName, tableName)));
         Long rowsCount = resultSet.one().get(0, Long.class);
 
@@ -210,7 +217,7 @@ public class CassandraSyncRepository {
 
         Drop dropStatement = SchemaBuilder.dropTable(keyspaceName, tableName).ifExists();
 
-        this.connection.getSession().execute(dropStatement);
+        RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(dropStatement));
     }
 
     public ResultSetFuture createTableIfNotExists(String tenantId, @NotNull DataSourceDataHolder holder, boolean sync) {
@@ -237,17 +244,18 @@ public class CassandraSyncRepository {
 
 
         holder.getAttributesWithoutPrimaryKey()
-                .stream()
                 .forEach(datasetColumn -> createSchema.addColumn(datasetColumn.getAttributeDistilName(),
                         DatasetColumnType.mapFromSystemType(datasetColumn.getAttributeType()).getCassandraType()));
 
-        ResultSetFuture resultSetFuture = this.connection.getSession().executeAsync(createSchema);
+        return RetryUtils.defaultCassandraTimeoutRetry(() -> {
+            ResultSetFuture resultSetFuture = this.connection.getSession().executeAsync(createSchema);
 
-        if (sync) {
-            resultSetFuture.getUninterruptibly();
-        }
+            if (sync) {
+                resultSetFuture.getUninterruptibly();
+            }
 
-        return resultSetFuture;
+            return resultSetFuture;
+        });
     }
 
     public ResultSetFuture createKeySpaceIfNotExists(@NotNull String keyspaceName, boolean sync) {
@@ -259,12 +267,15 @@ public class CassandraSyncRepository {
                 .with()
                 .replication(defaultReplication);
 
-        ResultSetFuture resultSetFuture = this.connection.getSession().executeAsync(keyspaceOptions);
+        return RetryUtils.defaultCassandraTimeoutRetry(() -> {
+            ResultSetFuture resultSetFuture = this.connection.getSession().executeAsync(keyspaceOptions);
 
-        if (sync) {
-            resultSetFuture.getUninterruptibly();
-        }
-        return resultSetFuture;
+            if (sync) {
+                resultSetFuture.getUninterruptibly();
+            }
+            return resultSetFuture;
+        });
+
     }
 
     private InsertStatementWrapper buildInsertStatement(String tenantId, @NotNull DataSourceDataHolder holder, DatasetRow row) {
