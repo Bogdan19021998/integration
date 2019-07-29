@@ -14,6 +14,7 @@ import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -80,6 +81,8 @@ public class CampaignMonitorIntegrationTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = defaultConnection();
         String tenantId = "130";
+
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()

@@ -23,10 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -109,6 +106,8 @@ public class DataSyncService {
 
         Map<String, String> allExistingRows = cassandraSyncRepository.getAllRowsIdsAndHashes(tenantId, currentSchema);
 
+        Set<String> existingPrimaryKeys = new HashSet<>(allExistingRows.size());
+
         int allRowsCountBeforeUpdate = allExistingRows.size();
 
         log.debug("Existing row count : {}", allRowsCountBeforeUpdate);
@@ -121,24 +120,25 @@ public class DataSyncService {
             IngestionResult ingestionResult = cassandraSyncRepository.insertWithStats(tenantId, currentSchema, row, allExistingRows, true);
 //          remove the row from the all existing rows map, then left rows must be deleted after the sync
             allExistingRows.remove(ingestionResult.getPrimaryKey());
-            progressAggregator.aggregate(ingestionResult);
+            progressAggregator.aggregate(ingestionResult, existingPrimaryKeys);
+            existingPrimaryKeys.add(ingestionResult.getPrimaryKey());
 
-            if(progressAggregator.getConsecutiveErrors()>5){
+            if (progressAggregator.getConsecutiveErrors() > 5) {
                 throw new RuntimeException("Too many errors have occurred consecutively - aborting the sync");
             }
 
-            if(progressAggregator.getSyncTrackingData().getProcessed()%1000 == 0) {
+            if (progressAggregator.getSyncTrackingData().getProcessed() % 1000 == 0) {
                 log.debug("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
             }
         });
 
         log.info("Finished processing {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
 
-        if(allExistingRows.size()>0) {
+        if (allExistingRows.size() > 0) {
             log.debug("Deleting {} records from Cassandra that no longer exist in source", allExistingRows.size());
 
             allExistingRows.forEach((primaryKey, hash) ->
-                cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
+                    cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
         }
 
         log.trace("Stopping tacking");
@@ -148,10 +148,10 @@ public class DataSyncService {
         progressAggregator.setDeletedCount(allExistingRows.size());
 
         log.trace("Getting rows count");
-        long rowsCount = cassandraSyncRepository.getRowsCount(tenantId, currentSchema);
+        long uniqueRowsCount = existingPrimaryKeys.size();
 
         log.trace("Setting rows count");
-        progressAggregator.setCurrentRowsCount(rowsCount);
+        progressAggregator.setCurrentRowsCount(uniqueRowsCount);
 
         log.trace("Getting sync tracking data");
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();

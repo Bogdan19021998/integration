@@ -21,7 +21,7 @@ CREATE TABLE distil.distil_customers
   timestamp_field        TIMESTAMP        NOT NULL,
   year_field             YEAR             NOT NULL,
   char_field             CHAR             NOT NULL,
-  binary_field BINARY NOT NULL,
+  binary_field           BINARY           NOT NULL,
   blob_field             BLOB             NOT NULL,
   text_field             TEXT             NOT NULL,
   enum_field             ENUM('M', 'F')   NOT NULL,

@@ -20,12 +20,14 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
+import ai.distil.model.org.DataSourceHistory;
 import ai.distil.model.types.ConnectionType;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -155,7 +157,46 @@ public class MailChimpIntegrationTest {
             Assertions.assertEquals(allRows.get(0).keySet().size(), 47);
 
         }
+    }
 
+
+    @Test
+    public void syncWithDuplicates() throws Exception {
+        String tenantId = "35";
+
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
+        DTOConnection connectionDTO = defaultConnection();
+
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {}))
+                .when(restService).execute(Mockito.any(), Mockito.any(MailChimpAudiencesRequest.class), Mockito.any());
+
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_members_duplicates.json", new TypeReference<MembersWrapper>() {}))
+                .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMembersRequest.class), Mockito.any());
+
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {}))
+                .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMergeFieldsRequest.class), Mockito.any());
+
+        DataSourceDataHolder oldDataSource;
+
+        try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
+            oldDataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
+            ArgumentCaptor<String> tenantIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<DataSourceHistory> dataSourceHistoryArgumentCaptor = ArgumentCaptor.forClass(DataSourceHistory.class);
+            Mockito.when(dataSourceProxy.save(tenantIdArgumentCaptor.capture(), dataSourceHistoryArgumentCaptor.capture()))
+                    .thenReturn(null);
+
+            SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(tenantId, oldDataSource, connection);
+//            check we processed 5 rows
+            Assertions.assertEquals(3, syncResults.getProcessed());
+//            retrieve all existing rows
+            List<Map<String, Object>> allRows = cassandraSyncRepository.selectAllToMap(tenantId, oldDataSource);
+//            check that existing rows count match processed ones
+            Assertions.assertEquals(allRows.size(), syncResults.getCurrentRowsCount());
+            Assertions.assertEquals(2, syncResults.getDuplicates());
+
+            Assertions.assertTrue(dataSourceHistoryArgumentCaptor.getValue().getEncounteredError());
+
+        }
 
     }
 
@@ -163,6 +204,8 @@ public class MailChimpIntegrationTest {
     public void testSimpleSync() throws Exception {
         DTOConnection connectionDTO = defaultConnection();
         String tenantId = "30";
+
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
