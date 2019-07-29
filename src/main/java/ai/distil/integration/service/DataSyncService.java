@@ -74,15 +74,18 @@ public class DataSyncService {
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
         attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, newSchema, attr));
 
-        newSchema.getAllAttributes().forEach(attribute -> attribute.setDateLastVerified(new Date()));
-
-
         List<DTODataSourceAttribute> newAttributes = attributesChangeInfo.stream()
-                .filter(attr -> attr.getNewAttribute() != null)
-                .peek(v -> v.getNewAttribute().setId(v.getAttributeId()))
-                .map(AttributeChangeInfo::getNewAttribute)
+                .map(v -> {
+                    if (v.getNewAttribute() == null) {
+                        v.getOldAttribute().setVerifiedStillPresent(false);
+                        v.getOldAttribute().setSyncAttribute(false);
+                        return v.getOldAttribute();
+                    } else {
+                        v.getNewAttribute().setId(v.getAttributeId());
+                        return v.getNewAttribute();
+                    }
+                }).peek(attribute -> attribute.setDateLastVerified(new Date()))
                 .collect(Collectors.toList());
-
 
         return new DataSourceDataHolder(newSchema.getDataSourceId(),
                 newSchema.getDataSourceCassandraTableName(),
