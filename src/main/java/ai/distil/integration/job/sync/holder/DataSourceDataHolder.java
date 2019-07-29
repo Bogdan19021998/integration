@@ -40,8 +40,10 @@ public class DataSourceDataHolder {
         this.dataSourceForeignKey = dataSourceForeignKey;
 
         //filter out any customer_key attributes
-        this.allAttributes = attributes.stream().filter(attribute -> !attribute.getAttributeDistilName().endsWith("customer_key")).collect(
-            Collectors.toList());
+        this.allAttributes = attributes.stream()
+                .filter(attribute -> !attribute.getAttributeDistilName().endsWith("customer_key"))
+                .filter(DTODataSourceAttribute::getSyncAttribute)
+                .collect(Collectors.toList());
 
         //Inferred
         this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(this.allAttributes);

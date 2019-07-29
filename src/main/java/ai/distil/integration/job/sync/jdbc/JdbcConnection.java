@@ -84,7 +84,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                         columnDefinition.getDataType(),
                         true,
                         syncTableDefinition.map(v -> v.tryToGetAttributeType(sourceColumnName)).orElse(null),
-                        null,
+                        true,
                         null,
                         null));
             }

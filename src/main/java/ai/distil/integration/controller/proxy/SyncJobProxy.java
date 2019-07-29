@@ -1,5 +1,6 @@
 package ai.distil.integration.controller.proxy;
 
+import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,11 +14,20 @@ import javax.validation.Valid;
 @FeignClient(value = "SyncJobClient", url = "${ai.distil.api.integrations.url}", path = "/sync")
 public interface SyncJobProxy {
 
-    @ApiOperation(value = "Schedule a new sync task")
-    @PostMapping("/schedule")
-    void scheduleJob(@RequestBody @Valid ScheduleDatasourceSyncRequest request);
+    @ApiOperation(value = "Schedule a new sync datasource task")
+    @PostMapping("/schedule/datasource")
+    void scheduleSyncDatasourceJob(@RequestBody @Valid ScheduleDatasourceSyncRequest request);
 
-    @ApiOperation(value = "Run now a new sync task")
-    @PostMapping("/run_now")
-    void runSyncNow(@RequestBody @Valid ScheduleDatasourceSyncRequest request);
+    @ApiOperation(value = "Run now a new sync datasource task")
+    @PostMapping("/run_now/datasource")
+    void runSyncDatasourceNow(@RequestBody @Valid ScheduleDatasourceSyncRequest request);
+
+    @ApiOperation(value = "Schedule a new sync connection task")
+    @PostMapping("/schedule/connection")
+    void scheduleConnectionJob(@RequestBody @Valid ScheduleConnectionSyncRequest request);
+
+    @ApiOperation(value = "Run now a new sync connection task")
+    @PostMapping("/run_now/connection")
+    void runSyncConnectionNow(@RequestBody @Valid ScheduleConnectionSyncRequest request);
+
 }
