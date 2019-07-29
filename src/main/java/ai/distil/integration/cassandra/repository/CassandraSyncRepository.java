@@ -199,18 +199,6 @@ public class CassandraSyncRepository {
         return resultMap;
     }
 
-    public long getRowsCount(String tenantId, @NotNull DataSourceDataHolder holder) {
-        String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDataSourceCassandraTableName();
-
-        ResultSet resultSet = RetryUtils.defaultCassandraTimeoutRetry(() ->
-                connection.getSession().execute(QueryBuilder.select().countAll().from(keyspaceName, tableName)));
-        Long rowsCount = resultSet.one().get(0, Long.class);
-
-        return rowsCount == null ? 0 : rowsCount;
-    }
-
-
     public void dropTableIfExists(String tenantId, @NotNull DataSourceDataHolder holder) {
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();

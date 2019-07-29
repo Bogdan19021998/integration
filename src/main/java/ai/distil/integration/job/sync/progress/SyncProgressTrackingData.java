@@ -16,6 +16,7 @@ public class SyncProgressTrackingData {
     private long created;
     private long updated;
     private long deleted;
+    private long duplicates;
     private long errorsCount;
     private long notChanged;
     private long currentRowsCount;
@@ -26,6 +27,11 @@ public class SyncProgressTrackingData {
     public void incrementCreatesCounter() {
         this.processed++;
         this.created++;
+    }
+
+    public void incrementDuplicatesCounter() {
+        this.processed++;
+        this.duplicates++;
     }
 
     public void incrementUpdatesCounter() {

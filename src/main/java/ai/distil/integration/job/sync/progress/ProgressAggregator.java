@@ -1,10 +1,12 @@
 package ai.distil.integration.job.sync.progress;
 
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
+import ai.distil.integration.cassandra.repository.vo.IngestionStatus;
 import lombok.Getter;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Date;
+import java.util.Set;
 
 public class ProgressAggregator {
     @Getter
@@ -17,7 +19,12 @@ public class ProgressAggregator {
         this.syncTrackingData = new SyncProgressTrackingData();
     }
 
-    public void aggregate(IngestionResult ingestionResult) {
+    public void aggregate(IngestionResult ingestionResult, Set<String> existingPrimaryKeys) {
+        if(ingestionResult.getIngestionStatus() != IngestionStatus.ERROR && existingPrimaryKeys.contains(ingestionResult.getPrimaryKey())) {
+            this.syncTrackingData.incrementDuplicatesCounter();
+            return;
+        }
+
         switch (ingestionResult.getIngestionStatus()) {
             case CREATED:
                 this.syncTrackingData.incrementCreatesCounter();
