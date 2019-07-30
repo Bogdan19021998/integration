@@ -26,8 +26,14 @@ public class DataSourceDataHolder {
 
     @Getter
     private List<DTODataSourceAttribute> attributesWithoutPrimaryKey;
+
+    //  all attributes filtered
     @Getter
     private List<DTODataSourceAttribute> allAttributes;
+
+    //  all attributes without filtering
+    @Getter
+    private List<DTODataSourceAttribute> sourceAttributes;
 
     @Getter
     private DTODataSourceAttribute primaryKey;
@@ -38,6 +44,8 @@ public class DataSourceDataHolder {
         this.dataSourceCassandraTableName = dataSourceCassandraTableName;
         this.dataSourceType = dataSourceType;
         this.dataSourceForeignKey = dataSourceForeignKey;
+
+        this.sourceAttributes = attributes;
 
         //filter out any customer_key attributes
         this.allAttributes = attributes.stream()
