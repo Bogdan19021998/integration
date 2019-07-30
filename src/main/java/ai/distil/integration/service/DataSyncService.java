@@ -78,10 +78,12 @@ public class DataSyncService {
                 .map(v -> {
                     if (v.getNewAttribute() == null) {
                         v.getOldAttribute().setVerifiedStillPresent(false);
-                        v.getOldAttribute().setSyncAttribute(false);
                         return v.getOldAttribute();
                     } else {
                         v.getNewAttribute().setId(v.getAttributeId());
+                        v.getNewAttribute().setSyncAttribute(Optional.ofNullable(v.getOldAttribute())
+                                .map(DTODataSourceAttribute::getSyncAttribute)
+                                .orElse(false));
                         return v.getNewAttribute();
                     }
                 }).peek(attribute -> attribute.setDateLastVerified(new Date()))
