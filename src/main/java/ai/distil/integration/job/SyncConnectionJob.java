@@ -46,17 +46,17 @@ public class SyncConnectionJob extends QuartzJobBean {
 
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
 
-        boolean hasError = allDataSources.stream().map(dataSource -> {
+        boolean hasError = allDataSources.stream().anyMatch(dataSource -> {
             try {
                 syncDataSourceJob.execute(new SyncDataSourceRequest(request.getOrgId(), request.getTenantId(), request.getConnectionId(), dataSource.getId()));
-                return true;
+                return false;
             } catch (Exception e) {
                 log.error("Can't sync datasource {}", dataSource.getId(), e);
-                return false;
+                return true;
             }
-        }).anyMatch(v -> !v);
+        });
 
-        ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS;
+        ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNCED;
 
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncResult));
 
