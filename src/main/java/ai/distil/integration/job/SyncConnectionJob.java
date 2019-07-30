@@ -44,7 +44,7 @@ public class SyncConnectionJob extends QuartzJobBean {
 
         List<DTODataSource> allDataSources = dataSourceProxy.getAllDataSourcesByConnection(request.getTenantId(), request.getConnectionId());
 
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
+        updateConnectionData(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
         boolean hasError = allDataSources.stream().anyMatch(dataSource -> {
             try {
@@ -58,7 +58,11 @@ public class SyncConnectionJob extends QuartzJobBean {
 
         ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNCED;
 
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncResult));
+        updateConnectionData(request, syncResult);
 
+    }
+
+    private void updateConnectionData(SyncConnectionRequest request, ConnectionSchemaSyncStatus syncInProgress) {
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
     }
 }
