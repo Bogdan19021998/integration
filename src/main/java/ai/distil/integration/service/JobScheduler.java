@@ -101,7 +101,11 @@ public class JobScheduler {
             log.info("Scheduling one time job - {}", jobKey);
 
             Scheduler scheduler = fastSchedulerFactoryBean.getScheduler();
-            scheduler.scheduleJob(jobDetail, cronTriggerBean);
+            if(scheduler.checkExists(jobDetail.getKey())) {
+                scheduler.triggerJob(jobDetail.getKey());
+            } else {
+                scheduler.scheduleJob(jobDetail, cronTriggerBean);
+            }
 
             return true;
         } catch (SchedulerException e) {
