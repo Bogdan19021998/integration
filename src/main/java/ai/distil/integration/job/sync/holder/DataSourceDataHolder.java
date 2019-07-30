@@ -40,10 +40,9 @@ public class DataSourceDataHolder {
         this.dataSourceForeignKey = dataSourceForeignKey;
 
         //filter out any customer_key attributes
-//      todo review with Neil, basically we don't need to filter it here
         this.allAttributes = attributes.stream()
                 .filter(attribute -> !attribute.getAttributeDistilName().endsWith("customer_key"))
-                .filter(DTODataSourceAttribute::getSyncAttribute)
+                .filter(DTODataSourceAttribute::getVerifiedStillPresent)
                 .collect(Collectors.toList());
 
         //Inferred
@@ -63,7 +62,7 @@ public class DataSourceDataHolder {
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
         return ImmutableList.copyOf(attributes
                 .stream()
-                .filter(DTODataSourceAttribute::getSyncAttribute)
+                .filter(DTODataSourceAttribute::getVerifiedStillPresent)
                 .filter(attribute -> !attribute.getAttributeDataTag().isPrimaryKey())
                 .collect(Collectors.toList()));
     }

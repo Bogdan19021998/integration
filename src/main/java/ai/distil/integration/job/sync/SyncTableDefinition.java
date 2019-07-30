@@ -6,8 +6,10 @@ import com.google.common.collect.Sets;
 import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
@@ -98,6 +100,6 @@ public enum SyncTableDefinition {
     }
 
     public boolean isTableNameFitNamingConvention(String tableName) {
-        return  tableName.toUpperCase().contains(DISTIL_MARKER) && tableName.toUpperCase().contains(this.baseSourceTableName.toUpperCase());
+        return tableName.toUpperCase().contains(DISTIL_MARKER) && tableName.toUpperCase().contains(this.baseSourceTableName.toUpperCase());
     }
 }

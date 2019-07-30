@@ -230,7 +230,6 @@ public class CassandraSyncRepository {
                 .addColumn(CREATED_AT_COLUMN, DataType.timestamp())
                 .addColumn(UPDATED_AT_COLUMN, DataType.timestamp());
 
-
         holder.getAttributesWithoutPrimaryKey()
                 .forEach(datasetColumn -> createSchema.addColumn(datasetColumn.getAttributeDistilName(),
                         DatasetColumnType.mapFromSystemType(datasetColumn.getAttributeType()).getCassandraType()));

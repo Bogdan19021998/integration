@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class DataSyncService {
 
+    public static final int MAX_CONSECUTIVE_ERRORS_COUNT = 5;
     private final CassandraSyncRepository cassandraSyncRepository;
     private final DataSourceProxy dataSourceProxy;
     private final ConnectionFactory connectionFactory;
@@ -77,10 +78,12 @@ public class DataSyncService {
                 .map(v -> {
                     if (v.getNewAttribute() == null) {
                         v.getOldAttribute().setVerifiedStillPresent(false);
-                        v.getOldAttribute().setSyncAttribute(false);
                         return v.getOldAttribute();
                     } else {
                         v.getNewAttribute().setId(v.getAttributeId());
+                        v.getNewAttribute().setSyncAttribute(Optional.ofNullable(v.getOldAttribute())
+                                .map(DTODataSourceAttribute::getSyncAttribute)
+                                .orElse(false));
                         return v.getNewAttribute();
                     }
                 }).peek(attribute -> attribute.setDateLastVerified(new Date()))
@@ -126,7 +129,7 @@ public class DataSyncService {
             progressAggregator.aggregate(ingestionResult, existingPrimaryKeys);
             existingPrimaryKeys.add(ingestionResult.getPrimaryKey());
 
-            if (progressAggregator.getConsecutiveErrors() > 5) {
+            if (progressAggregator.getConsecutiveErrors() > MAX_CONSECUTIVE_ERRORS_COUNT) {
                 throw new RuntimeException("Too many errors have occurred consecutively - aborting the sync");
             }
 

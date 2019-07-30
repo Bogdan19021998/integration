@@ -22,10 +22,12 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 
 @Slf4j
+@Component
 @DisallowConcurrentExecution
 public class SyncDataSourceJob extends QuartzJobBean {
 
@@ -51,6 +53,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
+        execute(request);
+    }
+
+    public void execute(SyncDataSourceRequest request) {
 
         ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getTenantId(), request.getOrgId(),
                 request.getConnectionId(),
@@ -62,7 +68,6 @@ public class SyncDataSourceJob extends QuartzJobBean {
 // use plain return instead of an exception, because quartz will re-run the job
             return;
         }
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS));
 
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
@@ -91,7 +96,6 @@ public class SyncDataSourceJob extends QuartzJobBean {
             MDC.clear();
         }
 
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.SYNCED));
         connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
     }
 
