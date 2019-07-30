@@ -53,7 +53,16 @@ public class SyncDataSourceJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
-        execute(request);
+
+        updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
+
+        try {
+            execute(request);
+            updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNCED);
+        } catch (Exception e) {
+            log.error("Can't execute datasource - {} sync ", request.getDataSourceId(), e);
+            updateConnectionStatus(request, ConnectionSchemaSyncStatus.LAST_SYNC_FAILED);
+        }
     }
 
     public void execute(SyncDataSourceRequest request) {
@@ -63,10 +72,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 request.getDataSourceId());
 
         if (dataSourceResponse.getStatusCode().isError() || dataSourceResponse.getBody() == null) {
-// todo think about raising an error in data sync history service
-            log.warn("There is no data source by this data or some internal error: {}", dataSourceResponse);
-// use plain return instead of an exception, because quartz will re-run the job
-            return;
+            throw new IllegalArgumentException("There is no data source by this data or some internal error");
         }
 
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
@@ -83,20 +89,21 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getAllAttributes()));
                 dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
             } else {
-                log.info("The data source no longer exists?? - updating the datasource details");
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
-                return;
+                throw new IllegalArgumentException("The data source no longer exists?? - updating the datasource details");
             }
 
         } catch (Exception e) {
-            connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(ConnectionSchemaSyncStatus.LAST_SYNC_FAILED));
-            log.error("The error happened while running the job, do not rethrow exception because of retry policy", e);
-            return;
+            throw new RuntimeException("The error happened while running the job, do not rethrow exception because of retry policy", e);
         } finally {
             MDC.clear();
         }
 
         connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
+    }
+
+    private void updateConnectionStatus(SyncDataSourceRequest request, ConnectionSchemaSyncStatus syncInProgress) {
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
     }
 
 }
