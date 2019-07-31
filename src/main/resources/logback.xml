@@ -11,7 +11,7 @@
         </encoder>
     </appender>
 
-    <springProfile name="prod,staging">
+    <springProfile name="production,staging">
         <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
             <graylogHost>distil-staging-cassandra-1.northeurope.cloudapp.azure.com</graylogHost>
             <graylogPort>12201</graylogPort>
@@ -42,31 +42,13 @@
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
-
-        <root level="ERROR">
-            <appender-ref ref="CONSOLE"/>
-        </root>
-        <root level="WARN">
-            <appender-ref ref="CONSOLE"/>
-        </root>
-
     </springProfile>
 
-    <springProfile name="prod,staging">
+    <springProfile name="production,staging">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="GELF"/>
         </root>
-
-        <root level="ERROR">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="GELF"/>
-        </root>
-        <root level="WARN">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="GELF"/>
-        </root>
     </springProfile>
-
 
 </configuration>
