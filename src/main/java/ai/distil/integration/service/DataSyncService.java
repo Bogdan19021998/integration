@@ -8,7 +8,6 @@ import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
 import ai.distil.integration.constants.SyncErrors;
 import ai.distil.integration.job.sync.AbstractConnection;
-import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.parser.AbstractParser;
 import ai.distil.integration.job.sync.parser.ParserFactory;
@@ -25,40 +24,27 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DataSyncService {
 
-    public static final int MAX_CONSECUTIVE_ERRORS_COUNT = 5;
+    private static final int MAX_CONSECUTIVE_ERRORS_COUNT = 5;
+
     private final CassandraSyncRepository cassandraSyncRepository;
     private final DataSourceProxy dataSourceProxy;
     private final ConnectionFactory connectionFactory;
     private final SchemaSyncService schemaSyncService;
 
 
-    public List<DTODataSource> findAllDataSources(DTOConnection dtoConnection) {
+    public List<DTODataSource> findAllEligibleDataSources(DTOConnection dtoConnection) {
         try (AbstractConnection abstractConnection = connectionFactory.buildConnection(dtoConnection)) {
-            return abstractConnection.getAllDataSources();
+            return abstractConnection.getEligibleDataSources();
         } catch (Exception e) {
             log.error("Can't find all data sources.", e);
             return null;
         }
-    }
-
-    public List<DTODataSource> findAllEligibleDataSources(DTOConnection dtoConnection) {
-        List<DTODataSource> allTables = findAllDataSources(dtoConnection);
-        return filterEligibleDataSources(allTables);
-    }
-
-    public List<DTODataSource> filterEligibleDataSources(List<DTODataSource> dataSources) {
-        Set<SyncTableDefinition> tablesDefinitions = Stream.of(SyncTableDefinition.values()).collect(Collectors.toSet());
-
-        return dataSources.stream().filter(dataSource -> tablesDefinitions.stream()
-                .anyMatch(tableDefinition -> tableDefinition.isTableNameFitNamingConvention(dataSource.getSourceTableName())))
-                .collect(Collectors.toList());
     }
 
     /**
