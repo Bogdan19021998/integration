@@ -46,7 +46,7 @@ import static ai.distil.integration.utils.ParseUtils.parseJsonFile;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MailChimpIntegrationTest {
 
-    public static final String DEFAULT_API_KEY = "YXBpOmE4ZjlkMTBjYmVlODZhNjM3N2Q2YTliNWM3Yzg5NThlLXVzMw==";
+    public static final String DEFAULT_API_KEY = "a8f9d10cbee86a6377d6a9b5c7c8958e-us3";
     @MockBean
     @Autowired
     private DataSourceProxy dataSourceProxy;

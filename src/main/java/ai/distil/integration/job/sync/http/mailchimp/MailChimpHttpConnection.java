@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
 
-    private static final String DEFAULT_URL_PART = "us3";
     private static final String DEFAULT_API_KEY_SEPARATOR = "-";
 
     private MailChimpMembersFieldsHolder fieldsHolder;
@@ -41,7 +40,8 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
         super(dtoConnection, restService, fieldsHolder);
         this.fieldsHolder = fieldsHolder;
 
-        String urlPart = ArrayUtils.get(1, getApiKey().split(DEFAULT_API_KEY_SEPARATOR)).orElse(DEFAULT_URL_PART);
+        String urlPart = ArrayUtils.get(1, getApiKey().split(DEFAULT_API_KEY_SEPARATOR))
+                .orElseThrow(() -> new IllegalArgumentException("Api key is in invalid format."));
         this.baseUrl = String.format(HttpConnectionConfiguration.MAIL_CHIMP.getBaseUrl(), urlPart);
     }
 
