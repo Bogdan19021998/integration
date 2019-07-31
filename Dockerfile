@@ -11,11 +11,11 @@ ENV SETTINGS_FILE /usr/share/maven/conf/settings.xml
 WORKDIR ${BASE_DIR}
 ADD pom.xml ${BASE_DIR}
 ADD .mvn-settings.xml ${SETTINGS_FILE}
-RUN mvn -B -f ./pom.xml -s ${SETTINGS_FILE} dependency:resolve
+RUN mvn dependency:go-offline -s ${SETTINGS_FILE}
 
 COPY ./ ${BASE_DIR}
 #tests will run outside of the docker
-RUN mvn clean install -s ${SETTINGS_FILE}  -Dmaven.test.skip=true
+RUN mvn package -s ${SETTINGS_FILE} -Dmaven.test.skip=true
 
 FROM openjdk:8u212-jre-slim
 
@@ -27,4 +27,4 @@ ENV JAR_PATH target/${DEFAULT_JAR_NAME}
 
 WORKDIR ${BASE_DIR}
 COPY --from=0 ${BASE_DIR}/${JAR_PATH} ${BASE_DIR}
-ENTRYPOINT java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dspring.profiles.active=${DEFAULT_PROFILE} -cp ${BASE_DIR}/${DEFAULT_JAR_NAME} ai.distil.integration.IntegrationApp
+ENTRYPOINT exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dspring.profiles.active=${DEFAULT_PROFILE} -cp ${BASE_DIR}/${DEFAULT_JAR_NAME} ai.distil.integration.IntegrationApp
