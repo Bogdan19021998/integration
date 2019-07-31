@@ -34,6 +34,14 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     public abstract List<DTODataSource> getAllDataSources();
 
+    protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
+        return dataSources;
+    }
+
+    public List<DTODataSource> getEligibleDataSources() {
+        return filterEligibleDataSource(getAllDataSources());
+    }
+
     public abstract DTODataSource getDataSource(SimpleDataSourceDefinition sourceDefinition);
 
     public abstract IRowIterator getIterator(DataSourceDataHolder dataSources);

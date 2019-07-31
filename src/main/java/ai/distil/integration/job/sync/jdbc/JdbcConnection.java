@@ -24,6 +24,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class JdbcConnection extends AbstractConnection {
 
@@ -44,6 +45,15 @@ public abstract class JdbcConnection extends AbstractConnection {
     protected abstract AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName);
 
     protected abstract AbstractAllTablesQueryDefinition getAllTablesQuery();
+
+    @Override
+    protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
+        Set<SyncTableDefinition> tablesDefinitions = Stream.of(SyncTableDefinition.values()).collect(Collectors.toSet());
+
+        return dataSources.stream().filter(dataSource -> tablesDefinitions.stream()
+                .anyMatch(tableDefinition -> tableDefinition.isTableNameFitNamingConvention(dataSource.getSourceTableName())))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
