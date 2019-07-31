@@ -18,6 +18,7 @@ import ai.distil.integration.job.sync.http.request.IHttpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
+import ai.distil.integration.utils.ArrayUtils;
 import ai.distil.integration.utils.MapUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
@@ -30,11 +31,18 @@ import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
 
+    private static final String DEFAULT_API_KEY_SEPARATOR = "-";
+
     private MailChimpMembersFieldsHolder fieldsHolder;
+    private String baseUrl;
 
     public MailChimpHttpConnection(DTOConnection dtoConnection, RestService restService, MailChimpMembersFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
         this.fieldsHolder = fieldsHolder;
+
+        String urlPart = ArrayUtils.get(1, getApiKey().split(DEFAULT_API_KEY_SEPARATOR))
+                .orElseThrow(() -> new IllegalArgumentException("Api key is in invalid format."));
+        this.baseUrl = String.format(HttpConnectionConfiguration.MAIL_CHIMP.getBaseUrl(), urlPart);
     }
 
     @Override
@@ -80,7 +88,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
     @Override
     protected String getBaseUrl() {
-        return HttpConnectionConfiguration.MAIL_CHIMP.getBaseUrl();
+        return this.baseUrl;
     }
 
     private List<DTODataSourceAttribute> getDataSourceAttributes(String listId) {
@@ -124,7 +132,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 .orElse(null);
     }
 
-//  todo make dynamic if needed
+    //  todo make dynamic if needed
     private String buildTableName(DataSourceType dataSourceType, String id) {
         return dataSourceType.toString().toLowerCase() + "_" + id;
     }

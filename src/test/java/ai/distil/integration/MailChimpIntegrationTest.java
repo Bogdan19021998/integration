@@ -2,6 +2,7 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
@@ -45,10 +46,14 @@ import static ai.distil.integration.utils.ParseUtils.parseJsonFile;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MailChimpIntegrationTest {
 
-    public static final String DEFAULT_API_KEY = "YXBpOmE4ZjlkMTBjYmVlODZhNjM3N2Q2YTliNWM3Yzg5NThlLXVzMw==";
+    public static final String DEFAULT_API_KEY = "a8f9d10cbee86a6377d6a9b5c7c8958e-us3";
     @MockBean
     @Autowired
     private DataSourceProxy dataSourceProxy;
+
+    @MockBean
+    @Autowired
+    private ConnectionProxy connectionProxy;
 
     @Autowired
     private ConnectionFactory connectionFactory;
@@ -167,13 +172,16 @@ public class MailChimpIntegrationTest {
         cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
         DTOConnection connectionDTO = defaultConnection();
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpAudiencesRequest.class), Mockito.any());
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_members_duplicates.json", new TypeReference<MembersWrapper>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_members_duplicates.json", new TypeReference<MembersWrapper>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMembersRequest.class), Mockito.any());
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMergeFieldsRequest.class), Mockito.any());
 
         DataSourceDataHolder oldDataSource;
@@ -226,7 +234,6 @@ public class MailChimpIntegrationTest {
 
         return dtoConnection;
     }
-
 
 
 }
