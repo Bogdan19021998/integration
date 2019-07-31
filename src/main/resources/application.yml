@@ -23,7 +23,7 @@ logging.level.org.springframework: ERROR
 ai.distil.integrations.connections:
   http:
     mailChimp:
-      baseUrl: https://us3.api.mailchimp.com/3.0
+      baseUrl: https://%s.api.mailchimp.com/3.0
     campaignMonitor:
       baseUrl: https://api.createsend.com/api/v3.2
     salesforce:
