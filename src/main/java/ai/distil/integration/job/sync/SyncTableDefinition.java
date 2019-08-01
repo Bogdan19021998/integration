@@ -157,7 +157,7 @@ public enum SyncTableDefinition {
     private final DataSourceType dataSourceType;
     @Getter
     private final Map<DataSourceSchemaAttributeTag, FieldDefinition> tagsDefinitions;
-    private final Map<DataSourceSchemaAttributeTag, FieldDefinition> mangdatoryFields;
+    private final Map<DataSourceSchemaAttributeTag, FieldDefinition> mandatoryFields;
 
 
 
@@ -167,7 +167,7 @@ public enum SyncTableDefinition {
         this.distilTableName = distilTableName;
         this.tagsDefinitions = attributeTags;
         this.dataSourceType = dataSourceType;
-        this.mangdatoryFields = attributeTags.entrySet()
+        this.mandatoryFields = attributeTags.entrySet()
                 .stream()
                 .filter(m -> m.getValue().isMandatory())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -202,12 +202,12 @@ public enum SyncTableDefinition {
 
 
     private boolean allRequiredFieldsExists(List<DTODataSourceAttribute> attributes) {
-        long countOfMandatoryFieldsInDataSource = this.mangdatoryFields.entrySet().stream().filter(definition ->
+        long countOfMandatoryFieldsInDataSource = this.mandatoryFields.entrySet().stream().filter(definition ->
                 attributes.stream()
                         .anyMatch(attr -> definition.getKey().equals(attr.getAttributeDataTag())
                                 && definition.getValue().getEligibleTypes().contains(attr.getAttributeType()))).count();
 
-        return countOfMandatoryFieldsInDataSource == this.mangdatoryFields.size();
+        return countOfMandatoryFieldsInDataSource == this.mandatoryFields.size();
     }
 
     public static Optional<SyncTableDefinition> defineSyncTableDefinition(DataSourceType dataSourceType) {
