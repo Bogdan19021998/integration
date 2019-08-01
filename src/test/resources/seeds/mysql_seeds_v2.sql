@@ -21,7 +21,7 @@ CREATE TABLE distil.distil_customers
   timestamp_field        TIMESTAMP        NOT NULL,
   year_field             YEAR             NOT NULL,
   char_field             CHAR             NOT NULL,
-  binary_field           BINARY           NOT NULL,
+  binary_field BINARY NOT NULL,
   blob_field             BLOB             NOT NULL,
   text_field             TEXT             NOT NULL,
   enum_field             ENUM('M', 'F')   NOT NULL,
@@ -38,3 +38,16 @@ values ('0', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
        ('2', 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2,
         '2019-01-01', '08:00:00', '9999-12-31 23:59:59', '1970-01-01 00:00:03.000000', '1970', '2', '2', '2', '2', 'M',
         '2');
+
+CREATE TABLE distil.distil_content
+(
+  id   text,
+  name text,
+  fake INT
+);
+
+INSERT INTO distil.distil_content
+  VALUES
+         ('0', 'name0', 0),
+         ('1', 'name1', 1),
+         ('2', 'name2', 2);

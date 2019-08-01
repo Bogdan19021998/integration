@@ -57,7 +57,6 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
-                    .filter(dataSource -> SyncTableDefinition.isTableEligibleForRun(dataSource.getSourceTableName()))
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
                     .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }

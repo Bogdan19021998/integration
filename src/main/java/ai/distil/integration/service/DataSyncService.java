@@ -57,6 +57,10 @@ public class DataSyncService {
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
 
+        if(newSchema == null) {
+            throw new IllegalStateException("Datasource is not accessible anymore");
+        }
+
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
         attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, newSchema, attr));
 
@@ -74,6 +78,7 @@ public class DataSyncService {
                     }
                 }).peek(attribute -> attribute.setDateLastVerified(new Date()))
                 .collect(Collectors.toList());
+
 
         return new DataSourceDataHolder(newSchema.getDataSourceId(),
                 newSchema.getDataSourceCassandraTableName(),

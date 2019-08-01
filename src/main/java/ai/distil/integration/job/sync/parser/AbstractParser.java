@@ -28,7 +28,7 @@ public abstract class AbstractParser {
         DataSourceDataHolder currentSchema = this.getSchema();
 
         return Optional.ofNullable(connection.getDataSource(new SimpleDataSourceDefinition(null, currentSchema.getDataSourceId(), null, null)))
-                .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
+                .map(d -> connection.isDataSourceEligible(d) ? DataSourceDataHolder.mapFromDTODataSourceEntity(d) : null)
                 .orElse(null);
     }
 

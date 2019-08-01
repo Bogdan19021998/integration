@@ -8,6 +8,7 @@ import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.model.org.ConnectionSettings;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +37,10 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
         return dataSources;
+    }
+
+    public boolean isDataSourceEligible(DTODataSource dataSource) {
+        return this.filterEligibleDataSource(Collections.singletonList(dataSource)).size() == 1;
     }
 
     public List<DTODataSource> getEligibleDataSources() {

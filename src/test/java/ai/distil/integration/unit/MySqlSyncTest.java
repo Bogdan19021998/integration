@@ -43,6 +43,9 @@ import static com.wix.mysql.distribution.Version.v5_6_24;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MySqlSyncTest extends AbstractSyncTest {
 
+
+    private static final String CUSTOMERS_TABLE_NAME = "distil_customers";
+    private static final String CONTENT_TABLE_NAME = "distil_content";
     private static final String DEFAULT_SERVER_ADDRESS = "localhost";
     private static final String DEFAULT_SCHEMA_NAME = "distil";
     private static final String MYSQL_SEEDS_FILE = "seeds/mysql_seeds_v2.sql";
@@ -104,6 +107,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             connection.getAllDataSources()
                     .stream()
+                    .filter(d -> CUSTOMERS_TABLE_NAME.equals(d.getSourceTableName()))
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
                     .forEach(dataSource -> {
                         SyncProgressTrackingData syncTrackingData = dataSyncService.reSyncDataSource(tenantId, dataSource, connection);
@@ -127,6 +131,24 @@ public class MySqlSyncTest extends AbstractSyncTest {
     }
 
     @Test
+    public void mandatoryFieldsSync() throws Exception {
+        DTOConnection connectionDTO = getDefaultConnection();
+        String tenantId = "1";
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(CassandraSyncRepository.KEYSPACE_PREFIX + tenantId).ifExists());
+
+
+        try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
+            List<DTODataSource> allDataSources = connection.getEligibleDataSources();
+            Assertions.assertEquals(allDataSources.size(), 1);
+
+            connection.execute(String.format("alter table %s add column URL text", CONTENT_TABLE_NAME));
+
+            allDataSources = connection.getEligibleDataSources();
+            Assertions.assertEquals(allDataSources.size(), 2);
+        }
+    }
+
+    @Test
     public void reSyncDataTest() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
@@ -134,8 +156,10 @@ public class MySqlSyncTest extends AbstractSyncTest {
         cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(CassandraSyncRepository.KEYSPACE_PREFIX + tenantId).ifExists());
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
-            DTODataSource allDataSources = connection.getAllDataSources().get(0);
-            DataSourceDataHolder dataSourceDataHolder = DataSourceDataHolder.mapFromDTODataSourceEntity(allDataSources);
+            DTODataSource dtoDataSource = connection.getAllDataSources().stream().filter(d -> d.getSourceTableName().equals(CUSTOMERS_TABLE_NAME))
+                    .findFirst()
+                    .orElse(null);
+            DataSourceDataHolder dataSourceDataHolder = DataSourceDataHolder.mapFromDTODataSourceEntity(dtoDataSource);
             cassandraSyncRepository.dropTableIfExists(tenantId, dataSourceDataHolder);
 
             dataSyncService.reSyncDataSource(tenantId, dataSourceDataHolder, connection);

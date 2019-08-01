@@ -2,6 +2,7 @@ package ai.distil.integration.unit;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.proxy.DataSourceProxy;
+import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.JdbcConnection;
@@ -12,6 +13,7 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
@@ -43,6 +45,9 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
     @Autowired
     private DataSyncService dataSyncService;
 
+    @Autowired
+    private CassandraSyncRepository cassandraSyncRepository;
+
     @MockBean
     @Autowired
     private DataSourceProxy dataSourceProxy;
@@ -50,7 +55,7 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
     private EmbeddedPostgres postgres;
 
     @Test
-    public void testMySqlConnection() throws Exception {
+    public void testPostgresConnection() throws Exception {
         DTOConnection connectionDTO = getDefaultConnection();
 
         try (JdbcConnection jdbcConnection = new PostgreSqlJdbcConnection(connectionDTO);
@@ -69,6 +74,7 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
         DTOConnection connectionDTO = getDefaultConnection();
 
         String tenantId = "123";
+        cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(CassandraSyncRepository.KEYSPACE_PREFIX + tenantId).ifExists());
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
