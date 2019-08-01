@@ -5,6 +5,7 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
 import ai.distil.integration.service.vo.AttributeChangeType;
 import ai.distil.integration.utils.ListUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class SchemaSyncService {
 
@@ -20,6 +22,8 @@ public class SchemaSyncService {
      * returns attributes change info for all columns
      */
     public List<AttributeChangeInfo> defineSchemaChanges(DataSourceDataHolder oldSchema, DataSourceDataHolder newSchema) {
+        log.info("Starting schema sync {} for datasource", oldSchema.getDataSourceId());
+
         Map<String, DTODataSourceAttribute> oldAttributesByName = ListUtils.groupByWithOverwrite(oldSchema.getAllAttributes(),
                 DTODataSourceAttribute::getAttributeSourceName, true);
 
@@ -46,6 +50,8 @@ public class SchemaSyncService {
                 .stream()
                 .map(entry -> new AttributeChangeInfo(null, null, entry.getValue(), AttributeChangeType.ADDED))
                 .collect(Collectors.toList());
+
+        log.info("Schema sync finished {} for datasource", oldSchema.getDataSourceId());
 
         return Stream.concat(changedAttributesStream.stream(), newAttributesStream.stream())
                 .collect(Collectors.toList());

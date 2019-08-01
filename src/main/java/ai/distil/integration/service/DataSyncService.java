@@ -37,7 +37,6 @@ public class DataSyncService {
     private final ConnectionFactory connectionFactory;
     private final SchemaSyncService schemaSyncService;
 
-
     public List<DTODataSource> findAllEligibleDataSources(DTOConnection dtoConnection) {
         try (AbstractConnection abstractConnection = connectionFactory.buildConnection(dtoConnection)) {
             return abstractConnection.getEligibleDataSources();
@@ -88,9 +87,6 @@ public class DataSyncService {
     }
 
     public SyncProgressTrackingData reSyncDataSource(String tenantId, DataSourceDataHolder currentSchema, AbstractConnection connection) {
-
-        log.debug("Re - Syncing DataSource / Tenant: {} / DataSource ID: {} / Distil Cassandra table name: {}", tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
-
         DataSourceDataHolder updatedSchema = this.syncSchema(tenantId, currentSchema, connection);
         return syncDataSource(tenantId, updatedSchema, connection);
     }
@@ -138,19 +134,11 @@ public class DataSyncService {
                     cassandraSyncRepository.deleteFromTable(tenantId, currentSchema, primaryKey, true));
         }
 
-        log.trace("Stopping tacking");
         progressAggregator.stopTracking();
 
-        log.trace("setDeletedCount");
         progressAggregator.setDeletedCount(allExistingRows.size());
-
-        log.trace("Getting rows count");
         long uniqueRowsCount = existingPrimaryKeys.size();
-
-        log.trace("Setting rows count");
         progressAggregator.setCurrentRowsCount(uniqueRowsCount);
-
-        log.trace("Getting sync tracking data");
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
 
         log.debug("Saving sync tracking Data : {}", trackingData);
@@ -162,7 +150,7 @@ public class DataSyncService {
 
     public void saveDataSourceHistory(String tenantId, Long dataSourceId, SyncProgressTrackingData trackingData) {
 
-        log.debug("Saving data source history");
+        log.debug("Saving data source history for data source {}", dataSourceId);
 
         boolean numberOfRecordsMatch = trackingData.getProcessed() == trackingData.getCurrentRowsCount();
 

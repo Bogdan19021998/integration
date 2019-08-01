@@ -5,6 +5,12 @@
     <logger name="ai.distil" level="INFO"/>
     <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active"/>
 
+    <if condition='"true".equalsIgnoreCase(property("DEBUG"))'>
+        <then>
+            <logger name="ai.distil" level="DEBUG"/>
+        </then>
+    </if>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} | %-10.10thread | %5p | %-36.36logger{36} | %m%n</pattern>

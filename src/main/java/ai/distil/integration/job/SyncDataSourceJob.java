@@ -31,7 +31,7 @@ import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 @DisallowConcurrentExecution
 public class SyncDataSourceJob extends QuartzJobBean {
 
-    private static final String DATASOURCE_ID = "datasource_id";
+    private static final String DATA_SOURCE_LOG_KEY = "ds";
 
     @Autowired
     private SimpleSyncProgressListener syncProgressListener;
@@ -54,6 +54,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
 
+        MDC.put(DATA_SOURCE_LOG_KEY, String.valueOf(request.getDataSourceId()));
+
+        log.info("Starting sync job for datasource {}", request);
+
         updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
         try {
@@ -62,6 +66,9 @@ public class SyncDataSourceJob extends QuartzJobBean {
         } catch (Exception e) {
             log.error("Can't execute datasource - {} sync ", request.getDataSourceId(), e);
             updateConnectionStatus(request, ConnectionSchemaSyncStatus.LAST_SYNC_FAILED);
+        } finally {
+            log.info("Successfully finished sync job for datasource {}", request);
+            MDC.clear();
         }
     }
 
@@ -79,7 +86,6 @@ public class SyncDataSourceJob extends QuartzJobBean {
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
-            MDC.put(DATASOURCE_ID, String.valueOf(request.getDataSourceId()));
 
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);
 
@@ -90,13 +96,11 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
             } else {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
-                throw new IllegalArgumentException("The data source no longer exists?? - updating the datasource details");
+                throw new IllegalStateException("The data source no longer exists - updating the datasource details");
             }
 
         } catch (Exception e) {
             throw new RuntimeException("The error happened while running the job, do not rethrow exception because of retry policy", e);
-        } finally {
-            MDC.clear();
         }
 
         connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
