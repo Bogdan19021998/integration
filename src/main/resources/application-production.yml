@@ -18,9 +18,9 @@ ai:
   distil:
     api:
       integrations:
-        url: http://localhost:8009
+        url: http://40.127.201.179:8009
       internal:
-        url: http://localhost:8008
+        url: https://internal-api.distil.com
 
 server:
   port: 8009
