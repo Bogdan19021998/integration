@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings
+  xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+ <servers>
+        <server>
+            <id>distil-maven-snapshot</id>
+            <username>distilmaven</username>
+            <password>5R4xNxW2MT3AFEUJw+FKyR6WYEz2XAXz54yva6lYBE3+P0rRyQXAZE5zVPq7k5C6vRZWNz8W+ySQEau4jOMMBQ==</password>
+        </server>
+        <server>
+            <id>distil-maven-release</id>
+            <username>distilmaven</username>
+            <password>5R4xNxW2MT3AFEUJw+FKyR6WYEz2XAXz54yva6lYBE3+P0rRyQXAZE5zVPq7k5C6vRZWNz8W+ySQEau4jOMMBQ==</password>
+        </server>
+</servers>
+</settings>
