@@ -55,7 +55,7 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
                 dataSource.getDataSourceId(), pageRequest.getNextPageUrl());
 
         SalesforceDataPage dataPage = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
-        List<DatasetRow> rows = dataPage.getRecords().stream().map(this.fieldsHolder::transformRow).collect(Collectors.toList());
+        List<DatasetRow> rows = dataPage.getRecords().stream().map(row -> this.fieldsHolder.transformRow(row, dataSource)).collect(Collectors.toList());
 
         return new DatasetPage(rows, dataPage.getNextRecordsUrl());
     }

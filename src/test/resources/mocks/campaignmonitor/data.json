@@ -1,0 +1,135 @@
+{
+  "Results": [
+    {
+      "EmailAddress": "elina@big-consultancy.com",
+      "Name": "Elina Scorey",
+      "Date": "2019-07-11 21:30:00",
+      "State": "Active",
+      "CustomFields": [
+        {
+          "Key": "[PostCode]",
+          "Value": "EX1 1QA"
+        },
+        {
+          "Key": "[AddressLine1]",
+          "Value": "11-15 Dixs Field"
+        },
+        {
+          "Key": "[Age]",
+          "Value": "38"
+        }
+      ],
+      "ReadsEmailWith": "",
+      "ConsentToTrack": ""
+    },
+    {
+      "EmailAddress": "gerry@big-consultancy.com",
+      "Name": "Gerry McNicol",
+      "Date": "2019-07-07 22:07:00",
+      "State": "Active",
+      "CustomFields": [],
+      "ReadsEmailWith": "",
+      "ConsentToTrack": ""
+    },
+    {
+      "EmailAddress": "Jenny@big-consultancy.com",
+      "Name": "Jenny Garrett",
+      "Date": "2019-07-11 21:30:00",
+      "State": "Active",
+      "CustomFields": [
+        {
+          "Key": "[PostCode]",
+          "Value": "EX1 1QA"
+        },
+        {
+          "Key": "[AddressLine1]",
+          "Value": "11-15 Dixs Field"
+        },
+        {
+          "Key": "[Age]",
+          "Value": "23"
+        },
+        {
+          "Key": "[States]",
+          "Value": "Vermont"
+        },
+        {
+          "Key": "[Country]",
+          "Value": "Albania"
+        },
+        {
+          "Key": "[Options,manyselected]",
+          "Value": "Opt 1"
+        },
+        {
+          "Key": "[Options,manyselected]",
+          "Value": "Opt 2"
+        },
+        {
+          "Key": "[Options-onlyone]",
+          "Value": "111"
+        }
+      ],
+      "ReadsEmailWith": "",
+      "ConsentToTrack": ""
+    },
+    {
+      "EmailAddress": "neil@big-consultancy.com",
+      "Name": "Neil Stoneman",
+      "Date": "2019-07-07 22:07:00",
+      "State": "Active",
+      "CustomFields": [],
+      "ReadsEmailWith": "",
+      "ConsentToTrack": ""
+    },
+    {
+      "EmailAddress": "vsamofal93@gmail.com",
+      "Name": "Vitaliy Samofal",
+      "Date": "2019-07-07 22:07:00",
+      "State": "Active",
+      "CustomFields": [
+        {
+          "Key": "[PostCode]",
+          "Value": "test"
+        },
+        {
+          "Key": "[AddressLine1]",
+          "Value": "test"
+        },
+        {
+          "Key": "[Age]",
+          "Value": "22"
+        },
+        {
+          "Key": "[States]",
+          "Value": "Arizona"
+        },
+        {
+          "Key": "[Country]",
+          "Value": "American Samoa"
+        },
+        {
+          "Key": "[BDate]",
+          "Value": "1902-02-03"
+        },
+        {
+          "Key": "[Options,manyselected]",
+          "Value": "Opt 1"
+        },
+        {
+          "Key": "[Options-onlyone]",
+          "Value": "111"
+        }
+      ],
+      "ReadsEmailWith": "",
+      "ConsentToTrack": ""
+    }
+  ],
+  "ResultsOrderedBy": "email",
+  "OrderDirection": "asc",
+  "PageNumber": 1,
+  "PageSize": 100,
+  "RecordsOnThisPage": 5,
+  "TotalNumberOfRecords": 5,
+  "NumberOfPages": 1
+}

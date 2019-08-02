@@ -8,6 +8,7 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.JdbcConnection;
 import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
 import ai.distil.integration.utils.func.BiFunctionChecked;
+import com.datastax.driver.core.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.JDBCException;
 
@@ -30,7 +31,7 @@ public class JdbcRowIterator implements IRowIterator {
                 this.put(DatasetColumnType.UUID, (label, rs) -> UUID.fromString(rs.getString(label)));
                 this.put(DatasetColumnType.TIMEUUID, (label, rs) -> UUID.fromString(rs.getString(label)));
                 this.put(DatasetColumnType.TIMESTAMP, (label, rs) -> rs.getTimestamp(label));
-                this.put(DatasetColumnType.DATE, (label, rs) -> rs.getDate(label));
+                this.put(DatasetColumnType.DATE, (label, rs) -> Optional.ofNullable(rs.getDate(label)).map(Date::getTime).map(LocalDate::fromMillisSinceEpoch).orElse(null));
                 this.put(DatasetColumnType.TIME, (label, rs) -> rs.getTime(label));
                 this.put(DatasetColumnType.UNKNOWN, (label, rs) -> rs.getString(label));
             }};

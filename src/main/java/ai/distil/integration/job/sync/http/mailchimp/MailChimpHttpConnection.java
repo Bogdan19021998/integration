@@ -6,7 +6,6 @@ import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.configuration.HttpConnectionConfiguration;
 import ai.distil.integration.controller.dto.data.DatasetPage;
 import ai.distil.integration.controller.dto.data.DatasetPageRequest;
-import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
@@ -19,7 +18,6 @@ import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ArrayUtils;
-import ai.distil.integration.utils.MapUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
 
@@ -78,12 +76,10 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
         MailChimpMembersRequest request = new MailChimpMembersRequest(dataSourceHolder.getDataSourceId(), getApiKey(), pageRequest);
         MembersWrapper response = executeRequest(request);
 
-        return new DatasetPage(response.getMembers().stream().map(MapUtils::flatten).map(row -> {
-
-            DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder();
-            row.forEach(builder::addValue);
-            return builder.build();
-        }).collect(Collectors.toList()), null);
+        return new DatasetPage(response.getMembers()
+                .stream()
+                .map(row -> fieldsHolder.transformRow(row, dataSourceHolder))
+                .collect(Collectors.toList()), null);
     }
 
     @Override

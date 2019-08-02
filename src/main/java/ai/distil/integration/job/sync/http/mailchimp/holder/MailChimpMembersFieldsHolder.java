@@ -5,6 +5,7 @@ import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import com.datastax.driver.core.LocalDate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -32,6 +33,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
 
 //    todo deal with arrays
     private static final String ARRAY_TYPE_KEY = "array";
+    private static final String DATE_TIME_FORMAT_KEY = "date-time";
 
     private static final String ADDRESS_TYPE_KEY = "address";
     private static final String TAG_KEY = "tag";
@@ -39,9 +41,11 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     private static final String MERGE_FIELDS_KEY = "merge_fields";
 
     private static final String TYPE_KEY = "type";
+    private static final String FORMAT_KEY = "format";
     private static final String OBJECT_KEY = "object";
     private static final String DISPLAY_NAME_KEY = "title";
     private static final String PROPERTIES_KEY = "properties";
+    private static final String TIMESTAMP_TYPE = "TIMESTAMP";
 
     private static final Set<String> PROPERTIES_KEYS = Sets.newHashSet("properties", "additionalProperties");
 
@@ -49,7 +53,8 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
             "STRING", DataSourceAttributeType.STRING,
             "NUMBER", DataSourceAttributeType.DOUBLE,
             "INTEGER", DataSourceAttributeType.BIGINT,
-            "BOOLEAN", DataSourceAttributeType.BOOLEAN
+            "BOOLEAN", DataSourceAttributeType.BOOLEAN,
+            TIMESTAMP_TYPE, DataSourceAttributeType.TIMESTAMP
     );
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
@@ -79,13 +84,18 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
         this.put(DEFAULT_TYPE_KEY, row -> Collections.singletonList(buildDataSourceFieldFromMergeObject(row, DataSourceAttributeType.STRING)));
     }};
 
+    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS =
+            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
+                this.put(DataSourceAttributeType.DATE, value -> LocalDate.fromMillisSinceEpoch(dateFormatter("yyyy-MM-dd").apply(value).getTime()));
+                this.put(DataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ssXXX"));
+            }};
+
     private SimpleDataSourceField buildDataSourceFieldFromMergeObject(Map<String, Object> row, DataSourceAttributeType attributeType) {
         String displayName = String.valueOf(row.get(NAME_KEY));
         String fieldName = String.valueOf(row.get(TAG_KEY));
 
         return buildSimpleField(MERGE_FIELDS_KEY, fieldName, displayName, attributeType);
     }
-
 
     @Value("classpath:mailchimp/members_schema_fields.json")
     private Resource file;
@@ -135,6 +145,15 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    @Override
+    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+        return CUSTOM_VALUES_MAPPERS;
+    }
+
+    private Map<String, String> FORMAT_MAPPING = new HashMap<String, String>(){{
+        this.put(DATE_TIME_FORMAT_KEY, TIMESTAMP_TYPE);
+    }};
+
     private List<SimpleDataSourceField> objectToAttributes(Map<String, Object> membersSchema, String currentPath) {
         if (membersSchema == null) {
             return Collections.emptyList();
@@ -150,7 +169,8 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
             if (value instanceof Map) {
                 Map<String, Object> fieldDefinition = (Map<String, Object>) value;
 
-                String currentType = String.valueOf(fieldDefinition.get(TYPE_KEY));
+                String currentFormat = String.valueOf(fieldDefinition.get(FORMAT_KEY));
+                String currentType = FORMAT_MAPPING.getOrDefault(currentFormat, String.valueOf(fieldDefinition.get(TYPE_KEY)));
 
                 if (OBJECT_KEY.equals(currentType)) {
                     Map<String, Object> innerObjectDefinition = (Map<String, Object>) membersSchema.get(fieldName);

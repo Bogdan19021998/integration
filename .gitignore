@@ -8,3 +8,7 @@
 .mvn-settings.xml
 target/
 dependency-reduced-pom.xml
+
+deployment/data
+development/n1data
+development/portainer-data

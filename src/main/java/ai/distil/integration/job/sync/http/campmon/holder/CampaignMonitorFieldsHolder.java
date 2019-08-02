@@ -1,12 +1,12 @@
 package ai.distil.integration.job.sync.http.campmon.holder;
 
-import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.campmon.vo.CustomFieldDefinition;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import com.datastax.driver.core.LocalDate;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.buf.StringUtils;
@@ -30,7 +30,7 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
 //        todo add transformer
         this.put("NUMBER", DataSourceAttributeType.STRING);
         this.put("MULTISELECTONE", DataSourceAttributeType.STRING);
-        this.put("DATE", DataSourceAttributeType.STRING);
+        this.put("DATE", DataSourceAttributeType.DATE);
         this.put("MULTISELECTMANY", DataSourceAttributeType.STRING);
     }};
 
@@ -48,8 +48,8 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, Sets.newHashSet("Country"));
     }};
 
-    private static final Map<String, Function<Map<String, Object>, Map<String, Object>>> CUSTOM_FIELDS_TRANSFORMERS = new HashMap<String, Function<Map<String, Object>, Map<String, Object>>>() {{
-        this.put(CUSTOM_FIELDS_KEY, row -> Optional.ofNullable((List<Map<String, Object>>) row.get(CUSTOM_FIELDS_KEY)).map(customFields -> {
+    private static final Map<String, Function<?, Map<String, Object>>> CUSTOM_FIELDS_TRANSFORMERS = new HashMap<String, Function<?, Map<String, Object>>>() {{
+        this.put(CUSTOM_FIELDS_KEY, row -> Optional.ofNullable((List<Map<String, Object>>) row).map(customFields -> {
             Map<String, Object> result = new HashMap<>();
             Map<String, List<String>> fields = ListUtils.groupBy(customFields,
                     o -> String.valueOf(o.get(KEY_FIELD)),
@@ -59,23 +59,23 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
         }).orElse(Collections.emptyMap()));
     }};
 
-
     private final List<SimpleDataSourceField> DEFAULT_STATIC_FIELDS = Stream.of("EmailAddress", "Name", "Date", "State", "ReadsEmailWith")
             .map(field -> buildSimpleField(null, field, field, DataSourceAttributeType.STRING))
             .collect(Collectors.toList());
 
-    public DatasetRow transformRow(Map<String, Object> row) {
-        DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder();
+    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_TYPE_CONVERTERS =
+            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
+                this.put(DataSourceAttributeType.DATE, value -> Optional.ofNullable(dateFormatter("yyyy-MM-dd").apply(value)).map(Date::getTime).map(LocalDate::fromMillisSinceEpoch).orElse(null));
+            }};
 
-        row.forEach((key, value) -> {
-            if(CUSTOM_FIELDS_TRANSFORMERS.containsKey(key)) {
-                Optional.ofNullable(CUSTOM_FIELDS_TRANSFORMERS.get(key).apply(row))
-                        .ifPresent(r -> r.forEach(builder::addValue));
-            } else {
-                builder.addValue(key, value);
-            }
-        });
-        return builder.build();
+    @Override
+    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+        return CUSTOM_TYPE_CONVERTERS;
+    }
+
+    @Override
+    public Map<String, Function<?, Map<String, Object>>> getCustomFieldsConverters() {
+        return CUSTOM_FIELDS_TRANSFORMERS;
     }
 
     @Override
