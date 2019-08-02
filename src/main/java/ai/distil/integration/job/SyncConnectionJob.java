@@ -6,6 +6,7 @@ import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
+import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.sync.ConnectionRequestMapper;
 import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,9 @@ public class SyncConnectionJob extends QuartzJobBean {
     private ConnectionProxy connectionProxy;
 
     @Autowired
+    private ConnectionService connectionService;
+
+    @Autowired
     private DataSourceProxy dataSourceProxy;
 
     @Autowired
@@ -41,6 +45,11 @@ public class SyncConnectionJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         SyncConnectionRequest request = (SyncConnectionRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_CONNECTION.getJobRequestClazz());
+
+        if(connectionService.isConnectionDisabled(request.getTenantId(), request.getOrgId(), request.getConnectionId())) {
+            log.info("Connection {} is disabled, skipping sync.", request.getConnectionId());
+            return;
+        }
 
         List<DTODataSource> allDataSources = dataSourceProxy.getAllDataSourcesByConnection(request.getTenantId(), request.getConnectionId());
 

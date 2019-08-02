@@ -10,6 +10,7 @@ import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
+import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.ConnectionRequestMapper;
@@ -40,6 +41,9 @@ public class SyncDataSourceJob extends QuartzJobBean {
     private ConnectionProxy connectionProxy;
 
     @Autowired
+    private ConnectionService connectionService;
+
+    @Autowired
     private DataSyncService dataSyncService;
 
     @Autowired
@@ -53,6 +57,11 @@ public class SyncDataSourceJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
+
+        if(connectionService.isConnectionDisabled(request.getTenantId(), request.getOrgId(), request.getConnectionId())) {
+            log.info("Connection {} is disabled, skipping sync.", request.getConnectionId());
+            return;
+        }
 
         updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
