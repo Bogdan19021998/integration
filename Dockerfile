@@ -19,7 +19,8 @@ RUN mvn package -s ${SETTINGS_FILE} -Dmaven.test.skip=true
 
 FROM openjdk:8u212-jre-slim
 
-ENV DEFAULT_PROFILE staging
+ARG DEFAULT_PROFILE=staging
+ENV DEFAULT_PROFILE_ENV ${DEFAULT_PROFILE}
 
 ENV BASE_DIR /opt/distil_integrations
 ENV DEFAULT_JAR_NAME integrations.jar
@@ -27,4 +28,4 @@ ENV JAR_PATH target/${DEFAULT_JAR_NAME}
 
 WORKDIR ${BASE_DIR}
 COPY --from=0 ${BASE_DIR}/${JAR_PATH} ${BASE_DIR}
-ENTRYPOINT exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dspring.profiles.active=${DEFAULT_PROFILE} -cp ${BASE_DIR}/${DEFAULT_JAR_NAME} ai.distil.integration.IntegrationApp
+ENTRYPOINT exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dspring.profiles.active=${DEFAULT_PROFILE_ENV} -cp ${BASE_DIR}/${DEFAULT_JAR_NAME} ai.distil.integration.IntegrationApp

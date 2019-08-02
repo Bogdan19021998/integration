@@ -1,0 +1,7 @@
+**/target
+development
+deployment
+.idea
+**/*.iml
+target
+README.md

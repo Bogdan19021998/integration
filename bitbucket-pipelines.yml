@@ -9,22 +9,47 @@ pipelines:
             - maven
           script:
             - mvn -B clean test
-            - bash configure-maven.sh
-            - export IMAGE_NAME="distil.azurecr.io/distil-integrations-${BITBUCKET_BRANCH}:test"
-            - docker build -t $IMAGE_NAME .
+            - export IMAGE_NAME="distil.azurecr.io/distil-integrations:test"
+            - docker build --build-arg DEFAULT_PROFILE=staging -t $IMAGE_NAME .
             - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
             - docker push $IMAGE_NAME
   branches:
-    "{development, master}":
+    development:
     - step:
         caches:
           - docker
         script:
-          - bash configure-maven.sh
-          - export IMAGE_NAME="distil.azurecr.io/distil-integrations-${BITBUCKET_BRANCH}:latest"
-          - docker build -t $IMAGE_NAME .
+          - export IMAGE_NAME="distil.azurecr.io/distil-integrations:staging"
+          - docker build --build-arg DEFAULT_PROFILE=staging -t $IMAGE_NAME .
           - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
           - docker push $IMAGE_NAME
+    master:
+      - step:
+          caches:
+            - docker
+          script:
+            - export IMAGE_NAME="distil.azurecr.io/distil-integrations:production"
+            - docker build --build-arg DEFAULT_PROFILE=production -t $IMAGE_NAME .
+            - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
+            - docker push $IMAGE_NAME
+  tags:
+    v*:
+      - step:
+          caches:
+            - docker
+            - maven
+          script:
+            - mvn -B clean test
+            - export IMAGE_NAME_TAG=distil.azurecr.io/distil-integrations:$BITBUCKET_TAG
+            - export IMAGE_NAME_LATEST=distil.azurecr.io/distil-integrations:latest
+            - export IMAGE_NAME_PRODUCTION=distil.azurecr.io/distil-integrations:production
+            - docker build --build-arg DEFAULT_PROFILE=production -t $IMAGE_NAME_TAG .
+            - docker tag $IMAGE_NAME_TAG $IMAGE_NAME_LATEST
+            - docker tag $IMAGE_NAME_TAG $IMAGE_NAME_PRODUCTION
+            - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
+            - docker push $IMAGE_NAME_TAG
+            - docker push $IMAGE_NAME_LATEST
+            - docker push $IMAGE_NAME_PRODUCTION
 
 options:
   docker: true
