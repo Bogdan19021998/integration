@@ -40,7 +40,7 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
 
         return new DatasetPage(subscribers.getResults()
                 .stream()
-                .map(row -> fieldsHolder.transformRow(row))
+                .map(row -> fieldsHolder.transformRow(row, dataSource))
                 .collect(Collectors.toList()), null);
     }
 
