@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,9 @@ import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 @Component
 @DisallowConcurrentExecution
 public class SyncConnectionJob extends QuartzJobBean {
+
+    private static String CONNECTION_LOG_KEY = "cn";
+    private static String DATASOURCE_ID = "ds";
 
     @Autowired
     private SyncDataSourceJob syncDataSourceJob;
@@ -42,12 +46,19 @@ public class SyncConnectionJob extends QuartzJobBean {
         SyncConnectionRequest request = (SyncConnectionRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_CONNECTION.getJobRequestClazz());
 
+        MDC.put(CONNECTION_LOG_KEY, String.valueOf(request.getConnectionId()));
+
+        log.info("Starting connection sync task for {} connection", request.getConnectionId());
+
         List<DTODataSource> allDataSources = dataSourceProxy.getAllDataSourcesByConnection(request.getTenantId(), request.getConnectionId());
+
+        log.info("Starting syncing {} data sources", allDataSources.size());
 
         updateConnectionData(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
         boolean hasError = allDataSources.stream().anyMatch(dataSource -> {
             try {
+                MDC.put(DATASOURCE_ID, String.valueOf(dataSource.getId()));
                 syncDataSourceJob.execute(new SyncDataSourceRequest(request.getOrgId(), request.getTenantId(), request.getConnectionId(), dataSource.getId()));
                 return false;
             } catch (Exception e) {
@@ -57,6 +68,8 @@ public class SyncConnectionJob extends QuartzJobBean {
         });
 
         ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNCED;
+
+        log.info("Finished syncing {} data sources with a status {}", allDataSources.size(), syncResult);
 
         updateConnectionData(request, syncResult);
 

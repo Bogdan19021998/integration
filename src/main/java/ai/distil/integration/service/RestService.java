@@ -37,7 +37,10 @@ public class RestService {
             Response response = responseFuture.get();
             return ofNullable(HttpStatus.resolve(response.getStatusCode())).map(HttpStatus::is2xxSuccessful)
                     .map(isSuccess -> isSuccess ? dataConverter.fromString(response.getResponseBody(), type) : null)
-                    .orElse(null);
+                    .orElseGet(() -> {
+                        log.error("Can't execute http request: {}", request);
+                        return null;
+                    });
 
         } catch (ExecutionException | InterruptedException e) {
 //          add appropriate message builder
