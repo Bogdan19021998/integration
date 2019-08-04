@@ -12,23 +12,22 @@ import ai.distil.integration.service.vo.AttributeChangeInfo;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.RetryUtils;
 import ai.distil.integration.utils.StringUtils;
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.ResultSetFuture;
+import com.datastax.driver.core.Row;
 import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.schemabuilder.*;
-import com.google.common.base.Strings;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.format.ISODateTimeFormat;
-import org.postgresql.jdbc.PgSQLXML;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.util.*;
 
 import static ai.distil.integration.utils.HashHelper.DATASET_ROW_FUNNEL;
@@ -281,7 +280,7 @@ public class CassandraSyncRepository {
             DatasetValue value = valuesByKeys.get(attribute.getAttributeSourceName());
 
             if (value != null && value.getValue() != null) {
-                Object valueForSave = convertToCassandraType(value.getValue(), DatasetColumnType.mapFromSystemType(attribute.getAttributeType()).getCassandraType());
+                Object valueForSave = value.getValue();
 
                 if (primaryKey.getAttributeSourceName().equals(value.getAlias())) {
                     String stringValue = valueForSave.toString();
@@ -312,48 +311,6 @@ public class CassandraSyncRepository {
 
     private int partitionColumnValue(String hash) {
         return hash.hashCode() % DEFAULT_PARTITION_FACTOR;
-    }
-
-    private Object convertToCassandraType(Object object, DataType type) {
-        // Convert Cassandra types - into the type they have been mapped to be stored as
-        // This is especially needed for Sql.Date types, as they need to be converted to a Java.Date object
-
-        if (object == null || Strings.isNullOrEmpty(object.toString())) {
-            return null;
-        }
-
-        if (object instanceof Byte) {
-            return ((Byte) object).intValue();
-        } else if (object instanceof java.lang.Short) {
-            return ((java.lang.Short) object).intValue();
-        } else if (object instanceof java.math.BigInteger) {
-            return ((java.math.BigInteger) object).longValue();
-        } else if (object instanceof com.datastax.driver.core.Duration) {
-            return ((com.datastax.driver.core.Duration) object).toString();
-        } else if (object instanceof java.sql.Date) {
-            return LocalDate.fromMillisSinceEpoch(((java.sql.Date) object).getTime());
-        } else if (object instanceof java.sql.Time) {
-            return ((java.sql.Time) object).getTime();
-        } else if (object instanceof org.postgresql.jdbc.PgSQLXML) {
-            try {
-                return ((PgSQLXML) object).getString();
-            } catch (SQLException e) {
-                log.warn("Error getting the XML data from a org.postgresql.jdbc.PgSQLXML data type. ", e);
-                return "";
-            }
-        }
-
-        if (type == DataType.date()) {
-            //Try and parse the date according to ISO date
-            try {
-                return LocalDate.fromMillisSinceEpoch(ISODateTimeFormat.dateTimeParser().parseDateTime(object.toString()).getMillis());
-            } catch (Exception e) {
-                log.warn("Could not parse the value '%s' into a valid Date", object, e);
-                return null;
-            }
-        }
-
-        return object;
     }
 
     private IngestionStatus defineIngestionStatus(InsertStatementWrapper wrapper, Map<String, String> existingRows) {

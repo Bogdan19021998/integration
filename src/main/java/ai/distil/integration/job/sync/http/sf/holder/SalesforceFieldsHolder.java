@@ -1,18 +1,19 @@
 package ai.distil.integration.job.sync.http.sf.holder;
 
-import ai.distil.integration.controller.dto.data.DatasetRow;
 import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.http.sf.vo.SfField;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import com.datastax.driver.core.LocalDate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Slf4j
 @Component
@@ -38,10 +39,18 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
         this.put("XSD:LONG", DataSourceAttributeType.BIGINT);
         this.put("XSD:UNSIGNEDINT", DataSourceAttributeType.BIGINT);
 
-//      TODO think about it
-        this.put("XSD:DATE", DataSourceAttributeType.TEXT);
-        this.put("XSD:DATETIME", DataSourceAttributeType.TEXT);
+        this.put("XSD:DATE", DataSourceAttributeType.DATE);
+        this.put("XSD:DATETIME", DataSourceAttributeType.TIMESTAMP);
     }};
+
+    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS =
+            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
+                this.put(DataSourceAttributeType.DATE, value -> Optional.ofNullable((dateFormatter("yyyy-MM-dd").apply(value)))
+                        .map(date -> LocalDate.fromMillisSinceEpoch(date.getTime())).orElse(null));
+                this.put(DataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+            }};
+
+
 
     private static Map<DataSourceSchemaAttributeTag, Set<String>> DEFAULT_ATTRIBUTES_TAGS = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAIL", "EMAILADDRESS"));
@@ -58,18 +67,6 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
         return EXCLUDE_FIELDS;
     }
 
-    public DatasetRow transformRow(Map<String, Object> row) {
-        DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder(row.size());
-
-        row.forEach((k, v) -> {
-            if(!getExcludeFields().contains(k)) {
-                builder.addValue(k, v);
-            }
-        });
-
-        return builder.build();
-    }
-
     @Override
     public Map<String, DataSourceAttributeType> getDataTypeMapping() {
         return DEFAULT_ATTRIBUTES_TYPE;
@@ -79,7 +76,6 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
     public Map<DataSourceSchemaAttributeTag, Set<String>> getAttributesTagsMappingByName() {
         return DEFAULT_ATTRIBUTES_TAGS;
     }
-
 
     @Override
     public List<SimpleDataSourceField> getStaticDataSourceFields() {
@@ -96,5 +92,10 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
         return Lists.newArrayList(
                 new SimpleDataSourceDefinition(null, "Contact", null, null),
                 new SimpleDataSourceDefinition(null, "Lead", null, null));
+    }
+
+    @Override
+    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+        return CUSTOM_VALUES_MAPPERS;
     }
 }

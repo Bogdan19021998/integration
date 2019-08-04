@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class UtilsTest {
         }};
 
         Map<String, Object> map = buildComplexMap();
-        Map<String, Object> flattedMap = MapUtils.flatten(map, ImmutableMap.of("listfortransform", mapsList ->
+        Map<String, Object> flattedMap = MapUtils.flatten(map, Collections.emptyMap(), ImmutableMap.of("listfortransform", mapsList ->
                 (Map) ListUtils.groupByWithOverwrite(mapsList, m -> String.valueOf(m.get("int")), false)));
 
         Assertions.assertEquals(expectedResult, flattedMap);

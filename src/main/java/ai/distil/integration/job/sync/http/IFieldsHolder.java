@@ -1,12 +1,18 @@
 package ai.distil.integration.job.sync.http;
 
+import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.MapUtils;
 import ai.distil.integration.utils.StringUtils;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,7 +21,6 @@ import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
 //T is a type for dynamic fields definitions
 public interface IFieldsHolder<T> {
     String DEFAULT_TYPE_KEY = "DISTIL_DEFAULT_KEY";
-
 
     //  map for types mappings, e.g. number -> BIGINT, double -> NUMBER, etc...
     Map<String, DataSourceAttributeType> getDataTypeMapping();
@@ -29,6 +34,17 @@ public interface IFieldsHolder<T> {
 
     default Set<String> getExcludeFields() {
         return Collections.emptySet();
+    }
+
+
+//  fields converter by name
+    default Map<String, Function<?, Map<String, Object>>> getCustomFieldsConverters() {
+        return Collections.emptyMap();
+    }
+
+//  fields converter by type
+    default <K, V> Map<DataSourceAttributeType, Function<K, V>> getCustomTypeConverters() {
+        return Collections.emptyMap();
     }
 
     default DataSourceAttributeType defineType(String type) {
@@ -75,5 +91,35 @@ public interface IFieldsHolder<T> {
 
     default String buildFieldName(String path, String fieldName) {
         return MapUtils.buildKeyName(path, fieldName);
+    }
+
+    default DatasetRow transformRow (Map<String, Object> row, DataSourceDataHolder dataSource) {
+        Map<String, Object> flattedRow = MapUtils.flatten(row, getCustomFieldsConverters());
+
+        DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder(flattedRow.size());
+        Map<DataSourceAttributeType, Function<Object, Object>> customTypeMapper = getCustomTypeConverters();
+
+        dataSource.getAllAttributes().forEach(attr -> {
+            Object value = flattedRow.get(attr.getAttributeSourceName());
+            Object transformedValue = Optional.ofNullable(customTypeMapper
+                    .get(attr.getAttributeType()))
+                    .map(f -> f.apply(value))
+                    .orElse(value);
+
+            builder.addValue(attr.getAttributeSourceName(), transformedValue);
+        });
+
+        return builder.build();
+    }
+
+    default Function<Object, Date> dateFormatter(String datePattern) {
+        return value -> Optional.ofNullable(value).map((v) -> {
+            DateFormat formatter = new SimpleDateFormat(datePattern);
+            try {
+                return formatter.parse(String.valueOf(v));
+            } catch (ParseException e) {
+                return null;
+            }
+        }).orElse(null);
     }
 }
