@@ -18,6 +18,7 @@ pipelines:
     - step:
         caches:
           - docker
+          - maven
         script:
           - mvn deploy -s .mvn-settings.xml -Dmaven.test.skip=true
           - export IMAGE_NAME="distil.azurecr.io/distil-integrations:staging"
@@ -28,6 +29,7 @@ pipelines:
       - step:
           caches:
             - docker
+            - maven
           script:
             - mvn deploy -s .mvn-settings.xml -Dmaven.test.skip=true
             - export IMAGE_NAME="distil.azurecr.io/distil-integrations:production"
