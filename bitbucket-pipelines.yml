@@ -19,6 +19,7 @@ pipelines:
         caches:
           - docker
         script:
+          - mvn deploy -s .mvn-settings.xml -Dmaven.test.skip=true
           - export IMAGE_NAME="distil.azurecr.io/distil-integrations:staging"
           - docker build --build-arg DEFAULT_PROFILE=staging -t $IMAGE_NAME .
           - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
@@ -28,6 +29,7 @@ pipelines:
           caches:
             - docker
           script:
+            - mvn deploy -s .mvn-settings.xml -Dmaven.test.skip=true
             - export IMAGE_NAME="distil.azurecr.io/distil-integrations:production"
             - docker build --build-arg DEFAULT_PROFILE=production -t $IMAGE_NAME .
             - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_LOGIN_SERVER
@@ -39,7 +41,7 @@ pipelines:
             - docker
             - maven
           script:
-            - mvn -B clean test
+            - mvn deploy -s .mvn-settings.xml -Dmaven.test.skip=true
             - export IMAGE_NAME_TAG=distil.azurecr.io/distil-integrations:$BITBUCKET_TAG
             - export IMAGE_NAME_LATEST=distil.azurecr.io/distil-integrations:latest
             - export IMAGE_NAME_PRODUCTION=distil.azurecr.io/distil-integrations:production
