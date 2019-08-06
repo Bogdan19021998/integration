@@ -1,12 +1,12 @@
 spring.datasource:
-  driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/distil?searchpath=distil
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=integrations
   username: postgres
   password: 1qaz2wsXX
+  driver-class-name: org.postgresql.Driver
 
 cassandra:
   servers:
-    - 10.1.3.5
+    - localhost
   keyspace: distil
   accountKeyspaceReplicationOptions:
     class: SimpleStrategy
@@ -16,9 +16,9 @@ ai:
   distil:
     api:
       integrations:
-        url: http://localhost:8889
+        url: http://localhost:8087
       internal:
-        url: http://localhost:8888
+        url: http://localhost:8086
 
 server:
-  port: 8889
+  port: 8087
