@@ -121,7 +121,7 @@ public class DataSyncService {
             }
 
             if (progressAggregator.getSyncTrackingData().getProcessed() % 1000 == 0) {
-                log.debug("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
+                log.info("Processed {} records for Tenant: {} / DataSource ID: {} / Distil table name: {}", progressAggregator.getSyncTrackingData().getProcessed(), tenantId, currentSchema.getDataSourceForeignKey(), currentSchema.getDataSourceCassandraTableName());
             }
         });
 

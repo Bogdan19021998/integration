@@ -6,10 +6,12 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+@Slf4j
 @AllArgsConstructor
 public abstract class AbstractParser {
     @Getter
@@ -28,8 +30,17 @@ public abstract class AbstractParser {
         DataSourceDataHolder currentSchema = this.getSchema();
 
         return Optional.ofNullable(connection.getDataSource(new SimpleDataSourceDefinition(null, currentSchema.getDataSourceId(), null, null)))
-                .map(d -> connection.isDataSourceEligible(d) ? DataSourceDataHolder.mapFromDTODataSourceEntity(d) : null)
-                .orElse(null);
+                .map(d -> {
+                    if(connection.isDataSourceEligible(d)) {
+                        return DataSourceDataHolder.mapFromDTODataSourceEntity(d);
+                    }
+                    log.info("Looks like datasource - {} is not eligible anymore", currentSchema.getDataSourceId());
+                    return null;
+                })
+                .orElseGet(() -> {
+                    log.info("Can't get datasource - {} probably table was removed", currentSchema.getDataSourceId());
+                    return null;
+                });
     }
 
 }
