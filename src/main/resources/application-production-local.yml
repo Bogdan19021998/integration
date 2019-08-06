@@ -20,7 +20,7 @@ ai:
       integrations:
         url: http://localhost:8087
       internal:
-        url: http://localhost:8086
+        url: https://cassandra-cluster.distil.ai:8888
 
 app:
   name: distil_integration
