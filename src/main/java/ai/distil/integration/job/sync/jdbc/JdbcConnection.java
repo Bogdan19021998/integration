@@ -178,7 +178,9 @@ public abstract class JdbcConnection extends AbstractConnection {
             result.setConnection(connection);
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setFetchSize(DEFAULT_FETCH_SIZE);
+            if(!withoutResult) {
+                statement.setFetchSize(DEFAULT_FETCH_SIZE);
+            }
 
             for (int i = 1; i <= params.size(); i++) {
                 statement.setObject(i, params.get(i - 1));
@@ -239,7 +241,6 @@ public abstract class JdbcConnection extends AbstractConnection {
         try {
             Properties properties = getProperties();
             connection = DriverManager.getConnection(getConnectionString(), properties);
-            connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new JDBCConnectionException("Can't connect to datasource.", e);
         } finally {
