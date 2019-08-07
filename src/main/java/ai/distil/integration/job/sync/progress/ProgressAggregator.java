@@ -25,6 +25,8 @@ public class ProgressAggregator {
             return;
         }
 
+        this.syncTrackingData.aggregateAttributeValues(ingestionResult.getNotNullAttributesIds());
+
         switch (ingestionResult.getIngestionStatus()) {
             case CREATED:
                 this.syncTrackingData.incrementCreatesCounter();

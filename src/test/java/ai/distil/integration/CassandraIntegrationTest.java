@@ -24,11 +24,11 @@ public class CassandraIntegrationTest {
 
         DataSourceDataHolder holder = new DataSourceDataHolder("test", "test",
                 Lists.newArrayList(
-                        new DTODataSourceAttribute(null, "id", "id", "c1", DataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, true, new Date(), new Date()),
-                        new DTODataSourceAttribute(null, "name", "name", "c2", DataSourceAttributeType.STRING, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date()),
-                        new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date()),
-                        new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date()),
-                        new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date())
+                        new DTODataSourceAttribute(null, "id", "id", "c1", DataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, true, new Date(), new Date(), null),
+                        new DTODataSourceAttribute(null, "name", "name", "c2", DataSourceAttributeType.STRING, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
+                        new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
+                        new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
+                        new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null)
                 ), null, null);
 
         cassandraSyncRepository.createTableIfNotExists(tenantId, holder, true);

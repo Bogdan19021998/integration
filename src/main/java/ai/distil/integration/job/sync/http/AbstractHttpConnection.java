@@ -57,7 +57,8 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
                 field.getAttributeTag(),
                 true,
                 new Date(),
-                new Date());
+                new Date(),
+                null);
     }
 
 

@@ -120,6 +120,7 @@ public class CassandraSyncRepository {
         try {
             InsertStatementWrapper insertStatement = buildInsertStatement(tenantId, holder, row);
             Insert insert = insertStatement.getInsertStatement();
+
             IngestionStatus ingestionStatus = defineIngestionStatus(insertStatement, existingRows);
 
             if (IngestionStatus.CREATED.equals(ingestionStatus)) {
@@ -138,12 +139,16 @@ public class CassandraSyncRepository {
                     resultSetFuture.getUninterruptibly();
                 }
 
-                return new IngestionResult(resultSetFuture, ingestionStatus, insertStatement.getPrimaryKey());
+                return new IngestionResult(
+                        resultSetFuture,
+                        ingestionStatus,
+                        insertStatement.getPrimaryKey(),
+                        insertStatement.getNotNullAttributesIds());
             });
 
         } catch (Exception e) {
             log.error("Can't ingest row", e);
-            return new IngestionResult(null, IngestionStatus.ERROR, null);
+            return new IngestionResult(null, IngestionStatus.ERROR, null, Collections.emptySet());
         }
 
     }
@@ -265,6 +270,8 @@ public class CassandraSyncRepository {
     }
 
     private InsertStatementWrapper buildInsertStatement(String tenantId, @NotNull DataSourceDataHolder holder, DatasetRow row) {
+        Set<Long> notNullAttributesIds = new HashSet<>();
+
         Hasher hasher = Hashing.sha1().newHasher();
         String keyspaceName = buildKeyspaceName(tenantId);
         String tableName = holder.getDataSourceCassandraTableName();
@@ -282,6 +289,7 @@ public class CassandraSyncRepository {
             if (value != null && value.getValue() != null) {
                 Object valueForSave = value.getValue();
 
+                notNullAttributesIds.add(attribute.getId());
                 if (primaryKey.getAttributeSourceName().equals(value.getAlias())) {
                     String stringValue = valueForSave.toString();
                     primaryKeyValue = stringValue;
@@ -302,6 +310,7 @@ public class CassandraSyncRepository {
                 .hash(hash)
                 .primaryKey(primaryKeyValue)
                 .insertStatement(insertBuilder)
+                .notNullAttributesIds(notNullAttributesIds)
                 .build();
     }
 
@@ -332,5 +341,6 @@ public class CassandraSyncRepository {
         private Insert insertStatement;
         private String primaryKey;
         private String hash;
+        private Set<Long> notNullAttributesIds;
     }
 }
