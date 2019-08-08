@@ -5,6 +5,7 @@ import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class CassandraIntegrationTest {
                         new DTODataSourceAttribute(null, "testBool", "testBool", "c3", DataSourceAttributeType.BOOLEAN, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date()),
                         new DTODataSourceAttribute(null, "testDate", "testDate", "c4", DataSourceAttributeType.DATE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date()),
                         new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", DataSourceAttributeType.DOUBLE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date())
-                ), null, null);
+                ), DataSourceType.CUSTOMER, null);
 
         cassandraSyncRepository.createTableIfNotExists(tenantId, holder, true);
 

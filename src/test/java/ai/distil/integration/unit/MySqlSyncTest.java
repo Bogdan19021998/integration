@@ -15,6 +15,7 @@ import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.utils.ColumnsUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
+import ai.distil.model.types.DataSourceType;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -240,7 +241,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
 
-            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), null, 1L);
+            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), DataSourceType.CUSTOMER, 1L);
             boolean isTableExists = connection.dataSourceExist(holder);
             Assertions.assertTrue(isTableExists, "Consumer table must exists");
 
@@ -258,7 +259,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
         // do the basic sync
         try (JdbcConnection connection = (JdbcConnection) connectionFactory.buildConnection(connectionDTO)) {
 
-            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), null, 1L);
+            DataSourceDataHolder holder = new DataSourceDataHolder(CUSTOMERS_TABLE_NAME, CUSTOMERS_TABLE_NAME, Collections.emptyList(), DataSourceType.CUSTOMER, 1L);
             boolean isTableExists = connection.dataSourceExist(holder);
             Assertions.assertTrue(isTableExists, "Consumer table must exists");
 
