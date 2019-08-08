@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.holder;
 
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
+import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
@@ -13,6 +14,8 @@ public class DataSourceDataHolder {
 
     @Getter
     private String dataSourceCassandraTableName;
+
+    private SyncTableDefinition syncTableDefinition;
 
     @Getter
 //  DataSource id in database
@@ -53,6 +56,9 @@ public class DataSourceDataHolder {
                 .filter(DTODataSourceAttribute::getVerifiedStillPresent)
                 .collect(Collectors.toList());
 
+        this.syncTableDefinition = SyncTableDefinition.defineSyncTableDefinition(dataSourceType)
+                .orElseThrow(() -> new RuntimeException(String.format("Unable to recognize datasource type - %s", dataSourceType)));
+
         //Inferred
         this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(this.allAttributes);
         this.primaryKey = definePrimaryKey(this.allAttributes);
@@ -71,14 +77,13 @@ public class DataSourceDataHolder {
         return ImmutableList.copyOf(attributes
                 .stream()
                 .filter(DTODataSourceAttribute::getVerifiedStillPresent)
-                .filter(attribute -> !attribute.getAttributeDataTag().isPrimaryKey())
+                .filter(attribute -> !this.syncTableDefinition.isPrimaryKey(attribute.getAttributeDataTag()))
                 .collect(Collectors.toList()));
     }
 
     private DTODataSourceAttribute definePrimaryKey(List<DTODataSourceAttribute> attributes) {
-//      todo make a decision about throwing the exception if there is no primary key
         return attributes.stream()
-                .filter(attribute -> attribute.getAttributeDataTag() != null && attribute.getAttributeDataTag().isPrimaryKey())
+                .filter(attribute -> this.syncTableDefinition.isPrimaryKey(attribute.getAttributeDataTag()))
                 .findFirst()
                 .orElse(null);
     }

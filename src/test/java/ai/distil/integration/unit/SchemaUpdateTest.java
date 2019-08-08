@@ -9,6 +9,7 @@ import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.func.FunctionChecked;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Assertions;
@@ -47,8 +48,8 @@ public class SchemaUpdateTest {
 
         FunctionChecked<DTODataSourceAttribute, String> getAttributeSourceName = DTODataSourceAttribute::getAttributeSourceName;
 
-        DataSourceDataHolder oldSchema = new DataSourceDataHolder("test", "test", oldAttributes, null, 1L);
-        DataSourceDataHolder newSchema = new DataSourceDataHolder("test", "test", newAttributes, null, 1L);
+        DataSourceDataHolder oldSchema = new DataSourceDataHolder("test", "test", oldAttributes, DataSourceType.CUSTOMER, 1L);
+        DataSourceDataHolder newSchema = new DataSourceDataHolder("test", "test", newAttributes, DataSourceType.CUSTOMER, 1L);
 
 
         List<AttributeChangeInfo> attributeChangeInfos = schemaSyncService.defineSchemaChanges(oldSchema, newSchema);

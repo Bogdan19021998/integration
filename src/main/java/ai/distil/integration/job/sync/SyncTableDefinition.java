@@ -25,6 +25,7 @@ public enum SyncTableDefinition {
                         .eligibleFieldNames(Sets.newHashSet("ID"))
                         .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                         .mandatory(true)
+                        .primaryKey(true)
                         .build());
 
                 put(CUSTOMER_EMAIL_ADDRESS, FieldDefinition.builder()
@@ -63,6 +64,7 @@ public enum SyncTableDefinition {
                                 .eligibleFieldNames(Sets.newHashSet("ID"))
                                 .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                                 .mandatory(true)
+                                .primaryKey(true)
                                 .build());
                 put(PRODUCT_NAME,
                         FieldDefinition.builder()
@@ -123,10 +125,11 @@ public enum SyncTableDefinition {
     CONTENT("CONTENT", "content", DataSourceType.CONTENT,
             new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
                 put(CONTENT_EXTERNAL_ID, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("ID"))
-                                .eligibleTypes(StaticTypesDefinition.ID_TYPES)
-                                .mandatory(true)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("ID"))
+                        .eligibleTypes(StaticTypesDefinition.ID_TYPES)
+                        .mandatory(true)
+                        .primaryKey(true)
+                        .build());
                 put(CONTENT_TITLE, FieldDefinition.builder()
                                 .eligibleFieldNames(Sets.newHashSet("NAME", "TITLE"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
@@ -160,7 +163,6 @@ public enum SyncTableDefinition {
     private final Map<DataSourceSchemaAttributeTag, FieldDefinition> mandatoryFields;
 
 
-
     SyncTableDefinition(String baseSourceTableName, String distilTableName, DataSourceType dataSourceType,
                         Map<DataSourceSchemaAttributeTag, FieldDefinition> attributeTags) {
         this.baseSourceTableName = baseSourceTableName;
@@ -187,6 +189,12 @@ public enum SyncTableDefinition {
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(NONE);
+    }
+
+    public boolean isPrimaryKey(DataSourceSchemaAttributeTag tag) {
+        return Optional.ofNullable(tag).map(this.tagsDefinitions::get)
+                .map(FieldDefinition::isPrimaryKey)
+                .orElse(false);
     }
 
     public boolean isDataSourceAvailableByName(String tableName) {
@@ -223,7 +231,10 @@ public enum SyncTableDefinition {
     private static final class FieldDefinition {
         private Set<String> eligibleFieldNames;
         private Set<DataSourceAttributeType> eligibleTypes;
+        @Builder.Default
         private boolean mandatory = false;
+        @Builder.Default
+        private boolean primaryKey = false;
     }
 
     private static final class StaticTypesDefinition {
@@ -239,6 +250,7 @@ public enum SyncTableDefinition {
                     .eligibleFieldNames(Sets.newHashSet("ID"))
                     .eligibleTypes(ID_TYPES)
                     .mandatory(true)
+                    .primaryKey(true)
                     .build());
 
             put(CUSTOMER_EXTERNAL_ID, FieldDefinition.builder()
