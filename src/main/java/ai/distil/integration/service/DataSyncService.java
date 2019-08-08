@@ -61,7 +61,8 @@ public class DataSyncService {
         }
 
         List<AttributeChangeInfo> attributesChangeInfo = schemaSyncService.defineSchemaChanges(currentSchema, newSchema);
-        attributesChangeInfo.forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, newSchema, attr));
+        attributesChangeInfo
+                .forEach(attr -> cassandraSyncRepository.applySchemaChanges(tenantId, currentSchema.getDataSourceCassandraTableName(), attr));
 
         List<DTODataSourceAttribute> newAttributes = attributesChangeInfo.stream()
                 .map(v -> {
@@ -80,7 +81,7 @@ public class DataSyncService {
 
 
         return new DataSourceDataHolder(newSchema.getDataSourceId(),
-                newSchema.getDataSourceCassandraTableName(),
+                currentSchema.getDataSourceCassandraTableName(),
                 newAttributes,
                 newSchema.getDataSourceType(),
                 currentSchema.getDataSourceForeignKey());
