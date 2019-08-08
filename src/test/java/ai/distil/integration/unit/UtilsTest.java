@@ -2,6 +2,7 @@ package ai.distil.integration.unit;
 
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.MapUtils;
+import ai.distil.integration.utils.NamingUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Assertions;
@@ -39,6 +40,15 @@ public class UtilsTest {
                 (Map) ListUtils.groupByWithOverwrite(mapsList, m -> String.valueOf(m.get("int")), false)));
 
         Assertions.assertEquals(expectedResult, flattedMap);
+    }
+
+    @Test
+    public void tableNameGenerationTest() {
+        String tableName = NamingUtils.generateTableName("some very long &name - with ineligible_! characters");
+        Assertions.assertEquals(NamingUtils.MAX_TABLE_NAME_LENGTH, tableName.length());
+
+        String smallTableName = NamingUtils.generateTableName("foo");
+        Assertions.assertTrue(smallTableName.length() < NamingUtils.MAX_TABLE_NAME_LENGTH);
     }
 
     private Map<String, Object> buildComplexMap() {

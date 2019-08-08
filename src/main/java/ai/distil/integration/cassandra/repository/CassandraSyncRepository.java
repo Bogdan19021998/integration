@@ -77,9 +77,8 @@ public class CassandraSyncRepository {
         return RetryUtils.defaultCassandraTimeoutRetry(() -> connection.getSession().executeAsync(selectStatement).getUninterruptibly());
     }
 
-    public void applySchemaChanges(String tenantId, @NotNull DataSourceDataHolder holder, AttributeChangeInfo changeAttributeType) {
+    public void applySchemaChanges(String tenantId, @NotNull String tableName, AttributeChangeInfo changeAttributeType) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDataSourceCassandraTableName();
 
         DTODataSourceAttribute oldAttribute = changeAttributeType.getOldAttribute();
         DTODataSourceAttribute newAttribute = changeAttributeType.getNewAttribute();
