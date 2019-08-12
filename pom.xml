@@ -47,7 +47,7 @@
         <dependency>
             <groupId>ai.distil</groupId>
             <artifactId>api.internal</artifactId>
-            <version>2.0.7</version>
+            <version>2.1.0</version>
             <classifier>api</classifier>
             <exclusions>
                 <exclusion>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>ai.distil</groupId>
             <artifactId>model</artifactId>
-            <version>2.0.3</version>
+            <version>2.1.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

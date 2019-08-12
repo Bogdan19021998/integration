@@ -2,7 +2,7 @@ package ai.distil.integration.job.sync;
 
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Sets;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ai.distil.integration.utils.NamingUtils.sanitizeColumnName;
-import static ai.distil.model.types.DataSourceAttributeType.*;
+import static ai.distil.model.types.CassandraDataSourceAttributeType.*;
 import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 
 public enum SyncTableDefinition {
@@ -213,7 +213,7 @@ public enum SyncTableDefinition {
         long countOfMandatoryFieldsInDataSource = this.mandatoryFields.entrySet().stream().filter(definition ->
                 attributes.stream()
                         .anyMatch(attr -> definition.getKey().equals(attr.getAttributeDataTag())
-                                && definition.getValue().getEligibleTypes().contains(attr.getAttributeType()))).count();
+                                && definition.getValue().getEligibleTypes().contains(attr.getCassandraAttributeType()))).count();
 
         return countOfMandatoryFieldsInDataSource == this.mandatoryFields.size();
     }
@@ -230,7 +230,7 @@ public enum SyncTableDefinition {
     @AllArgsConstructor
     private static final class FieldDefinition {
         private Set<String> eligibleFieldNames;
-        private Set<DataSourceAttributeType> eligibleTypes;
+        private Set<CassandraDataSourceAttributeType> eligibleTypes;
         @Builder.Default
         private boolean mandatory = false;
         @Builder.Default
@@ -238,11 +238,11 @@ public enum SyncTableDefinition {
     }
 
     private static final class StaticTypesDefinition {
-        private static final Set<DataSourceAttributeType> ID_TYPES = Sets.newHashSet(DECIMAL, BIGINT, INTEGER, LONG, UUID, STRING, TEXT);
-        private static final Set<DataSourceAttributeType> STRING_TYPES = Sets.newHashSet(STRING, TEXT);
-        private static final Set<DataSourceAttributeType> NUMBER_TYPES = Sets.newHashSet(BIGINT, INTEGER, LONG, DOUBLE, FLOAT);
-        private static final Set<DataSourceAttributeType> BOOLEAN_TYPES = Sets.newHashSet(BOOLEAN);
-        private static final Set<DataSourceAttributeType> DATE_TYPES = Sets.newHashSet(DATE, TIMESTAMP);
+        private static final Set<CassandraDataSourceAttributeType> ID_TYPES = Sets.newHashSet(DECIMAL, BIGINT, INTEGER, LONG, UUID, STRING, TEXT);
+        private static final Set<CassandraDataSourceAttributeType> STRING_TYPES = Sets.newHashSet(STRING, TEXT);
+        private static final Set<CassandraDataSourceAttributeType> NUMBER_TYPES = Sets.newHashSet(BIGINT, INTEGER, LONG, DOUBLE, FLOAT);
+        private static final Set<CassandraDataSourceAttributeType> BOOLEAN_TYPES = Sets.newHashSet(BOOLEAN);
+        private static final Set<CassandraDataSourceAttributeType> DATE_TYPES = Sets.newHashSet(DATE, TIMESTAMP);
 
         //    it's must be in the separate class, otherwise we will have compilation error
         public static Map<DataSourceSchemaAttributeTag, FieldDefinition> ORDER_TAGS_DEFINITION = new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{

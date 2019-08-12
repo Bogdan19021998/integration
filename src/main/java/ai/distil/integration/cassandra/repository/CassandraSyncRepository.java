@@ -110,7 +110,7 @@ public class CassandraSyncRepository {
     public void addColumn(String keyspaceName, String tableName, DTODataSourceAttribute attribute) {
         SchemaStatement addColumnStatement = SchemaBuilder.alterTable(keyspaceName, tableName)
                 .addColumn(attribute.getAttributeDistilName())
-                .type(DatasetColumnType.mapFromSystemType(attribute.getAttributeType()).getCassandraType());
+                .type(DatasetColumnType.mapFromSystemType(attribute.getCassandraAttributeType()).getCassandraType());
 
         RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(addColumnStatement));
     }
@@ -230,7 +230,7 @@ public class CassandraSyncRepository {
 
         holder.getAttributesWithoutPrimaryKey()
                 .forEach(datasetColumn -> createSchema.addColumn(datasetColumn.getAttributeDistilName(),
-                        DatasetColumnType.mapFromSystemType(datasetColumn.getAttributeType()).getCassandraType()));
+                        DatasetColumnType.mapFromSystemType(datasetColumn.getCassandraAttributeType()).getCassandraType()));
 
         return RetryUtils.defaultCassandraTimeoutRetry(() -> {
             ResultSetFuture resultSetFuture = this.connection.getSession().executeAsync(createSchema);

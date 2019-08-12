@@ -4,7 +4,7 @@ import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.http.sf.vo.SfField;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.LocalDate;
 import com.google.common.collect.Lists;
@@ -20,34 +20,34 @@ import java.util.function.Function;
 public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
     private static Set<String> EXCLUDE_FIELDS = Sets.newHashSet("Address", "attributes", "MailingAddress");
 
-    private static Map<String, DataSourceAttributeType> DEFAULT_ATTRIBUTES_TYPE = new HashMap<String, DataSourceAttributeType>() {{
-        this.put("XSD:STRING", DataSourceAttributeType.TEXT);
-        this.put("TNS:ID", DataSourceAttributeType.TEXT);
+    private static Map<String, CassandraDataSourceAttributeType> DEFAULT_ATTRIBUTES_TYPE = new HashMap<String, CassandraDataSourceAttributeType>() {{
+        this.put("XSD:STRING", CassandraDataSourceAttributeType.TEXT);
+        this.put("TNS:ID", CassandraDataSourceAttributeType.TEXT);
 
-        this.put("XSD:BOOLEAN", DataSourceAttributeType.BOOLEAN);
-        this.put("XSD:DOUBLE", DataSourceAttributeType.DOUBLE);
-        this.put("XSD:DECIMAL", DataSourceAttributeType.DECIMAL);
-        this.put("XSD:FLOAT", DataSourceAttributeType.FLOAT);
+        this.put("XSD:BOOLEAN", CassandraDataSourceAttributeType.BOOLEAN);
+        this.put("XSD:DOUBLE", CassandraDataSourceAttributeType.DOUBLE);
+        this.put("XSD:DECIMAL", CassandraDataSourceAttributeType.DECIMAL);
+        this.put("XSD:FLOAT", CassandraDataSourceAttributeType.FLOAT);
 
-        this.put("XSD:BYTE", DataSourceAttributeType.INTEGER);
-        this.put("XSD:INT", DataSourceAttributeType.INTEGER);
-        this.put("XSD:INTEGER", DataSourceAttributeType.INTEGER);
-        this.put("XSD:SHORT", DataSourceAttributeType.INTEGER);
-        this.put("XSD:SIGNEDINT", DataSourceAttributeType.INTEGER);
-        this.put("XSD:UNSIGNEDSHORT", DataSourceAttributeType.INTEGER);
+        this.put("XSD:BYTE", CassandraDataSourceAttributeType.INTEGER);
+        this.put("XSD:INT", CassandraDataSourceAttributeType.INTEGER);
+        this.put("XSD:INTEGER", CassandraDataSourceAttributeType.INTEGER);
+        this.put("XSD:SHORT", CassandraDataSourceAttributeType.INTEGER);
+        this.put("XSD:SIGNEDINT", CassandraDataSourceAttributeType.INTEGER);
+        this.put("XSD:UNSIGNEDSHORT", CassandraDataSourceAttributeType.INTEGER);
 
-        this.put("XSD:LONG", DataSourceAttributeType.BIGINT);
-        this.put("XSD:UNSIGNEDINT", DataSourceAttributeType.BIGINT);
+        this.put("XSD:LONG", CassandraDataSourceAttributeType.BIGINT);
+        this.put("XSD:UNSIGNEDINT", CassandraDataSourceAttributeType.BIGINT);
 
-        this.put("XSD:DATE", DataSourceAttributeType.DATE);
-        this.put("XSD:DATETIME", DataSourceAttributeType.TIMESTAMP);
+        this.put("XSD:DATE", CassandraDataSourceAttributeType.DATE);
+        this.put("XSD:DATETIME", CassandraDataSourceAttributeType.TIMESTAMP);
     }};
 
-    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS =
-            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
-                this.put(DataSourceAttributeType.DATE, value -> Optional.ofNullable((dateFormatter("yyyy-MM-dd").apply(value)))
+    private final Map<CassandraDataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS =
+            new HashMap<CassandraDataSourceAttributeType, Function<?, ?>>() {{
+                this.put(CassandraDataSourceAttributeType.DATE, value -> Optional.ofNullable((dateFormatter("yyyy-MM-dd").apply(value)))
                         .map(date -> LocalDate.fromMillisSinceEpoch(date.getTime())).orElse(null));
-                this.put(DataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+                this.put(CassandraDataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
             }};
 
 
@@ -68,7 +68,7 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
     }
 
     @Override
-    public Map<String, DataSourceAttributeType> getDataTypeMapping() {
+    public Map<String, CassandraDataSourceAttributeType> getDataTypeMapping() {
         return DEFAULT_ATTRIBUTES_TYPE;
     }
 
@@ -95,7 +95,7 @@ public class SalesforceFieldsHolder implements IFieldsHolder<SfField> {
     }
 
     @Override
-    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+    public Map<CassandraDataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
         return CUSTOM_VALUES_MAPPERS;
     }
 }

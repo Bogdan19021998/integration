@@ -1,6 +1,6 @@
 package ai.distil.integration.controller.dto.data;
 
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import com.datastax.driver.core.DataType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,8 +34,8 @@ public enum DatasetColumnType {
     @Getter
     private DataType cassandraType;
 
-    public static DatasetColumnType mapFromSystemType(DataSourceAttributeType attributeType) {
-        if(DataSourceAttributeType.TEXT.equals(attributeType)) {
+    public static DatasetColumnType mapFromSystemType(CassandraDataSourceAttributeType attributeType) {
+        if(CassandraDataSourceAttributeType.TEXT.equals(attributeType)) {
             return DatasetColumnType.STRING;
         }
         return DatasetColumnType.valueOf(attributeType.toString());
@@ -210,7 +210,7 @@ public enum DatasetColumnType {
         }
     }
 
-    public DataSourceAttributeType mapToAttributeType() {
-        return DataSourceAttributeType.valueOf(this.toString());
+    public CassandraDataSourceAttributeType mapToAttributeType() {
+        return CassandraDataSourceAttributeType.valueOf(this.toString());
     }
 }
