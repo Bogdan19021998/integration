@@ -115,7 +115,7 @@ public class MySqlSyncTest extends AbstractSyncTest {
                         Assertions.assertEquals(expectedResult.size(), syncTrackingData.getCurrentRowsCount());
 
                         List<Map<String, Object>> syncResult = cassandraSyncRepository.selectAllToMap(tenantId, dataSource).stream().map(m -> {
-                            Map<String, Object> result = new HashMap<>();
+                            Map<String, Object> result = new TreeMap<>();
                             m.forEach((s, o) -> result.put(ColumnsUtils.normalizeKeyForComparison(s), o));
                             return result;
                         }).collect(Collectors.toList());
