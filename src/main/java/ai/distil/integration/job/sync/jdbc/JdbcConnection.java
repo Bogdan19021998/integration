@@ -6,6 +6,7 @@ import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
+import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.iterator.JdbcRowIterator;
 import ai.distil.integration.job.sync.jdbc.vo.ColumnDefinition;
@@ -81,26 +82,17 @@ public abstract class JdbcConnection extends AbstractConnection {
         String sql = schemaQueryDefinition.getQuery();
 
         try (QueryWrapper query = this.query(sql, schemaQueryDefinition.getQueryParams(), false)) {
-
             ResultSet resultSet = query.getResultSet();
+
             while (resultSet.next()) {
                 ColumnDefinition columnDefinition = schemaQueryDefinition.mapResultSet(resultSet);
                 String sourceColumnName = columnDefinition.getColumnName();
 
-                String distilColumnName = generateColumnName(sourceColumnName);
+                columns.add(buildDTODataSourceAttribute(new SimpleDataSourceField(
+                        sourceColumnName, sourceColumnName, columnDefinition.getDataType(),
+                        syncTableDefinition.map(v -> v.tryToGetAttributeType(sourceColumnName)).orElse(null)
+                )));
 
-                columns.add(new DTODataSourceAttribute(null,
-                        sourceColumnName,
-                        sourceColumnName,
-                        distilColumnName,
-                        columnDefinition.getDataType().getAttributeType(),
-                        columnDefinition.getDataType(),
-                        false,
-                        syncTableDefinition.map(v -> v.tryToGetAttributeType(sourceColumnName)).orElse(null),
-                        true,
-                        new Date(),
-                        new Date(),
-                        null));
             }
         } catch (SQLException e) {
             throw new JDBCException("Can't retrieve all MySQL tables.", e, sql);
