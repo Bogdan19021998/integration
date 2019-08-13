@@ -5,7 +5,6 @@ import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
-import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +26,8 @@ public class SyncProgressTrackingData {
     private long beforeRowsCount;
     private Date startedDate;
     private Date finishedDate;
+
+    private Map<Long, Long> notNullAttributeValues = new HashMap<>();
 
     public void incrementCreatesCounter() {
         this.processed++;
@@ -47,6 +52,17 @@ public class SyncProgressTrackingData {
     public void incrementErrorsCount() {
         this.processed++;
         this.errorsCount++;
+    }
+
+    public void aggregateAttributeValues(Set<Long> notNullAttributesIds) {
+        if(notNullAttributesIds == null) {
+            return;
+        }
+
+        notNullAttributesIds.forEach(attributeId -> {
+            Long currentNotNullRowsCount = this.notNullAttributeValues.getOrDefault(attributeId, 0L) + 1L;
+            this.notNullAttributeValues.put(attributeId, currentNotNullRowsCount);
+        });
     }
 
     @JsonIgnore
