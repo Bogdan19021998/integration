@@ -2,20 +2,35 @@ package ai.distil.integration.job.sync;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
+import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.utils.NamingUtils;
 import ai.distil.model.org.ConnectionSettings;
+import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.DataSourceSchemaAttributeTag;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
+import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 
 // it's better to keep connections stateless, these connections not related to jdbc connections
 // but for some cases (e.g. ssh port forwarding), connections will be stateful and we'll to close them, for release ports
 // or any other resources
 public abstract class AbstractConnection implements AutoCloseable {
+
+    private static final Set<DataSourceSchemaAttributeTag> PRIMARY_KEY_ATTRIBUTES = Sets.newHashSet(
+            CONTENT_EXTERNAL_ID, CUSTOMER_EXTERNAL_ID,
+            ORDER_EXTERNAL_ID, PRODUCT_EXTERNAL_ID,
+            PRIMARY_KEY
+    );
 
     @Getter
 //  this must be private, for simplify delegation and allow access only by getter
@@ -59,5 +74,22 @@ public abstract class AbstractConnection implements AutoCloseable {
         return NamingUtils.generateColumnName(sourceColumnName);
     }
 
+    protected DTODataSourceAttribute buildDTODataSourceAttribute(SimpleDataSourceField field) {
+//      key attributes must be strings
+        DataSourceAttributeType attributeType = PRIMARY_KEY_ATTRIBUTES.contains(field.getAttributeTag())
+                ? DataSourceAttributeType.STRING
+                : field.getAttributeType();
+
+        return new DTODataSourceAttribute(null,
+                field.getSourceFieldName(),
+                field.getDisplayName(),
+                generateColumnName(field.getSourceFieldName()),
+                attributeType,
+                false,
+                field.getAttributeTag(),
+                true,
+                new Date(),
+                new Date());
+    }
 
 }
