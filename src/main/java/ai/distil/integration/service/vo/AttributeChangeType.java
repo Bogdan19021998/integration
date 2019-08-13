@@ -13,7 +13,7 @@ public enum AttributeChangeType {
             return AttributeChangeType.DELETED;
         }
 
-        if (oldAttribute.getAttributeType().equals(newAttribute.getAttributeType())) {
+        if (oldAttribute.getCassandraAttributeType().equals(newAttribute.getCassandraAttributeType())) {
             return AttributeChangeType.NOT_CHANGED;
         } else {
             return AttributeChangeType.TYPE_CHANGED;

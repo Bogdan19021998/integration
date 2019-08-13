@@ -4,7 +4,7 @@ import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.campmon.vo.CustomFieldDefinition;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.ListUtils;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.LocalDate;
 import com.google.common.collect.Sets;
@@ -24,14 +24,14 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     private static final String KEY_FIELD = "Key";
     private static final String VALUE_FIELD = "Value";
 
-    private static final Map<String, DataSourceAttributeType> DATA_TYPE_MAPPING = new HashMap<String, DataSourceAttributeType>() {{
-        this.put("TEXT", DataSourceAttributeType.STRING);
+    private static final Map<String, CassandraDataSourceAttributeType> DATA_TYPE_MAPPING = new HashMap<String, CassandraDataSourceAttributeType>() {{
+        this.put("TEXT", CassandraDataSourceAttributeType.STRING);
 // campaign monitor returns data as strings, but type is number, try to deal with it
 //        todo add transformer
-        this.put("NUMBER", DataSourceAttributeType.STRING);
-        this.put("MULTISELECTONE", DataSourceAttributeType.STRING);
-        this.put("DATE", DataSourceAttributeType.DATE);
-        this.put("MULTISELECTMANY", DataSourceAttributeType.STRING);
+        this.put("NUMBER", CassandraDataSourceAttributeType.STRING);
+        this.put("MULTISELECTONE", CassandraDataSourceAttributeType.STRING);
+        this.put("DATE", CassandraDataSourceAttributeType.DATE);
+        this.put("MULTISELECTMANY", CassandraDataSourceAttributeType.STRING);
     }};
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING_FOR_NAMES = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
@@ -60,16 +60,16 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     }};
 
     private final List<SimpleDataSourceField> DEFAULT_STATIC_FIELDS = Stream.of("EmailAddress", "Name", "Date", "State", "ReadsEmailWith")
-            .map(field -> buildSimpleField(null, field, field, DataSourceAttributeType.STRING))
+            .map(field -> buildSimpleField(null, field, field, CassandraDataSourceAttributeType.STRING))
             .collect(Collectors.toList());
 
-    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_TYPE_CONVERTERS =
-            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
-                this.put(DataSourceAttributeType.DATE, value -> Optional.ofNullable(dateFormatter("yyyy-MM-dd").apply(value)).map(Date::getTime).map(LocalDate::fromMillisSinceEpoch).orElse(null));
+    private final Map<CassandraDataSourceAttributeType, Function<?, ?>> CUSTOM_TYPE_CONVERTERS =
+            new HashMap<CassandraDataSourceAttributeType, Function<?, ?>>() {{
+                this.put(CassandraDataSourceAttributeType.DATE, value -> Optional.ofNullable(dateFormatter("yyyy-MM-dd").apply(value)).map(Date::getTime).map(LocalDate::fromMillisSinceEpoch).orElse(null));
             }};
 
     @Override
-    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+    public Map<CassandraDataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
         return CUSTOM_TYPE_CONVERTERS;
     }
 
@@ -84,7 +84,7 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     }
 
     @Override
-    public Map<String, DataSourceAttributeType> getDataTypeMapping() {
+    public Map<String, CassandraDataSourceAttributeType> getDataTypeMapping() {
         return DATA_TYPE_MAPPING;
     }
 

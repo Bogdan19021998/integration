@@ -52,6 +52,7 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
                 field.getSourceFieldName(),
                 field.getDisplayName(),
                 generateColumnName(field.getSourceFieldName()),
+                field.getAttributeType().getAttributeType(),
                 field.getAttributeType(),
                 false,
                 field.getAttributeTag(),
