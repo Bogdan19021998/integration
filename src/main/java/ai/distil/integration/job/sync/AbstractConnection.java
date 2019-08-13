@@ -9,7 +9,7 @@ import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.utils.NamingUtils;
 import ai.distil.model.org.ConnectionSettings;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.google.common.collect.Sets;
 import lombok.Getter;
@@ -76,20 +76,22 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     protected DTODataSourceAttribute buildDTODataSourceAttribute(SimpleDataSourceField field) {
 //      key attributes must be strings
-        DataSourceAttributeType attributeType = PRIMARY_KEY_ATTRIBUTES.contains(field.getAttributeTag())
-                ? DataSourceAttributeType.STRING
+        CassandraDataSourceAttributeType cassandraType = PRIMARY_KEY_ATTRIBUTES.contains(field.getAttributeTag())
+                ? CassandraDataSourceAttributeType.STRING
                 : field.getAttributeType();
 
         return new DTODataSourceAttribute(null,
                 field.getSourceFieldName(),
                 field.getDisplayName(),
                 generateColumnName(field.getSourceFieldName()),
-                attributeType,
+                cassandraType.getAttributeType(),
+                cassandraType,
                 false,
                 field.getAttributeTag(),
                 true,
                 new Date(),
-                new Date());
+                new Date(),
+                null);
     }
 
 }
