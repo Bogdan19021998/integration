@@ -3,10 +3,12 @@ package ai.distil.integration.controller.proxy;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.controller.dto.CheckConnectivityResponse;
+import ai.distil.integration.controller.dto.CommonConnectionRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -29,5 +31,9 @@ public interface ConnectionIntegrationProxy {
             responseContainer = "List")
     @PostMapping("/datasource/eligible/get")
     ResponseEntity<List<DTODataSource>> findEligibleDataSources(@RequestBody DTOConnection dtoConnection);
+
+    @ApiOperation(value = "Clean connection data")
+    @DeleteMapping
+    ResponseEntity<?> cleanConnectionData(@RequestBody CommonConnectionRequest request);
 
 }

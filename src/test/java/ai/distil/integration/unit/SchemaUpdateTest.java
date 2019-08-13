@@ -7,7 +7,7 @@ import ai.distil.integration.service.vo.AttributeChangeInfo;
 import ai.distil.integration.service.vo.AttributeChangeType;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.integration.utils.func.FunctionChecked;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
@@ -32,18 +32,18 @@ public class SchemaUpdateTest {
     public void schemaChangesDetectionTest() {
 
         List<DTODataSourceAttribute> oldAttributes = Lists.newArrayList(
-                buildSimpleDataSourceAttribute("c1", DataSourceAttributeType.BIGINT),
-                buildSimpleDataSourceAttribute("c2", DataSourceAttributeType.BIGINT),
-                buildSimpleDataSourceAttribute("c3", DataSourceAttributeType.BIGINT),
-                buildSimpleDataSourceAttribute("c4", DataSourceAttributeType.BIGINT)
+                buildSimpleDataSourceAttribute("c1", CassandraDataSourceAttributeType.BIGINT),
+                buildSimpleDataSourceAttribute("c2", CassandraDataSourceAttributeType.BIGINT),
+                buildSimpleDataSourceAttribute("c3", CassandraDataSourceAttributeType.BIGINT),
+                buildSimpleDataSourceAttribute("c4", CassandraDataSourceAttributeType.BIGINT)
         );
 
 
         List<DTODataSourceAttribute> newAttributes = Lists.newArrayList(
-                buildSimpleDataSourceAttribute("c1", DataSourceAttributeType.DATE),
-                buildSimpleDataSourceAttribute("c2", DataSourceAttributeType.BIGINT),
-                buildSimpleDataSourceAttribute("c3", DataSourceAttributeType.BIGINT),
-                buildSimpleDataSourceAttribute("c4444", DataSourceAttributeType.BIGINT)
+                buildSimpleDataSourceAttribute("c1", CassandraDataSourceAttributeType.DATE),
+                buildSimpleDataSourceAttribute("c2", CassandraDataSourceAttributeType.BIGINT),
+                buildSimpleDataSourceAttribute("c3", CassandraDataSourceAttributeType.BIGINT),
+                buildSimpleDataSourceAttribute("c4444", CassandraDataSourceAttributeType.BIGINT)
         );
 
         FunctionChecked<DTODataSourceAttribute, String> getAttributeSourceName = DTODataSourceAttribute::getAttributeSourceName;
@@ -69,11 +69,12 @@ public class SchemaUpdateTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
-    private DTODataSourceAttribute buildSimpleDataSourceAttribute(String sourceName, DataSourceAttributeType attributeType) {
+    private DTODataSourceAttribute buildSimpleDataSourceAttribute(String sourceName, CassandraDataSourceAttributeType attributeType) {
         DTODataSourceAttribute res = new DTODataSourceAttribute();
         res.setAttributeSourceName(sourceName);
         res.setAttributeDistilName(sourceName);
-        res.setAttributeType(attributeType);
+        res.setAttributeType(attributeType.getAttributeType());
+        res.setCassandraAttributeType(attributeType);
         res.setAttributeDataTag(DataSourceSchemaAttributeTag.NONE);
         res.setSyncAttribute(false);
         res.setVerifiedStillPresent(true);

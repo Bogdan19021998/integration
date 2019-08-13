@@ -15,8 +15,10 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 import static ai.distil.integration.constants.JobConstants.TASK_ID_KEY;
@@ -131,6 +133,20 @@ public class JobScheduler {
             log.error("SchedulerException while triggering a job with key : {}", jobKey, e);
             //todo choose more appropriate exception
             throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deleteJobs(JobDefinitionEnum jobDefinitionEnum, List<? extends IJobRequest> jobRequests) {
+        List<JobKey> jobsToDelete = jobRequests.stream()
+                .map(v -> new JobKey(v.getKey(), jobDefinitionEnum.getGroup()))
+                .collect(Collectors.toList());
+
+        try {
+            slowSchedulerFactoryBean.getScheduler().deleteJobs(jobsToDelete);
+            return true;
+        } catch (SchedulerException e) {
+            log.warn("Unable to remove scheduled jobs.", e);
+            return false;
         }
     }
 

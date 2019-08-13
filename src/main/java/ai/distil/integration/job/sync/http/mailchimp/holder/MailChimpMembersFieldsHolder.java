@@ -3,7 +3,7 @@ package ai.distil.integration.job.sync.http.mailchimp.holder;
 import ai.distil.integration.job.sync.http.IFieldsHolder;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.LocalDate;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -49,12 +49,12 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
 
     private static final Set<String> PROPERTIES_KEYS = Sets.newHashSet("properties", "additionalProperties");
 
-    private static final Map<String, DataSourceAttributeType> MAIL_CHIMP_TYPE_TO_ATTR_TYPE = ImmutableMap.of(
-            "STRING", DataSourceAttributeType.STRING,
-            "NUMBER", DataSourceAttributeType.DOUBLE,
-            "INTEGER", DataSourceAttributeType.BIGINT,
-            "BOOLEAN", DataSourceAttributeType.BOOLEAN,
-            TIMESTAMP_TYPE, DataSourceAttributeType.TIMESTAMP
+    private static final Map<String, CassandraDataSourceAttributeType> MAIL_CHIMP_TYPE_TO_ATTR_TYPE = ImmutableMap.of(
+            "STRING", CassandraDataSourceAttributeType.STRING,
+            "NUMBER", CassandraDataSourceAttributeType.DOUBLE,
+            "INTEGER", CassandraDataSourceAttributeType.BIGINT,
+            "BOOLEAN", CassandraDataSourceAttributeType.BOOLEAN,
+            TIMESTAMP_TYPE, CassandraDataSourceAttributeType.TIMESTAMP
     );
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
@@ -69,28 +69,27 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     }};
 
     private final List<SimpleDataSourceField> DEFAULT_ADDRESS_MAPPINGS = Lists.newArrayList(
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr1", "Address 1", DataSourceAttributeType.STRING),
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr2", "Address 2", DataSourceAttributeType.STRING),
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "city", "City", DataSourceAttributeType.STRING),
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "state", "State", DataSourceAttributeType.STRING),
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "zip", "Zip", DataSourceAttributeType.STRING),
-            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "county", "County", DataSourceAttributeType.STRING)
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr1", "Address 1", CassandraDataSourceAttributeType.STRING),
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "addr2", "Address 2", CassandraDataSourceAttributeType.STRING),
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "city", "City", CassandraDataSourceAttributeType.STRING),
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "state", "State", CassandraDataSourceAttributeType.STRING),
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "zip", "Zip", CassandraDataSourceAttributeType.STRING),
+            buildSimpleField(ADDRESS_TYPE_KEY.toUpperCase(), "county", "County", CassandraDataSourceAttributeType.STRING)
     );
 
 
     private final Map<String, Function<Map<String, Object>, List<SimpleDataSourceField>>> CUSTOM_FIELDS_MAPPING = new HashMap<String, Function<Map<String, Object>, List<SimpleDataSourceField>>>() {{
         this.put(ADDRESS_TYPE_KEY, (row) -> DEFAULT_ADDRESS_MAPPINGS);
-        this.put(NUMBER_TYPE_KEY, (row) -> Collections.singletonList(buildDataSourceFieldFromMergeObject(row, DataSourceAttributeType.DOUBLE)));
-        this.put(DEFAULT_TYPE_KEY, row -> Collections.singletonList(buildDataSourceFieldFromMergeObject(row, DataSourceAttributeType.STRING)));
+        this.put(NUMBER_TYPE_KEY, (row) -> Collections.singletonList(buildDataSourceFieldFromMergeObject(row, CassandraDataSourceAttributeType.DOUBLE)));
+        this.put(DEFAULT_TYPE_KEY, row -> Collections.singletonList(buildDataSourceFieldFromMergeObject(row, CassandraDataSourceAttributeType.STRING)));
     }};
 
-    private final Map<DataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS =
-            new HashMap<DataSourceAttributeType, Function<?, ?>>() {{
-                this.put(DataSourceAttributeType.DATE, value -> LocalDate.fromMillisSinceEpoch(dateFormatter("yyyy-MM-dd").apply(value).getTime()));
-                this.put(DataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ssXXX"));
+    private final Map<CassandraDataSourceAttributeType, Function<?, ?>> CUSTOM_VALUES_MAPPERS = new HashMap<CassandraDataSourceAttributeType, Function<?, ?>>() {{
+                this.put(CassandraDataSourceAttributeType.DATE, value -> LocalDate.fromMillisSinceEpoch(dateFormatter("yyyy-MM-dd").apply(value).getTime()));
+                this.put(CassandraDataSourceAttributeType.TIMESTAMP, dateFormatter("yyyy-MM-dd'T'HH:mm:ssXXX"));
             }};
 
-    private SimpleDataSourceField buildDataSourceFieldFromMergeObject(Map<String, Object> row, DataSourceAttributeType attributeType) {
+    private SimpleDataSourceField buildDataSourceFieldFromMergeObject(Map<String, Object> row, CassandraDataSourceAttributeType attributeType) {
         String displayName = String.valueOf(row.get(NAME_KEY));
         String fieldName = String.valueOf(row.get(TAG_KEY));
 
@@ -118,7 +117,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     }
 
     @Override
-    public Map<String, DataSourceAttributeType> getDataTypeMapping() {
+    public Map<String, CassandraDataSourceAttributeType> getDataTypeMapping() {
         return MAIL_CHIMP_TYPE_TO_ATTR_TYPE;
     }
 
@@ -146,7 +145,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     }
 
     @Override
-    public Map<DataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
+    public Map<CassandraDataSourceAttributeType, Function<?, ?>> getCustomTypeConverters() {
         return CUSTOM_VALUES_MAPPERS;
     }
 
