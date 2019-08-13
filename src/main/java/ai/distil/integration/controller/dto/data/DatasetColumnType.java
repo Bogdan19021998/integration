@@ -103,7 +103,7 @@ public enum DatasetColumnType {
             case "numeric":
             case "decimal":
                 //Postgres (numeric) > Java (BigDecimal) > Cassandra (Decimal)
-                return DatasetColumnType.DECIMAL;
+                return DatasetColumnType.DOUBLE;
             case "float4":
             case "float":
                 return DatasetColumnType.FLOAT;
