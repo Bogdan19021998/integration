@@ -19,6 +19,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 
@@ -65,7 +66,7 @@ public class SyncConnectionJob extends QuartzJobBean {
 
         updateConnectionData(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
-        boolean hasError = allDataSources.stream().anyMatch(dataSource -> {
+        boolean hasError = allDataSources.stream().map(dataSource -> {
             try {
                 MDC.put(DATASOURCE_ID, String.valueOf(dataSource.getId()));
                 syncDataSourceJob.execute(new SyncDataSourceRequest(request.getOrgId(), request.getTenantId(), request.getConnectionId(), dataSource.getId()));
@@ -74,7 +75,7 @@ public class SyncConnectionJob extends QuartzJobBean {
                 log.error("Can't sync datasource {}", dataSource.getId(), e);
                 return true;
             }
-        });
+        }).collect(Collectors.toList()).stream().anyMatch(v -> v);
 
         ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNCED;
 

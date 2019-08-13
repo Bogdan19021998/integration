@@ -1,20 +1,23 @@
 package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.job.sync.AbstractConnection;
-import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.RedshiftSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
 import ai.distil.integration.service.DataSyncService;
+import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.ConnectionType;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
@@ -29,8 +32,12 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private DataSyncService dataSyncService;
 
-    private static final String DEFAULT_DB_NAME = "distil_test";
-    private static final String DEFAULT_SCHEMA_NAME = "sync";
+    @MockBean
+    @Autowired
+    private RestService restService;
+
+    private static final String DEFAULT_DB_NAME = "dwh";
+    private static final String DEFAULT_SCHEMA_NAME = "distil_org_crowdcube";
 
 
     @Test
@@ -45,6 +52,30 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
             List<String> schemas = query.readResult(resultSet -> resultSet.getString(1));
             Assertions.assertTrue(schemas.contains(DEFAULT_SCHEMA_NAME));
         }
+    }
+
+    @Test
+    @Disabled
+    public void syncAllEligibleDataSources() throws Exception {
+        try (RedshiftSqlJdbcConnection jdbcConnection = new RedshiftSqlJdbcConnection(getDefaultConnection())) {
+            List<DTODataSource> allDataSources = jdbcConnection.getAllDataSources();
+
+            List<DTODataSource> eligibleDataSources = jdbcConnection.getEligibleDataSources();
+
+            eligibleDataSources.stream().filter(v -> Sets.newHashSet("mv_distil_orders")
+                    .contains(v.getSourceTableName()))
+                    .map(DataSourceDataHolder::mapFromDTODataSourceEntity).forEach(dataSource -> {
+
+                dataSyncService.reSyncDataSource("111", dataSource, jdbcConnection);
+                dataSyncService.reSyncDataSource("111", dataSource, jdbcConnection);
+
+                System.out.printf("");
+            });
+
+
+            System.out.println();
+        }
+
     }
 
     @Test
@@ -67,12 +98,12 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
         connectionDTO.setConnectionType(ConnectionType.REDSHIFT);
 //        SELECT table_name, table_type  FROM information_schema.tables  WHERE table_schema = ?  ORDER BY table_schema, table_name
         connectionDTO.setConnectionSettings(new ConnectionSettings(
-                "vitaliy",
-                "JtL4A7+Waq",
+                "ccdatawh",
+                "1qaz2wsXX",
                 null,
                 null,
                 null,
-                "dwh.clgb5kxf1w5l.eu-west-2.redshift.amazonaws.com",
+                "redshift.cc-internal.com",
                 String.valueOf(5439),
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_DB_NAME,

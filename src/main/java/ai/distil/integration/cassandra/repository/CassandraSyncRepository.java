@@ -77,9 +77,8 @@ public class CassandraSyncRepository {
         return RetryUtils.defaultCassandraTimeoutRetry(() -> connection.getSession().executeAsync(selectStatement).getUninterruptibly());
     }
 
-    public void applySchemaChanges(String tenantId, @NotNull DataSourceDataHolder holder, AttributeChangeInfo changeAttributeType) {
+    public void applySchemaChanges(String tenantId, @NotNull String tableName, AttributeChangeInfo changeAttributeType) {
         String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDataSourceCassandraTableName();
 
         DTODataSourceAttribute oldAttribute = changeAttributeType.getOldAttribute();
         DTODataSourceAttribute newAttribute = changeAttributeType.getNewAttribute();
@@ -204,9 +203,11 @@ public class CassandraSyncRepository {
     }
 
     public void dropTableIfExists(String tenantId, @NotNull DataSourceDataHolder holder) {
-        String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDataSourceCassandraTableName();
+        dropTableIfExists(tenantId, holder.getDataSourceCassandraTableName());
+    }
 
+    public void dropTableIfExists(String tenantId, @NotNull String tableName) {
+        String keyspaceName = buildKeyspaceName(tenantId);
         Drop dropStatement = SchemaBuilder.dropTable(keyspaceName, tableName).ifExists();
 
         RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(dropStatement));

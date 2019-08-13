@@ -3,6 +3,7 @@ package ai.distil.integration.controller;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.controller.dto.CheckConnectivityResponse;
+import ai.distil.integration.controller.dto.CommonConnectionRequest;
 import ai.distil.integration.controller.proxy.ConnectionIntegrationProxy;
 import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataSyncService;
@@ -41,6 +42,12 @@ public class ConnectionIntegrationController implements ConnectionIntegrationPro
     public ResponseEntity<List<DTODataSource>> findEligibleDataSources(DTOConnection dtoConnection) {
         log.debug("Get all eligible data sources for connection {}", dtoConnection.getId());
         return ResponseEntity.ok(dataSyncService.findAllEligibleDataSources(dtoConnection));
+    }
+
+    @Override
+    public ResponseEntity<?> cleanConnectionData(CommonConnectionRequest request) {
+        connectionService.deleteConnectionData(request);
+        return ResponseEntity.ok().build();
     }
 
 }
