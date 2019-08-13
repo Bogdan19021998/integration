@@ -198,9 +198,11 @@ public class CassandraSyncRepository {
     }
 
     public void dropTableIfExists(String tenantId, @NotNull DataSourceDataHolder holder) {
-        String keyspaceName = buildKeyspaceName(tenantId);
-        String tableName = holder.getDataSourceCassandraTableName();
+        dropTableIfExists(tenantId, holder.getDataSourceCassandraTableName());
+    }
 
+    public void dropTableIfExists(String tenantId, @NotNull String tableName) {
+        String keyspaceName = buildKeyspaceName(tenantId);
         Drop dropStatement = SchemaBuilder.dropTable(keyspaceName, tableName).ifExists();
 
         RetryUtils.defaultCassandraTimeoutRetry(() -> this.connection.getSession().execute(dropStatement));
