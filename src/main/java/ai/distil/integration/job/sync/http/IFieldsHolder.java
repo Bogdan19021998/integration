@@ -5,7 +5,7 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.utils.MapUtils;
 import ai.distil.integration.utils.StringUtils;
-import ai.distil.model.types.DataSourceAttributeType;
+import ai.distil.model.types.CassandraDataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 
 import java.text.DateFormat;
@@ -23,7 +23,7 @@ public interface IFieldsHolder<T> {
     String DEFAULT_TYPE_KEY = "DISTIL_DEFAULT_KEY";
 
     //  map for types mappings, e.g. number -> BIGINT, double -> NUMBER, etc...
-    Map<String, DataSourceAttributeType> getDataTypeMapping();
+    Map<String, CassandraDataSourceAttributeType> getDataTypeMapping();
 
     //  key - attribute tag, value - set of eligible fields names
     Map<DataSourceSchemaAttributeTag, Set<String>> getAttributesTagsMappingByName();
@@ -43,12 +43,12 @@ public interface IFieldsHolder<T> {
     }
 
 //  fields converter by type
-    default <K, V> Map<DataSourceAttributeType, Function<K, V>> getCustomTypeConverters() {
+    default <K, V> Map<CassandraDataSourceAttributeType, Function<K, V>> getCustomTypeConverters() {
         return Collections.emptyMap();
     }
 
-    default DataSourceAttributeType defineType(String type) {
-        return getDataTypeMapping().getOrDefault(StringUtils.trimAndUppercase(type), DataSourceAttributeType.UNKNOWN);
+    default CassandraDataSourceAttributeType defineType(String type) {
+        return getDataTypeMapping().getOrDefault(StringUtils.trimAndUppercase(type), CassandraDataSourceAttributeType.UNKNOWN);
     }
 
     default DataSourceSchemaAttributeTag tryToDefineTag(String fieldName, String columnType) {
@@ -85,7 +85,7 @@ public interface IFieldsHolder<T> {
     }
 
     default SimpleDataSourceField buildSimpleField(String parentPath, String fieldName, String displayName,
-                                                   DataSourceAttributeType attributeType) {
+                                                   CassandraDataSourceAttributeType attributeType) {
         return new SimpleDataSourceField(buildFieldName(parentPath, fieldName), displayName, attributeType, tryToDefineTag(fieldName, null));
     }
 
@@ -97,12 +97,12 @@ public interface IFieldsHolder<T> {
         Map<String, Object> flattedRow = MapUtils.flatten(row, getCustomFieldsConverters());
 
         DatasetRow.DatasetRowBuilder builder = new DatasetRow.DatasetRowBuilder(flattedRow.size());
-        Map<DataSourceAttributeType, Function<Object, Object>> customTypeMapper = getCustomTypeConverters();
+        Map<CassandraDataSourceAttributeType, Function<Object, Object>> customTypeMapper = getCustomTypeConverters();
 
         dataSource.getAllAttributes().forEach(attr -> {
             Object value = flattedRow.get(attr.getAttributeSourceName());
             Object transformedValue = Optional.ofNullable(customTypeMapper
-                    .get(attr.getAttributeType()))
+                    .get(attr.getCassandraAttributeType()))
                     .map(f -> f.apply(value))
                     .orElse(value);
 

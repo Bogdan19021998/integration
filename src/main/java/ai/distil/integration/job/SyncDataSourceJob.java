@@ -5,15 +5,18 @@ import ai.distil.api.internal.controller.dto.UpdateConnectionDataRequest;
 import ai.distil.api.internal.controller.dto.UpdateDataSourceDataRequest;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
 import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
+import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.ConnectionRequestMapper;
+import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.LastDataSourceSyncStatus;
 import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 
@@ -102,7 +109,11 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getTenantId(), dataSource, connection);
 
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getSourceAttributes()));
-                dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
+                SyncProgressTrackingData syncResult = dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
+
+                List<DTODataSourceAttribute> attributes = this.updateDataSourceAttributesDataAfterSync(updatedSchema.getSourceAttributes(), syncResult);
+                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, attributes));
+
             } else {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
                 throw new IllegalStateException("The data source no longer exists - updating the datasource details");
@@ -112,11 +123,21 @@ public class SyncDataSourceJob extends QuartzJobBean {
             throw new RuntimeException("The error happened while running the job, do not rethrow exception because of retry policy", e);
         }
 
-        connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, null));
     }
 
     private void updateConnectionStatus(SyncDataSourceRequest request, ConnectionSchemaSyncStatus syncInProgress) {
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
+    }
+
+//    warn impure, updating DTO here
+    private List<DTODataSourceAttribute> updateDataSourceAttributesDataAfterSync(List<DTODataSourceAttribute> attributes, SyncProgressTrackingData trackingData) {
+        Map<Long, DTODataSourceAttribute> attributesById = ListUtils.groupByWithOverwrite(attributes, DTODataSourceAttribute::getId, false);
+
+        trackingData.getNotNullAttributeValues()
+                .forEach((attributeId, notNullRowsCount) -> Optional.ofNullable(attributesById.get(attributeId))
+                        .ifPresent((v) -> v.setNotNullValuesCount(notNullRowsCount)));
+
+        return attributes;
     }
 
 }

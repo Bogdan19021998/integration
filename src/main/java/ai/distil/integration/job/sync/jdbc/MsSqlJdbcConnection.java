@@ -46,15 +46,15 @@ public class MsSqlJdbcConnection extends JdbcConnection {
         ConnectionSettings connectionSettings = this.getConnectionSettings();
         String address = connectionSettings.getServerAddress();
         String port = connectionSettings.getPort();
-        String schema = connectionSettings.getSchema();
+        String databaseName = connectionSettings.getDatabaseName();
 
-        return String.format("jdbc:%s://%s:%s;databaseName=%s", getProtocol(), address, port, schema);
+        return String.format("jdbc:%s://%s:%s;databaseName=%s", getProtocol(), address, port, databaseName);
     }
 
     @Override
     protected String getTableName(String tableName) {
-        String dbName = getConnectionSettings().getDatabaseName();
-        return quoteString(dbName + "." + tableName);
+        String schema = getConnectionSettings().getSchema();
+        return quoteString(schema + "." + tableName);
     }
 
     @Override
