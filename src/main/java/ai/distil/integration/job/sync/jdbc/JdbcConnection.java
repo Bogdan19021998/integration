@@ -98,7 +98,8 @@ public abstract class JdbcConnection extends AbstractConnection {
                         syncTableDefinition.map(v -> v.tryToGetAttributeType(sourceColumnName)).orElse(null),
                         true,
                         new Date(),
-                        new Date()));
+                        new Date(),
+                        null));
             }
         } catch (SQLException e) {
             throw new JDBCException("Can't retrieve all MySQL tables.", e, sql);
