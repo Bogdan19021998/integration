@@ -78,8 +78,8 @@ public class MsSqlIntegrationTest {
                 null,
                 "localhost",
                 String.valueOf(1433),
-                "master",
                 "distil",
+                "master",
                 false, null, -1, null, null, null,
                 null
         ));
