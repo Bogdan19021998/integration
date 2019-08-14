@@ -13,10 +13,12 @@ import ai.distil.integration.job.sync.jdbc.vo.ColumnDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractAllTablesQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractDefineSchemaQueryDefinition;
+import ai.distil.integration.job.sync.jdbc.vo.query.AbstractQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.SimpleCheckDataSourceExistingQueryDefinition;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.org.SyncSchedule;
 import ai.distil.model.types.SyncFrequency;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbutils.DbUtils;
 import org.hibernate.JDBCException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -26,6 +28,7 @@ import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public abstract class JdbcConnection extends AbstractConnection {
 
     private static final Integer DEFAULT_FETCH_SIZE = 10000;
@@ -57,16 +60,18 @@ public abstract class JdbcConnection extends AbstractConnection {
                         .orElse(false))
                 .collect(Collectors.toList());
     }
-
+//    select top 0 * from distil_views.v_distil_customer_dss
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
-        SimpleCheckDataSourceExistingQueryDefinition queryDef = new SimpleCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
+        AbstractQueryDefinition<Boolean> queryDef = dataSourceExistingRequest(dataSource);
         String query = queryDef.getQuery();
+
         try (QueryWrapper queryWrapper = this.query(query, queryDef.getQueryParams())) {
             return queryDef.mapResultSet(queryWrapper.getResultSet());
         } catch (Exception e) {
 //          todo that is pretty simple check, I think each db may return the special type of exception
 //          check it after connecting other dbs
+            log.info("DataSource is not available anymore {}", dataSource.getDataSourceId(), e);
             return false;
         }
     }
@@ -151,6 +156,10 @@ public abstract class JdbcConnection extends AbstractConnection {
 
     //    mysql, postgres, etc...
     protected abstract String getProtocol();
+
+    protected AbstractQueryDefinition<Boolean> dataSourceExistingRequest(DataSourceDataHolder dataSource) {
+        return new SimpleCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
+    }
 
     public QueryWrapper query(String query) {
         return query(query, Collections.emptyList());

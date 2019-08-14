@@ -71,15 +71,15 @@ public class MsSqlIntegrationTest {
         connectionDTO.setConnectionType(ConnectionType.SQLSERVER);
 //        SELECT table_name, table_type  FROM information_schema.tables  WHERE table_schema = ?  ORDER BY table_schema, table_name
         connectionDTO.setConnectionSettings(new ConnectionSettings(
-                "SA",
-                "Distli123",
+                "distil-readonly",
+                "6bVs4zVfB!bH!fKidauUy8p77kL4",
                 null,
                 null,
                 null,
-                "localhost",
+                "188.39.181.68",
                 String.valueOf(1433),
-                "distil",
-                "master",
+                "distil_views",
+                "DWH",
                 false, null, -1, null, null, null,
                 null
         ));

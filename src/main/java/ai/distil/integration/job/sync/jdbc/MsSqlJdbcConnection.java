@@ -2,8 +2,11 @@ package ai.distil.integration.job.sync.jdbc;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.integration.configuration.DbConnectionConfiguration;
+import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractAllTablesQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.AbstractDefineSchemaQueryDefinition;
+import ai.distil.integration.job.sync.jdbc.vo.query.AbstractQueryDefinition;
+import ai.distil.integration.job.sync.jdbc.vo.query.MsSqlCheckDataSourceExistingQueryDefinition;
 import ai.distil.integration.job.sync.jdbc.vo.query.mssql.AllTablesQueryDefinitionMsSQL;
 import ai.distil.integration.job.sync.jdbc.vo.query.mssql.DefineSchemaQueryDefinitionMsSQL;
 import ai.distil.model.org.ConnectionSettings;
@@ -55,6 +58,11 @@ public class MsSqlJdbcConnection extends JdbcConnection {
     protected String getTableName(String tableName) {
         String schema = getConnectionSettings().getSchema();
         return quoteString(schema + "." + tableName);
+    }
+
+    @Override
+    protected AbstractQueryDefinition<Boolean> dataSourceExistingRequest(DataSourceDataHolder dataSource) {
+        return new MsSqlCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
     }
 
     @Override
