@@ -26,6 +26,6 @@ public class MsSqlCheckDataSourceExistingQueryDefinition extends AbstractQueryDe
 
     @Override
     public String getQuery() {
-        return String.format("select top 0 * from %s.%s limit 0", schemaName, tableName);
+        return String.format("select top 0 * from %s.%s", schemaName, tableName);
     }
 }
