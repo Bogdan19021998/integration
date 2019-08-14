@@ -17,13 +17,13 @@ public class MsSqlJdbcConnection extends JdbcConnection {
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
         ConnectionSettings connectionSettings = getConnectionSettings();
-        return new DefineSchemaQueryDefinitionMsSQL(connectionSettings.getDatabaseName(), tableName);
+        return new DefineSchemaQueryDefinitionMsSQL(connectionSettings.getSchema(), tableName);
     }
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String dbName = getConnectionSettings().getDatabaseName();
-        return new AllTablesQueryDefinitionMsSQL(dbName);
+        String schema = getConnectionSettings().getSchema();
+        return new AllTablesQueryDefinitionMsSQL(schema);
     }
 
     @Override
