@@ -55,6 +55,13 @@ public enum SyncTableDefinition {
                                 .eligibleFieldNames(Sets.newHashSet("COUNTRY", "COUNTRYCODE"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
+
+                put(GDPR_STATUS_SUBSCRIBED,
+                        FieldDefinition.builder()
+                                .eligibleFieldNames(Sets.newHashSet("GDPRSTATUSSUBSCRIBED"))
+                                .eligibleTypes(StaticTypesDefinition.BOOLEAN_TYPES)
+                                .build());
+
             }}
     ),
     PRODUCT("PRODUCT", "products", DataSourceType.PRODUCT,
@@ -68,7 +75,7 @@ public enum SyncTableDefinition {
                                 .build());
                 put(PRODUCT_NAME,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("NAME", "TITLE"))
+                                .eligibleFieldNames(Sets.newHashSet("NAME", "TITLE", "PRODUCTNAME"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .mandatory(true)
                                 .build());
@@ -82,24 +89,25 @@ public enum SyncTableDefinition {
 
                 put(PRODUCT_IMAGE_URL,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"))
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTIMAGEURL", "PRODUCTIMAGE", "IMAGE", "IMAGEURL", "IMAGELINK"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
                 put(PRODUCT_THUMBNAIL_URL,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("THUMBNAIL", "THUMBNAILURL", "THUMBNAILIMAGE", "THUMBNAILLINK"))
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTTHUMBNAILURL", "PRODUCTTHUMBNAIL",
+                                        "THUMBNAIL", "THUMBNAILURL", "THUMBNAILIMAGE", "THUMBNAILLINK"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
 
                 put(PRODUCT_PRECIS,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("PRECIS"))
+                                .eligibleFieldNames(Sets.newHashSet("PRECIS", "PRODUCTPRECIS"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
 
                 put(PRODUCT_AVAILABLE,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("AVAILABLE", "ISAVAILABLE"))
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTAVAILABLE", "AVAILABLE", "ISAVAILABLE"))
                                 .eligibleTypes(StaticTypesDefinition.BOOLEAN_TYPES)
                                 .mandatory(true)
                                 .build());
@@ -121,6 +129,14 @@ public enum SyncTableDefinition {
                                 .eligibleFieldNames(Sets.newHashSet("PRODUCTPRICEBREAKSDESCRIPTION", "PRICEBREAKSDESCRIPTION"))
                                 .eligibleTypes(StaticTypesDefinition.NUMBER_TYPES)
                                 .build());
+
+                put(PRODUCT_CATEGORY,
+                        FieldDefinition.builder()
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTCATEGORY", "CATEGORY"))
+                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                                .build());
+
+
             }}),
     CONTENT("CONTENT", "content", DataSourceType.CONTENT,
             new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
@@ -272,26 +288,20 @@ public enum SyncTableDefinition {
                     .build());
 
             put(ORDER_LINE_ITEM_TIMESTAMP, FieldDefinition.builder()
-                    .eligibleFieldNames(Sets.newHashSet("TIMESTAMP", "LINEITEMTIMESTAMP"))
+                    .eligibleFieldNames(Sets.newHashSet("TIMESTAMP", "LINEITEMTIMESTAMP", "ORDERTIMESTAMP"))
                     .eligibleTypes(DATE_TYPES)
                     .mandatory(true)
                     .build());
 
-            put(PRODUCT_LIST_PRICE_EX_TAX,
+            put(LINE_VALUE_EXCLUDING_TAX,
                     FieldDefinition.builder()
-                            .eligibleFieldNames(Sets.newHashSet("LISTPRICEEXTAX"))
+                            .eligibleFieldNames(Sets.newHashSet("LINEVALUEEXCLUDINGTAX"))
                             .eligibleTypes(NUMBER_TYPES)
                             .build());
 
-            put(PRODUCT_LIST_PRICE_INC_TAX,
+            put(LINE_VALUE_INCLUDING_TAX,
                     FieldDefinition.builder()
-                            .eligibleFieldNames(Sets.newHashSet("LISTPRICEINCTAX"))
-                            .eligibleTypes(NUMBER_TYPES)
-                            .build());
-
-            put(PRODUCT_PRICE_BREAKS_DESCRIPTION,
-                    FieldDefinition.builder()
-                            .eligibleFieldNames(Sets.newHashSet("PRODUCTPRICEBREAKSDESCRIPTION", "PRICEBREAKSDESCRIPTION"))
+                            .eligibleFieldNames(Sets.newHashSet("LINEVALUEINCLUDINGTAX"))
                             .eligibleTypes(NUMBER_TYPES)
                             .build());
         }};
