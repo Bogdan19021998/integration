@@ -55,7 +55,7 @@ public abstract class JdbcConnection extends AbstractConnection {
     protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
 
         return dataSources.stream()
-                .filter(dataSource -> SyncTableDefinition.defineSyncTableDefinition(dataSource.getDataSourceType())
+                .filter(dataSource -> SyncTableDefinition.defineSyncTableDefinition(dataSource.getDataSourceType(), dataSource.getSourceTableName())
                         .map(s -> s.isDataSourceEligible(dataSource))
                         .orElse(false))
                 .collect(Collectors.toList());

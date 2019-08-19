@@ -163,7 +163,7 @@ public enum SyncTableDefinition {
                                 .build());
             }}),
     ORDER("ORDER", "orders", DataSourceType.ORDER, StaticTypesDefinition.ORDER_TAGS_DEFINITION),
-    PURCHASE_HISTORY("PURCHASE_HISTORY", "orders", DataSourceType.ORDER, StaticTypesDefinition.ORDER_TAGS_DEFINITION);
+    PURCHASE_HISTORY("PURCHASE_HISTORY", "purchase_history", DataSourceType.ORDER, StaticTypesDefinition.ORDER_TAGS_DEFINITION);
 
 
     private static final String DISTIL_MARKER = "DISTIL";
@@ -237,6 +237,13 @@ public enum SyncTableDefinition {
     public static Optional<SyncTableDefinition> defineSyncTableDefinition(DataSourceType dataSourceType) {
         return Stream.of(SyncTableDefinition.values())
                 .filter(s -> s.getDataSourceType().equals(dataSourceType))
+                .findFirst();
+    }
+
+//  todo fix this one day
+    public static Optional<SyncTableDefinition> defineSyncTableDefinition(DataSourceType dataSourceType, String name) {
+        return Stream.of(SyncTableDefinition.values())
+                .filter(s -> s.getDataSourceType().equals(dataSourceType) && s.isDataSourceAvailableByName(name))
                 .findFirst();
     }
 
