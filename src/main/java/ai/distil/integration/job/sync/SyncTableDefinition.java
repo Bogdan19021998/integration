@@ -61,7 +61,7 @@ public enum SyncTableDefinition {
             new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
                 put(PRODUCT_EXTERNAL_ID,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("ID"))
+                                .eligibleFieldNames(Sets.newHashSet("ID", "PRODUCTID"))
                                 .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                                 .mandatory(true)
                                 .primaryKey(true)
