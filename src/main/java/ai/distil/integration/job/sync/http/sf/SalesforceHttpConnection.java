@@ -20,10 +20,12 @@ import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
 import ai.distil.integration.job.sync.iterator.HttpUrlPaginationRowIterator;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
+import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.service.RestService;
 import ai.distil.model.types.DataSourceType;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -81,12 +83,8 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
         return loginResponse != null && loginResponse.getAccessToken() != null;
     }
 
-    @Override
     public List<DTODataSource> getAllDataSources() {
-        return this.fieldsHolder.getPredefinedDataSources()
-                .stream()
-                .map(this::buildDataSource)
-                .collect(Collectors.toList());
+        return buildMultipleDataSources(this.fieldsHolder.getPredefinedDataSources());
     }
 
     private DTODataSource buildDataSource(SimpleDataSourceDefinition dataSource) {
@@ -111,7 +109,6 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
         return this.restService.execute(HttpConnectionConfiguration.SALESFORCE.getBaseUrl(), salesforceLoginRequest, JsonDataConverter.getInstance());
     }
 
-
     private DTODataSource buildDataSource(SimpleDataSourceDefinition dataSource, SalesforceListFields listFields) {
         return new DTODataSource(
                 null,
@@ -125,9 +122,21 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
                 DataSourceType.CUSTOMER,
                 0,
                 0,
-                this.fieldsHolder.getAllFields(listFields.getFields()).stream().map(this::buildDTODataSourceAttribute).collect(Collectors.toList()),
+                this.fieldsHolder.getAllFields(listFields.getFields()).stream()
+                        .map(this::buildDTODataSourceAttribute)
+                        .collect(Collectors.toList()),
                 generateTableName(dataSource.getDataSourceId()),
                 null
         );
+    }
+
+    private List<DTODataSource> buildMultipleDataSources(List<SimpleDataSourceDefinition> dataSources) {
+        List<CompletableFuture<DTODataSource>> allDataSources = dataSources.stream()
+                .map(dataSource -> this.restService.executeAsync(getBaseUrl(),
+                        new SalesforceListFieldsRequest(accessToken, apiVersion, dataSource.getDataSourceId()),
+                        JsonDataConverter.getInstance(),
+                        listFields -> buildDataSource(dataSource, listFields)))
+                .collect(Collectors.toList());
+        return ConcurrentUtils.wait(allDataSources);
     }
 }

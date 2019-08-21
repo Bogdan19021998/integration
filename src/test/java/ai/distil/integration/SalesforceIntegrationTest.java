@@ -30,6 +30,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static ai.distil.integration.utils.ParseUtils.parseJsonFile;
 
@@ -140,6 +141,9 @@ public class SalesforceIntegrationTest extends AbstractIntegrationTest {
 
         Mockito.doReturn(parseJsonFile("mocks/salesforce/sf_leads_fields.json", new TypeReference<SalesforceListFields>() {}))
                 .when(restService).execute(Mockito.any(), Mockito.any(SalesforceListFieldsRequest.class), Mockito.any());
+
+        Mockito.doReturn(CompletableFuture.completedFuture(parseJsonFile("mocks/salesforce/sf_leads_fields.json", new TypeReference<SalesforceListFields>() {})))
+                .when(restService).executeAsync(Mockito.any(), Mockito.any(SalesforceListFieldsRequest.class), Mockito.any());
 
         DTOConnection connectionDto = getDefaultDtoConnection();
         String dataSourceId = "Lead";

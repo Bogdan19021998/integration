@@ -16,15 +16,14 @@ import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import ai.distil.integration.job.sync.http.request.IHttpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
+import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ArrayUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.types.DataSourceType;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
@@ -53,14 +52,14 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
     @Override
     public List<DTODataSource> getAllDataSources() {
         AudiencesWrapper result = executeRequest(new MailChimpAudiencesRequest(getApiKey()));
-        return result.getList().stream().map(this::buildDataSource).collect(Collectors.toList());
+        return buildMultipleDataSources(result.getList());
     }
 
     @Override
     public DTODataSource getDataSource(SimpleDataSourceDefinition dataSource) {
-        SingleMailChimpAudienceRequest request = new SingleMailChimpAudienceRequest(getApiKey(), dataSource.getDataSourceId());
-        return Optional.ofNullable(executeRequest(request))
-                .map(this::buildDataSource)
+        return Optional.ofNullable(executeRequest(
+                new SingleMailChimpAudienceRequest(getApiKey(), dataSource.getDataSourceId())))
+                .map(audience -> buildDataSource(audience, getDataSourceAttributes(audience.getId())))
                 .orElse(null);
     }
 
@@ -92,13 +91,17 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
         Map<String, Object> mergeFieldsDefinition = executeRequest(mergeFieldsRequest);
 
-        return this.fieldsHolder.getAllFields(Collections.singletonList(mergeFieldsDefinition))
+        return getDataSourceAttributes(mergeFieldsDefinition);
+    }
+
+    private List<DTODataSourceAttribute> getDataSourceAttributes(Map<String, Object> fieldsDefinition) {
+        return this.fieldsHolder.getAllFields(Collections.singletonList(fieldsDefinition))
                 .stream()
                 .map(this::buildDTODataSourceAttribute)
                 .collect(Collectors.toList());
     }
 
-    private DTODataSource buildDataSource(Audience audience) {
+    private DTODataSource buildDataSource(Audience audience, List<DTODataSourceAttribute> allAttributes) {
         return new DTODataSource(null,
                 this.getConnectionData().getId(),
                 audience.getName(),
@@ -111,10 +114,21 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 DataSourceType.CUSTOMER,
                 null,
                 null,
-                getDataSourceAttributes(audience.getId()),
+                allAttributes,
                 buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null
         );
+    }
+
+    private List<DTODataSource> buildMultipleDataSources(List<Audience> audiences) {
+
+        List<CompletableFuture<DTODataSource>> allDataSources = audiences.stream()
+                .map(audience -> restService.executeAsync(getBaseUrl(),
+                new MailChimpMergeFieldsRequest(getApiKey(), audience.getId()), JsonDataConverter.getInstance(),
+                mergeFields -> buildDataSource(audience, getDataSourceAttributes(mergeFields))))
+                .collect(Collectors.toList());
+
+        return ConcurrentUtils.wait(allDataSources);
     }
 
     private <T> T executeRequest(IHttpRequest<T> r) {
