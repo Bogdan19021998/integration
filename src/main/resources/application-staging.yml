@@ -18,7 +18,7 @@ ai:
       integrations:
         url: http://localhost:8889
       internal:
-        url: http://localhost:8888
+        url: https://staging-api.distil.ai:8888
 
 server:
   port: 8889
