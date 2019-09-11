@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 
@@ -30,7 +32,24 @@ public class RestService {
         return execute(baseRequest, dataConverter, request.resultType());
     }
 
-    private  <R> R execute(Request request, IDataConverter dataConverter, TypeReference<R> type) {
+    public <R, T> CompletableFuture<R> executeAsync(String baseUrl, IHttpRequest<T> request, IDataConverter dataConverter,
+                                 Function<T, R> f) {
+        CompletableFuture<T> responseFuture = executeAsync(baseUrl, request, dataConverter);
+        return responseFuture.thenApply(f);
+
+    }
+
+    public <T> CompletableFuture<T> executeAsync(String baseUrl, IHttpRequest<T> request, IDataConverter dataConverter) {
+        Request baseRequest = this.getBaseRequest(baseUrl, request.httpMethod().name(), request.urlPart(), request.headers(), request.params(), request.body());
+
+        return this.httpClient.executeRequest(baseRequest)
+                .toCompletableFuture()
+                .thenApply(response -> ofNullable(HttpStatus.resolve(response.getStatusCode())).map(HttpStatus::is2xxSuccessful)
+                .map(isSuccess -> isSuccess ? dataConverter.fromString(response.getResponseBody(), request.resultType()) : null)
+                .orElse(null));
+    }
+
+    private <R> R execute(Request request, IDataConverter dataConverter, TypeReference<R> type) {
         ListenableFuture<Response> responseFuture = this.httpClient.executeRequest(request);
 
         try {
