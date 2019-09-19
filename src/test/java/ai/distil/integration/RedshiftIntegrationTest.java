@@ -104,6 +104,8 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
                 null,
                 null,
                 "redshift.cc-internal.com",
+                null,
+                null,
                 String.valueOf(5439),
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_DB_NAME,

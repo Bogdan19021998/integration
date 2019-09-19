@@ -77,6 +77,8 @@ public class MsSqlIntegrationTest {
                 null,
                 null,
                 "188.39.181.68",
+                null,
+                null,
                 String.valueOf(1433),
                 "distil_views",
                 "DWH",

@@ -124,6 +124,8 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
                 null,
                 null,
                 DEFAULT_SERVER_ADDRESS,
+                null,
+                null,
                 "12345",
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_DB_NAME,

@@ -308,6 +308,8 @@ public class MySqlSyncTest extends AbstractSyncTest {
                 null,
                 null,
                 DEFAULT_SERVER_ADDRESS,
+                null,
+                null,
                 String.valueOf(this.config.getPort()),
                 DEFAULT_SCHEMA_NAME,
                 null,

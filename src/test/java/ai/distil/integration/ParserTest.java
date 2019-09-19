@@ -51,7 +51,8 @@ public class ParserTest {
                 null,
                 null,
                 null,
-                "localhost", "3306", "mysql",
+                "localhost", null, null,
+                "3306", "mysql",
                 null,
                 true, "localhost", 2222, "vagrant", null, key,
                 null
@@ -80,7 +81,11 @@ public class ParserTest {
                 "Passw0rd!",
                 null,
                 null,
-                null, "localhost", "3306", "mysql", null,
+                null, "localhost",
+                null,
+                null,
+                "3306",
+                "mysql", null,
                 true, "localhost", 2214, "vagrant", "vagrant", null,
                 null
         ));
