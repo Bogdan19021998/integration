@@ -6,7 +6,9 @@ import ai.distil.api.internal.controller.dto.UpdateDataSourceDataRequest;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
+import ai.distil.api.internal.model.dto.newsfeed.SaveNewsfeedCardRequest;
 import ai.distil.api.internal.proxy.ConnectionProxy;
+import ai.distil.api.internal.proxy.NewsfeedProxy;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
@@ -18,6 +20,9 @@ import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.ConnectionRequestMapper;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.LastDataSourceSyncStatus;
+import ai.distil.model.org.newsfeed.card.vo.datasource.DataSourceCardType;
+import ai.distil.model.org.newsfeed.card.vo.datasource.DataSourceSyncDetails;
+import ai.distil.model.org.newsfeed.card.vo.product.vo.StackCardDataSourceSyncCompletedAttributeInfo;
 import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
@@ -31,6 +36,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 
@@ -55,6 +61,9 @@ public class SyncDataSourceJob extends QuartzJobBean {
 
     @Autowired
     private ConnectionFactory connectionFactory;
+
+    @Autowired
+    private NewsfeedProxy newsfeedProxy;
 
     @Autowired
     private ConnectionRequestMapper requestMapper;
@@ -111,6 +120,8 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getSourceAttributes()));
                 SyncProgressTrackingData syncResult = dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
 
+                createNewsfeedCard(request, connectionDto, dataSourceDto, updatedSchema, syncResult);
+
                 List<DTODataSourceAttribute> attributes = this.updateDataSourceAttributesDataAfterSync(updatedSchema.getSourceAttributes(), syncResult);
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, attributes));
 
@@ -127,6 +138,31 @@ public class SyncDataSourceJob extends QuartzJobBean {
 
     private void updateConnectionStatus(SyncDataSourceRequest request, ConnectionSchemaSyncStatus syncInProgress) {
         connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
+    }
+
+    private void createNewsfeedCard(SyncDataSourceRequest request, DTOConnection connection, DTODataSource dataSource, DataSourceDataHolder schema, SyncProgressTrackingData trackingData) {
+
+        List<StackCardDataSourceSyncCompletedAttributeInfo> attributes = schema.getAllAttributes().stream()
+                .map(attribute -> new StackCardDataSourceSyncCompletedAttributeInfo(attribute.getId(),
+                        attribute.getAttributeSourceName(), attribute.getAttributeDataTag()))
+                .collect(Collectors.toList());
+
+        SaveNewsfeedCardRequest saveRequest = new SaveNewsfeedCardRequest(dataSource.getId(), new DataSourceSyncDetails(
+                connection.getId(),
+                connection.getName(),
+                dataSource.getId(),
+                dataSource.getName(),
+                trackingData.getProcessed(),
+                trackingData.getTaskDurationInSeconds(),
+                trackingData.getCreated(),
+                trackingData.getDeleted(),
+                trackingData.getUpdated(),
+                attributes.size(),
+                attributes,
+                dataSource.getDataSourceType().toString()
+        ), DataSourceCardType.DATA_SOURCE_SYNC_COMPLETED);
+
+        newsfeedProxy.saveNewsfeedCardPrivate(saveRequest, request.getTenantId());
     }
 
 //    warn impure, updating DTO here
