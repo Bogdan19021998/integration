@@ -3,6 +3,7 @@ package ai.distil.integration.job.sync.jdbc;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
+import ai.distil.integration.configuration.AppConfig;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SyncTableDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
@@ -232,10 +233,12 @@ public abstract class JdbcConnection extends AbstractConnection {
                 .map(attr -> String.format("%1$s as %1$s", quoteString(attr.getAttributeSourceName())))
                 .collect(Collectors.joining(", "));
 
-        return String.format("SELECT %s FROM %s.%s",
+        return String.format("SELECT %s FROM %s.%s %s",
                 fieldsList,
                 quoteString(getConnectionData().getConnectionSettings().getSchema()),
-                quoteString(dataSource.getDataSourceId()));
+                quoteString(dataSource.getDataSourceId()),
+                AppConfig.MAX_DATA_SOURCE_SIZE == null ? "" : String.format(" LIMIT %s", AppConfig.MAX_DATA_SOURCE_SIZE)
+                );
     }
 
     private Connection getConnection(boolean close) {
