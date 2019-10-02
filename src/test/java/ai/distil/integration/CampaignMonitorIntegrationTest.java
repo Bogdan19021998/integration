@@ -5,6 +5,8 @@ import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
@@ -13,7 +15,10 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
+import ai.distil.model.org.destination.DestinationIntegration;
+import ai.distil.model.org.destination.DestinationIntegrationAttribute;
 import ai.distil.model.types.ConnectionType;
+import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +96,29 @@ public class CampaignMonitorIntegrationTest {
                     .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
 
+    }
 
+    @Test
+    public void createCampaignMonitor() {
+        DTOConnection connectionDTO = defaultConnection();
+        IDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination());
+        String listId = dataSync.createListIfNotExists();
+        List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
+    }
+
+    private DestinationIntegration defaultDestination() {
+        DestinationIntegration integration = new DestinationIntegration();
+
+        long id = 1L;
+        integration.setId(id);
+        integration.setFkDestinationId(id);
+
+        integration.setAttributes(Lists.newArrayList(
+                new DestinationIntegrationAttribute(1L, id, 1L, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, null),
+                new DestinationIntegrationAttribute(2L, id, 2L, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, null),
+                new DestinationIntegrationAttribute(3L, id, 3L, null, null)
+        ));
+        return integration;
     }
 
     private DTOConnection defaultConnection() {

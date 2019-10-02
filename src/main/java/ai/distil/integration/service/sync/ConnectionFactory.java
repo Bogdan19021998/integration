@@ -1,8 +1,10 @@
 package ai.distil.integration.service.sync;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.integration.job.destination.IDataSync;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SshConnection;
+import ai.distil.integration.job.sync.http.campmon.CampaignMonitorDataSync;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection;
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
@@ -15,6 +17,7 @@ import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.RedshiftSqlJdbcConnection;
 import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
+import ai.distil.model.org.destination.DestinationIntegration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,15 @@ public class ConnectionFactory {
         return abstractConnection;
     }
 
+
+    public IDataSync buildDataSync(DTOConnection connection, DestinationIntegration integration) {
+        switch (connection.getConnectionType()) {
+            case CAMPAIGN_MONITOR:
+                return new CampaignMonitorDataSync(connection, integration, restService, campaignMonitorFieldsHolder);
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
 
     private AbstractConnection buildSimpleConnection(DTOConnection connection) {
         switch (connection.getConnectionType()) {

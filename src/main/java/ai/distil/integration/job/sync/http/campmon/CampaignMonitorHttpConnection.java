@@ -14,28 +14,27 @@ import ai.distil.integration.job.sync.http.campmon.request.*;
 import ai.distil.integration.job.sync.http.campmon.vo.*;
 import ai.distil.integration.job.sync.http.mailchimp.SimpleDataSourceField;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
-import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.service.RestService;
+import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.org.SyncSchedule;
 import ai.distil.model.types.DataSourceType;
 import ai.distil.model.types.SyncFrequency;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
 
-    private CampaignMonitorFieldsHolder fieldsHolder;
-
-    private ConcurrentUtils concurrentService;
+    protected CampaignMonitorFieldsHolder fieldsHolder;
 
     public CampaignMonitorHttpConnection(DTOConnection dtoConnection, RestService restService, CampaignMonitorFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
         this.fieldsHolder = fieldsHolder;
-        this.concurrentService = new ConcurrentUtils();
     }
 
     @Override
@@ -61,15 +60,17 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
 
     @Override
     public boolean isAvailable() {
-        ClientsCampaignMonitorRequest request = new ClientsCampaignMonitorRequest(this.getConnectionSettings().getApiKey());
-        List<Client> clients = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
-        return clients != null;
+        return requestAllClients().isPresent();
     }
 
     public List<DTODataSource> getAllDataSources() {
-        ClientsCampaignMonitorRequest request = new ClientsCampaignMonitorRequest(this.getConnectionSettings().getApiKey());
-        List<Client> clients = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
-        return mapMultipleClientsToDataSources(clients);
+        return mapMultipleClientsToDataSources(requestAllClients().orElse(Collections.emptyList()));
+    }
+
+    protected Optional<List<Client>> requestAllClients() {
+        ClientsCampaignMonitorRequest listRequest = new ClientsCampaignMonitorRequest(this.getConnectionSettings().getApiKey());
+
+        return Optional.ofNullable(this.restService.execute(getBaseUrl(), listRequest, JsonDataConverter.getInstance()));
     }
 
     @Override
@@ -100,11 +101,10 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
         syncSchedule.setSyncFrequency(SyncFrequency.daily);
 
         List<CompletableFuture<List<Link>>> linksListsFutures = clients.stream()
-                .map(client -> this.restService.executeAsync(getBaseUrl(),
-                        new ListsCampaignMonitorRequest(this.getConnectionSettings().getApiKey(), client.getClientId()), JsonDataConverter.getInstance()))
+                .map(this::requestLists)
                 .collect(Collectors.toList());
 
-        List<Link> links = concurrentService.wait(linksListsFutures)
+        List<Link> links = ConcurrentUtils.wait(linksListsFutures)
                 .stream().flatMap(Collection::stream).collect(Collectors.toList());
 
         List<CompletableFuture<DTODataSource>> allSources = links.stream()
@@ -114,8 +114,13 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                         JsonDataConverter.getInstance(),
                         fields -> buildDataSourceFromLink(syncSchedule, link, fields)))
                 .collect(Collectors.toList());
-        return concurrentService.wait(allSources);
+        return ConcurrentUtils.wait(allSources);
 
+    }
+
+    protected CompletableFuture<List<Link>> requestLists(Client client) {
+        return this.restService.executeAsync(getBaseUrl(),
+                new ListsCampaignMonitorRequest(this.getConnectionSettings().getApiKey(), client.getClientId()), JsonDataConverter.getInstance());
     }
 
     private DTODataSource buildDataSourceFromLink(SyncSchedule syncSchedule, Link link, List<CustomFieldDefinition> fields) {

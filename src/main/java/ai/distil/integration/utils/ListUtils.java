@@ -6,10 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
 public class ListUtils {
+
+    public static <T> Optional<T> first(List<T> l) {
+        if(l == null || l.size() == 0) {
+           return Optional.empty();
+        }
+        return Optional.ofNullable(l.get(0));
+    }
 
     public static <K, V> Map<K, V> groupByWithOverwriteSilent(Iterable<V> list, Function<V, K> groupingFunction) {
         return groupByWithOverwrite(list, groupingFunction, false);
