@@ -104,6 +104,8 @@ public class CampaignMonitorIntegrationTest {
         IDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
+
+        dataSync.ingestData(listId, attributes);
     }
 
     private DestinationIntegration defaultDestination() {
@@ -116,7 +118,7 @@ public class CampaignMonitorIntegrationTest {
         integration.setAttributes(Lists.newArrayList(
                 new DestinationIntegrationAttribute(1L, id, 1L, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, null),
                 new DestinationIntegrationAttribute(2L, id, 2L, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, null),
-                new DestinationIntegrationAttribute(3L, id, 3L, null, null)
+                new DestinationIntegrationAttribute(3L, id, 3L, DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, null)
         ));
         return integration;
     }

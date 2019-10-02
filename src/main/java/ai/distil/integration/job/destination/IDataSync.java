@@ -13,7 +13,7 @@ public interface IDataSync {
      * */
     String createListIfNotExists();
     List<CustomAttributeDefinition> syncCustomAttributesSchema(String listId);
-    void ingestData();
+    void ingestData(String listId, List<CustomAttributeDefinition> attributes);
 
     default String buildListName(Long destinationId) {
         return String.format(LIST_NAME_TEMPLATE, destinationId).toUpperCase().trim();

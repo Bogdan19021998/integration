@@ -8,20 +8,24 @@ import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsH
 import ai.distil.integration.job.sync.http.campmon.request.CustomListFieldsCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateCustomFieldCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateListCampaignMonitorRequest;
+import ai.distil.integration.job.sync.http.campmon.request.ingestion.ImportSubscribersCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateCustomFieldBody;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateListBody;
-import ai.distil.integration.job.sync.http.campmon.vo.Client;
-import ai.distil.integration.job.sync.http.campmon.vo.CustomFieldDefinition;
-import ai.distil.integration.job.sync.http.campmon.vo.Link;
+import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.SubscribersImportResponse;
+import ai.distil.integration.job.sync.http.campmon.vo.*;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.destination.DestinationIntegration;
 import ai.distil.model.org.destination.DestinationIntegrationAttribute;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.distil.model.types.DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS;
+
+@Slf4j
 public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection implements IDataSync {
 
     public static final String DEFAULT_UNSUBSCRIBE_SETTINGS = "AllClientLists";
@@ -82,7 +86,7 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
                 return true;
             }
 
-            result.add(new CustomAttributeDefinition(key, fieldName, attr.getFkDataSourceAttributeId()));
+            result.add(new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getFkDataSourceAttributeId()));
             return false;
         }).map(attr -> {
             String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getId());
@@ -90,7 +94,7 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
             CreateCustomFieldCampaignMonitorRequest request = new CreateCustomFieldCampaignMonitorRequest(listId, getConnectionSettings().getApiKey(), body);
             return this.restService.executeAsync(getBaseUrl(), request, JsonDataConverter.getInstance())
-                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getFkDataSourceAttributeId()));
+                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getFkDataSourceAttributeId()));
 
         }).collect(Collectors.toList()));
 
@@ -98,11 +102,37 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
         return result;
 
-
     }
 
     @Override
-    public void ingestData() {
+    public void ingestData(String listId, List<CustomAttributeDefinition> attributes) {
+        Subscribers subscribers = new Subscribers(new ArrayList<>());
 
+        for (int i = 0; i < 10; i++) {
+            subscribers.getSubscribers().add(generateMockData(attributes));
+        }
+
+        ImportSubscribersCampaignMonitorRequest importRequest = new ImportSubscribersCampaignMonitorRequest(this.getConnectionSettings().getApiKey(), listId, subscribers);
+
+        SubscribersImportResponse response = this.restService.execute(getBaseUrl(), importRequest, JsonDataConverter.getInstance());
+
+        log.info("Data ingestion result {}", response);
+
+    }
+
+    private Subscriber generateMockData(List<CustomAttributeDefinition> attributes) {
+        Subscriber result = new Subscriber();
+        result.setCustomFields(new ArrayList<>());
+
+        attributes.forEach(attr -> {
+
+            if(CUSTOMER_EMAIL_ADDRESS.equals(attr.getTag())) {
+                result.setEmailAddress(new Random().nextInt() + "@fake123.com");
+            } else {
+                result.getCustomFields().add(new CustomField(attr.getId(), String.valueOf(new Random().nextLong())));
+            }
+
+        });
+        return result;
     }
 }

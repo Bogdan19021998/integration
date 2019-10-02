@@ -1,4 +1,4 @@
-package ai.distil.integration.job.sync.http.campmon.vo;
+package ai.distil.integration.job.sync.http.campmon.request.ingestion.vo;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -12,14 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
-public class Subscriber {
-    private String emailAddress;
-    private String name;
-    private List<CustomField> customFields;
-    private Boolean resubscribe = true;
-    private Boolean restartSubscriptionBasedAutoresponders = true;
-    private String consentToTrack = "Yes";
+public class SubscribersImportResponse {
+    private List<Object> failureDetails;
+    private Integer totalUniqueEmailsSubmitted;
+    private Integer totalExistingSubscribers;
+    private Integer totalNewSubscribers;
 
-
-
+    private List<Object> duplicateEmailsInSubmission;
 }
