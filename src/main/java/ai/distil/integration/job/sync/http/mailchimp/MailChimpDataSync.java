@@ -74,7 +74,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
 
             return ListUtils.groupByWithOverwrite(mergeFieldsMap,
                     m -> (String) m.get(MailChimpMembersFieldsHolder.NAME_KEY),
-                    m -> String.valueOf(m.get(MailChimpMembersFieldsHolder.MERGE_ID_KEY)));
+                    m -> String.valueOf(m.get(MailChimpMembersFieldsHolder.TAG_KEY)));
         }).orElse(ImmutableMap.of());
 
 
@@ -88,7 +88,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
                                 null, true, null, null, null);
 
                         return this.executeAsyncRequest(new CreateMergeFieldMailChimpRequest(getApiKey(), listId, field))
-                                .thenApply(r -> new CustomAttributeDefinition(String.valueOf(r.getMergeId()), fieldName,
+                                .thenApply(r -> new CustomAttributeDefinition(String.valueOf(r.getTag()), fieldName,
                                         attr.getAttributeDataTag(), attr.getFkDataSourceAttributeId()));
 
                     });
@@ -104,7 +104,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
             InsertMember insertMember = generateMockData(attributes);
             String hash = HashHelper.md5Hash(insertMember.getEmailAddress());
             Member result = executeRequest(new UpsertMemberMailChimpRequest(getApiKey(), listId, hash, insertMember));
-
+            System.out.println();
         }
 
     }

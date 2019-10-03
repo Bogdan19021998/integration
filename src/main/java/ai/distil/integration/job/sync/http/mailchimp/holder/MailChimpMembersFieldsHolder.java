@@ -36,7 +36,7 @@ public class MailChimpMembersFieldsHolder implements IFieldsHolder<Map<String, O
     private static final String DATE_TIME_FORMAT_KEY = "date-time";
 
     private static final String ADDRESS_TYPE_KEY = "address";
-    private static final String TAG_KEY = "tag";
+    public static final String TAG_KEY = "tag";
     public static final String NAME_KEY = "name";
     public static final String MERGE_ID_KEY = "merge_id";
     public static final String MERGE_FIELDS_KEY = "merge_fields";
