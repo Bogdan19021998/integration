@@ -1,6 +1,7 @@
 package ai.distil.integration.job.sync.http;
 
 import ai.distil.integration.exception.ConverterException;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -29,7 +30,9 @@ public class JsonDataConverter implements IDataConverter {
                     .configure(DeserializationFeature.USE_LONG_FOR_INTS, true)
                     .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
                     .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, false)
-                    .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+                    .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                    ;
             instance = new JsonDataConverter(mapper);
         }
 

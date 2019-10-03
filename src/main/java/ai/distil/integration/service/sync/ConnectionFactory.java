@@ -7,6 +7,7 @@ import ai.distil.integration.job.sync.SshConnection;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorDataSync;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection;
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
+import ai.distil.integration.job.sync.http.mailchimp.MailChimpDataSync;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
 import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
@@ -46,6 +47,8 @@ public class ConnectionFactory {
         switch (connection.getConnectionType()) {
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorDataSync(connection, integration, restService, campaignMonitorFieldsHolder);
+            case MAILCHIMP:
+                return new MailChimpDataSync(connection, integration, restService, mailChimpMembersFieldsHolder);
             default:
                 throw new UnsupportedOperationException();
         }

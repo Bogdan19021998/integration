@@ -13,16 +13,17 @@ import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFiel
 import ai.distil.integration.job.sync.http.mailchimp.vo.Audience;
 import ai.distil.integration.job.sync.http.mailchimp.vo.AudiencesWrapper;
 import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
-import ai.distil.integration.job.sync.http.request.IHttpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
-import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ArrayUtils;
-import ai.distil.model.org.ConnectionSettings;
+import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.model.types.DataSourceType;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -129,17 +130,6 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 .collect(Collectors.toList());
 
         return ConcurrentUtils.wait(allDataSources);
-    }
-
-    private <T> T executeRequest(IHttpRequest<T> r) {
-        return this.restService.execute(getBaseUrl(), r, JsonDataConverter.getInstance());
-    }
-
-    private String getApiKey() {
-        return Optional.ofNullable(this.getConnectionData())
-                .map(DTOConnection::getConnectionSettings)
-                .map(ConnectionSettings::getApiKey)
-                .orElse(null);
     }
 
     //  todo make dynamic if needed

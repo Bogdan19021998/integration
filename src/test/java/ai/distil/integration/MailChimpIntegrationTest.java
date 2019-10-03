@@ -6,6 +6,8 @@ import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
@@ -22,9 +24,13 @@ import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
 import ai.distil.model.org.DataSourceHistory;
+import ai.distil.model.org.destination.DestinationIntegration;
+import ai.distil.model.org.destination.DestinationIntegrationAttribute;
 import ai.distil.model.types.ConnectionType;
+import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -117,13 +123,16 @@ public class MailChimpIntegrationTest {
         cassandraSyncRepository.getConnection().getSession().execute(SchemaBuilder.dropKeyspace(String.format("distil_org_%s", tenantId)).ifExists());
         DTOConnection connectionDTO = defaultConnection();
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_lists.json", new TypeReference<AudiencesWrapper>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpAudiencesRequest.class), Mockito.any());
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_members.json", new TypeReference<MembersWrapper>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_members.json", new TypeReference<MembersWrapper>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMembersRequest.class), Mockito.any());
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMergeFieldsRequest.class), Mockito.any());
 
         DataSourceDataHolder oldDataSource;
@@ -142,10 +151,12 @@ public class MailChimpIntegrationTest {
 
         }
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/new_mailchimps_members.json", new TypeReference<MembersWrapper>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/new_mailchimps_members.json", new TypeReference<MembersWrapper>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMembersRequest.class), Mockito.any());
 
-        Mockito.doReturn(parseJsonFile("mocks/mailchimp/new_mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {}))
+        Mockito.doReturn(parseJsonFile("mocks/mailchimp/new_mailchimps_merge_fields.json", new TypeReference<Map<String, Object>>() {
+        }))
                 .when(restService).execute(Mockito.any(), Mockito.any(MailChimpMergeFieldsRequest.class), Mockito.any());
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             SyncProgressTrackingData syncResults = dataSyncService.reSyncDataSource(tenantId, oldDataSource, connection);
@@ -223,6 +234,30 @@ public class MailChimpIntegrationTest {
         }
 
 
+    }
+
+    @Test
+    public void testSimpleIngestion() throws Exception {
+        IDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination());
+        String listId = dataSync.createListIfNotExists();
+        List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
+
+        System.out.println();
+    }
+
+    private DestinationIntegration defaultDestination() {
+        DestinationIntegration integration = new DestinationIntegration();
+
+        long id = 1L;
+        integration.setId(id);
+        integration.setFkDestinationId(id);
+
+        integration.setAttributes(Lists.newArrayList(
+                new DestinationIntegrationAttribute(1L, id, 1L, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, null),
+                new DestinationIntegrationAttribute(2L, id, 2L, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, null),
+                new DestinationIntegrationAttribute(3L, id, 3L, DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, null)
+        ));
+        return integration;
     }
 
     private DTOConnection defaultConnection() {
