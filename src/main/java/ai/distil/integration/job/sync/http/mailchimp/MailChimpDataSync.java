@@ -9,22 +9,25 @@ import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesR
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateListMailChimpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateMergeFieldMailChimpRequest;
+import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.UpsertMemberMailChimpRequest;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
+import ai.distil.integration.utils.HashHelper;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.destination.DestinationIntegration;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static ai.distil.model.types.DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS;
 
 public class MailChimpDataSync extends MailChimpHttpConnection implements IDataSync {
 
     public static final String FAKE_NAME_FOR_ATTR = "FAKE_NAME";
     public static final String TEXT_TYPE = "text";
+    public static final String DEFAULT_MEMBER_STATUS = "subscribed";
     private DestinationIntegration destinationIntegration;
 
     public MailChimpDataSync(DTOConnection dtoConnection, DestinationIntegration destinationIntegration, RestService restService, MailChimpMembersFieldsHolder fieldsHolder) {
@@ -92,8 +95,33 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
         }).collect(Collectors.toList()));
     }
 
+    //    todo batch operations
+//    https://mailchimp.com/developer/guides/how-to-use-batch-operations/#Use_Batch_Operations
     @Override
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes) {
 
+        for (int i = 0; i < 10; i++) {
+            InsertMember insertMember = generateMockData(attributes);
+            String hash = HashHelper.md5Hash(insertMember.getEmailAddress());
+            Member result = executeRequest(new UpsertMemberMailChimpRequest(getApiKey(), listId, hash, insertMember));
+
+        }
+
+    }
+
+    private InsertMember generateMockData(List<CustomAttributeDefinition> attributes) {
+        InsertMember result = new InsertMember();
+        result.setMergeFields(new HashMap<>());
+        result.setStatusIfNew(DEFAULT_MEMBER_STATUS);
+
+        attributes.forEach(attr -> {
+            if (CUSTOMER_EMAIL_ADDRESS.equals(attr.getTag())) {
+                result.setEmailAddress(new Random().nextInt() + "@fake123.com");
+            } else {
+                result.getMergeFields().put(attr.getId(), String.valueOf(new Random().nextLong()));
+            }
+        });
+
+        return result;
     }
 }
