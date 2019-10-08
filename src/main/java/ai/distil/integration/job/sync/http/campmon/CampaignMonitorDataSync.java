@@ -1,11 +1,17 @@
 package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.integration.controller.dto.data.DatasetPage;
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
+import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.IDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
 import ai.distil.integration.job.sync.http.campmon.request.CustomListFieldsCampaignMonitorRequest;
+import ai.distil.integration.job.sync.http.campmon.request.SubscribersCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateCustomFieldCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateListCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.ImportSubscribersCampaignMonitorRequest;
@@ -13,11 +19,13 @@ import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateCu
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateListBody;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.SubscribersImportResponse;
 import ai.distil.integration.job.sync.http.campmon.vo.*;
+import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.destination.DestinationIntegration;
 import ai.distil.model.org.destination.DestinationIntegrationAttribute;
+import ai.distil.model.types.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -31,11 +39,26 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
     public static final String DEFAULT_UNSUBSCRIBE_SETTINGS = "AllClientLists";
     public static final String FAKE_NAME_FOR_ATTR = "FAKE_NAME";
     public static final String DEFAULT_FIELD_NAME = "Text";
+    public static final String EMAIL_ADDRESS_FIELD = "EmailAddress";
     private DestinationIntegration destinationIntegration;
 
     public CampaignMonitorDataSync(DTOConnection dtoConnection, DestinationIntegration destinationIntegration, RestService restService, CampaignMonitorFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
         this.destinationIntegration = destinationIntegration;
+    }
+
+    @Override
+    public DatasetPage getNextPage(DataSourceDataHolder dataSource, DatasetPageRequest pageRequest) {
+        SubscribersCampaignMonitorRequest request = new SubscribersCampaignMonitorRequest(getConnectionSettings().getApiKey(), dataSource.getDataSourceId(), pageRequest);
+        SubscribersPage subscribers = this.restService.execute(getBaseUrl(), request, JsonDataConverter.getInstance());
+
+        List<DatasetRow> rows = subscribers.getResults()
+                .stream()
+                .map(row -> new DatasetRow(Collections.singletonList(new DatasetValue(row.get(EMAIL_ADDRESS_FIELD), EMAIL_ADDRESS_FIELD))))
+                .collect(Collectors.toList());
+
+        return new DatasetPage(rows, null);
+
     }
 
     @Override
@@ -106,6 +129,8 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
     @Override
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes) {
+        List<String> emails = retrieveCurrentEmails(listId);
+
         Subscribers subscribers = new Subscribers(new ArrayList<>());
 
         for (int i = 0; i < 10; i++) {
@@ -122,7 +147,14 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
     @Override
     public List<String> retrieveCurrentEmails(String listId) {
-        return null;
+        List<String> result = new ArrayList<>(10000);
+        IRowIterator iterator = this.getIterator(new DataSourceDataHolder(listId, null, Collections.emptyList(), DataSourceType.CUSTOMER, null));
+        iterator.forEachRemaining(row -> row.getValues().stream()
+                .filter(r -> EMAIL_ADDRESS_FIELD.equals(r.getAlias()))
+                .findFirst()
+                .ifPresent(v -> result.add(String.valueOf(v.getValue()))));
+
+        return result;
     }
 
     private Subscriber generateMockData(List<CustomAttributeDefinition> attributes) {
@@ -138,6 +170,7 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
             }
 
         });
+
         return result;
     }
 }
