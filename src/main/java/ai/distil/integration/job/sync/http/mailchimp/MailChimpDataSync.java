@@ -1,21 +1,30 @@
 package ai.distil.integration.job.sync.http.mailchimp;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.integration.controller.dto.data.DatasetPage;
+import ai.distil.integration.controller.dto.data.DatasetPageRequest;
+import ai.distil.integration.controller.dto.data.DatasetRow;
+import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.IDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.vo.*;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
+import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMembersWithSpecificFieldsRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateListMailChimpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateMergeFieldMailChimpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.UpsertMemberMailChimpRequest;
+import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.HashHelper;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.destination.DestinationIntegration;
+import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -28,12 +37,33 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
     public static final String FAKE_NAME_FOR_ATTR = "FAKE_NAME";
     public static final String TEXT_TYPE = "text";
     public static final String DEFAULT_MEMBER_STATUS = "subscribed";
+    public static final String EMAIL_ID_FIELD = "email_address";
+    public static final String MEMBERS_KEY = "members";
+
     private DestinationIntegration destinationIntegration;
 
     public MailChimpDataSync(DTOConnection dtoConnection, DestinationIntegration destinationIntegration, RestService restService, MailChimpMembersFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
         this.destinationIntegration = destinationIntegration;
     }
+
+    @Override
+    public DatasetPage getNextPage(DataSourceDataHolder dataSourceHolder, DatasetPageRequest pageRequest) {
+        MailChimpMembersWithSpecificFieldsRequest request = new MailChimpMembersWithSpecificFieldsRequest(
+                dataSourceHolder.getDataSourceId(),
+                getApiKey(),
+                pageRequest,
+                Lists.newArrayList(MEMBERS_KEY + "." + EMAIL_ID_FIELD));
+
+        MembersWrapper response = executeRequest(request);
+
+        return new DatasetPage(Optional.ofNullable(response).map(MembersWrapper::getMembers).orElse(Collections.emptyList())
+                .stream()
+                .map(row -> new DatasetRow(Lists.newArrayList(new DatasetValue(row.get(EMAIL_ID_FIELD), EMAIL_ID_FIELD))))
+                .collect(Collectors.toList()), null);
+    }
+
+
 
     @Override
     public String createListIfNotExists() {
@@ -99,6 +129,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
 //    https://mailchimp.com/developer/guides/how-to-use-batch-operations/#Use_Batch_Operations
     @Override
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes) {
+        List<String> currentEmails = retrieveCurrentEmails(listId);
 
         for (int i = 0; i < 10; i++) {
             InsertMember insertMember = generateMockData(attributes);
@@ -107,6 +138,15 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
             System.out.println();
         }
 
+    }
+
+    @Override
+    public List<String> retrieveCurrentEmails(String listId) {
+        List<String> existingEmails = new ArrayList<>(10000);
+        IRowIterator iterator = getIterator(new DataSourceDataHolder(listId, null, Lists.newArrayList(), DataSourceType.CUSTOMER, null));
+        iterator.forEachRemaining(row -> existingEmails.add(String.valueOf(row.getValues().stream().findFirst().map(DatasetValue::getValue))));
+
+        return existingEmails;
     }
 
     private InsertMember generateMockData(List<CustomAttributeDefinition> attributes) {

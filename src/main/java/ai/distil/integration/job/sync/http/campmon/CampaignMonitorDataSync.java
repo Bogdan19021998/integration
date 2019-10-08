@@ -120,6 +120,11 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
     }
 
+    @Override
+    public List<String> retrieveCurrentEmails(String listId) {
+        return null;
+    }
+
     private Subscriber generateMockData(List<CustomAttributeDefinition> attributes) {
         Subscriber result = new Subscriber();
         result.setCustomFields(new ArrayList<>());

@@ -15,6 +15,8 @@ public interface IDataSync {
     List<CustomAttributeDefinition> syncCustomAttributesSchema(String listId);
     void ingestData(String listId, List<CustomAttributeDefinition> attributes);
 
+    List<String> retrieveCurrentEmails(String listId);
+
     default String buildListName(Long destinationId) {
         return String.format(LIST_NAME_TEMPLATE, destinationId).toUpperCase().trim();
     }
