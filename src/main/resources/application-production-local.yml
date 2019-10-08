@@ -21,7 +21,8 @@ ai:
         url: http://localhost:8087
       internal:
         url: https://cassandra-cluster.distil.ai:8888
-
+      public:
+        url: http://localhost:8088/public/{org}/{api-code}/customerId
 app:
   name: distil_integration
 
