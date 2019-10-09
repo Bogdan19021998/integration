@@ -17,7 +17,7 @@ import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
-import ai.distil.integration.service.sync.ConnectionRequestMapper;
+import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.LastDataSourceSyncStatus;
 import ai.distil.model.org.newsfeed.card.vo.datasource.DataSourceCardType;
@@ -66,7 +66,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
     private NewsfeedProxy newsfeedProxy;
 
     @Autowired
-    private ConnectionRequestMapper requestMapper;
+    private RequestMapper requestMapper;
 
 
     @Override

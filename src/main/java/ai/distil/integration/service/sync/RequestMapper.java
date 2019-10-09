@@ -14,7 +14,7 @@ import java.io.IOException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ConnectionRequestMapper {
+public class RequestMapper {
 
     private final ObjectMapper objectMapper;
 

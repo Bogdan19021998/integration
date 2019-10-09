@@ -2,6 +2,8 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
@@ -15,9 +17,8 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
-import ai.distil.model.org.destination.DestinationIntegration;
-import ai.distil.model.org.destination.DestinationIntegrationAttribute;
 import ai.distil.model.types.ConnectionType;
+import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.google.common.collect.Lists;
@@ -108,18 +109,19 @@ public class CampaignMonitorIntegrationTest {
         dataSync.ingestData(listId, attributes);
     }
 
-    private DestinationIntegration defaultDestination() {
-        DestinationIntegration integration = new DestinationIntegration();
+    private DestinationIntegrationDTO defaultDestination() {
+        DestinationIntegrationDTO integration = new DestinationIntegrationDTO();
 
         long id = 1L;
         integration.setId(id);
-        integration.setFkDestinationId(id);
+        integration.setDestinationId(1L);
 
         integration.setAttributes(Lists.newArrayList(
-                new DestinationIntegrationAttribute(1L, id, 1L, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, null),
-                new DestinationIntegrationAttribute(2L, id, 2L, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, null),
-                new DestinationIntegrationAttribute(3L, id, 3L, DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, null)
+                new DestinationIntegrationAttributeDTO(1L, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, "test1", "test1", DataSourceAttributeType.STRING, true, true),
+                new DestinationIntegrationAttributeDTO(2L, DataSourceSchemaAttributeTag.CUSTOMER_COUNTRY_CODE, "test2", "test2", DataSourceAttributeType.STRING, true, true),
+                new DestinationIntegrationAttributeDTO(3L, DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, "test3", "test3", DataSourceAttributeType.STRING, true, true)
         ));
+
         return integration;
     }
 

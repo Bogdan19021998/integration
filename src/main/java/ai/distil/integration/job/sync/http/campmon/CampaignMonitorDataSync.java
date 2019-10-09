@@ -1,6 +1,8 @@
 package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetPage;
 import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.controller.dto.data.DatasetRow;
@@ -23,8 +25,6 @@ import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.ListUtils;
-import ai.distil.model.org.destination.DestinationIntegration;
-import ai.distil.model.org.destination.DestinationIntegrationAttribute;
 import ai.distil.model.types.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,9 +40,9 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
     public static final String FAKE_NAME_FOR_ATTR = "FAKE_NAME";
     public static final String DEFAULT_FIELD_NAME = "Text";
     public static final String EMAIL_ADDRESS_FIELD = "EmailAddress";
-    private DestinationIntegration destinationIntegration;
+    private DestinationIntegrationDTO destinationIntegration;
 
-    public CampaignMonitorDataSync(DTOConnection dtoConnection, DestinationIntegration destinationIntegration, RestService restService, CampaignMonitorFieldsHolder fieldsHolder) {
+    public CampaignMonitorDataSync(DTOConnection dtoConnection, DestinationIntegrationDTO destinationIntegration, RestService restService, CampaignMonitorFieldsHolder fieldsHolder) {
         super(dtoConnection, restService, fieldsHolder);
         this.destinationIntegration = destinationIntegration;
     }
@@ -72,7 +72,7 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
 
         Client client = clients.get(0);
 
-        String listName = buildListName(this.destinationIntegration.getFkDestinationId());
+        String listName = buildListName(this.destinationIntegration.getId());
         CreateListBody createListBody = new CreateListBody(listName, DEFAULT_UNSUBSCRIBE_SETTINGS, false);
         CreateListCampaignMonitorRequest request = new CreateListCampaignMonitorRequest(client.getClientId(), this.getConnectionSettings().getApiKey(), createListBody);
 
@@ -99,25 +99,25 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
                 CustomFieldDefinition::getFieldName,
                 CustomFieldDefinition::getKey);
 
-        List<DestinationIntegrationAttribute> attributes = this.destinationIntegration.getAttributes();
+        List<DestinationIntegrationAttributeDTO> attributes = this.destinationIntegration.getAttributes();
 
         List<CustomAttributeDefinition> createdAttributes = ConcurrentUtils.wait(attributes.stream().filter(attr -> {
-            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getId());
+            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getAttributeId());
             String key = currentCustomFields.get(fieldName);
 
             if (key == null) {
                 return true;
             }
 
-            result.add(new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getFkDataSourceAttributeId()));
+            result.add(new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getAttributeId()));
             return false;
         }).map(attr -> {
-            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getId());
+            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getAttributeId());
             CreateCustomFieldBody body = new CreateCustomFieldBody(fieldName, DEFAULT_FIELD_NAME, true);
 
             CreateCustomFieldCampaignMonitorRequest request = new CreateCustomFieldCampaignMonitorRequest(listId, getConnectionSettings().getApiKey(), body);
             return this.restService.executeAsync(getBaseUrl(), request, JsonDataConverter.getInstance())
-                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getFkDataSourceAttributeId()));
+                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getAttributeId()));
 
         }).collect(Collectors.toList()));
 

@@ -1,6 +1,7 @@
 package ai.distil.integration.service.sync;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.job.destination.IDataSync;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SshConnection;
@@ -18,7 +19,6 @@ import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.RedshiftSqlJdbcConnection;
 import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
-import ai.distil.model.org.destination.DestinationIntegration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class ConnectionFactory {
     }
 
 
-    public IDataSync buildDataSync(DTOConnection connection, DestinationIntegration integration) {
+    public IDataSync buildDataSync(DTOConnection connection, DestinationIntegrationDTO integration) {
         switch (connection.getConnectionType()) {
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorDataSync(connection, integration, restService, campaignMonitorFieldsHolder);
