@@ -16,10 +16,11 @@ public class AppConfig {
 
     private Integer maxDataSourceSize;
 
-
     @PostConstruct
     public void init() {
-        MAX_DATA_SOURCE_SIZE = maxDataSourceSize;
+        if(maxDataSourceSize != null && maxDataSourceSize > 0) {
+            MAX_DATA_SOURCE_SIZE = maxDataSourceSize;
+        }
     }
 
 }

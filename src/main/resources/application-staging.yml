@@ -14,6 +14,9 @@ cassandra:
 
 ai:
   distil:
+    integrations:
+      app:
+        maxDataSourceSize: -1
     api:
       integrations:
         url: http://localhost:8889

@@ -16,6 +16,9 @@ cassandra:
 
 ai:
   distil:
+    integrations:
+      app:
+        maxDataSourceSize: 1000
     api:
       integrations:
         url: http://localhost:8087
