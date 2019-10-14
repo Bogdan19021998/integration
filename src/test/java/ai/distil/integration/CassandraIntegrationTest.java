@@ -25,11 +25,11 @@ public class CassandraIntegrationTest {
 
         DataSourceDataHolder holder = new DataSourceDataHolder("test", "test",
                 Lists.newArrayList(
-                        new DTODataSourceAttribute(null, "id", "id", "c1", CassandraDataSourceAttributeType.BIGINT.getAttributeType(), CassandraDataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, true, new Date(), new Date(), null),
-                        new DTODataSourceAttribute(null, "name", "name", "c2", CassandraDataSourceAttributeType.STRING.getAttributeType(), CassandraDataSourceAttributeType.STRING, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
-                        new DTODataSourceAttribute(null, "testBool", "testBool", "c3", CassandraDataSourceAttributeType.BOOLEAN.getAttributeType(), CassandraDataSourceAttributeType.BOOLEAN, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
-                        new DTODataSourceAttribute(null, "testDate", "testDate", "c4", CassandraDataSourceAttributeType.DATE.getAttributeType(), CassandraDataSourceAttributeType.DATE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null),
-                        new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", CassandraDataSourceAttributeType.DOUBLE.getAttributeType(), CassandraDataSourceAttributeType.DOUBLE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null)
+                        new DTODataSourceAttribute(null, "id", "id", "c1", CassandraDataSourceAttributeType.BIGINT.getAttributeType(), CassandraDataSourceAttributeType.BIGINT, true, DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, true, new Date(), new Date(), null, null),
+                        new DTODataSourceAttribute(null, "name", "name", "c2", CassandraDataSourceAttributeType.STRING.getAttributeType(), CassandraDataSourceAttributeType.STRING, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null, null),
+                        new DTODataSourceAttribute(null, "testBool", "testBool", "c3", CassandraDataSourceAttributeType.BOOLEAN.getAttributeType(), CassandraDataSourceAttributeType.BOOLEAN, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null, null),
+                        new DTODataSourceAttribute(null, "testDate", "testDate", "c4", CassandraDataSourceAttributeType.DATE.getAttributeType(), CassandraDataSourceAttributeType.DATE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null, null),
+                        new DTODataSourceAttribute(null, "testDouble", "testDouble", "c5", CassandraDataSourceAttributeType.DOUBLE.getAttributeType(), CassandraDataSourceAttributeType.DOUBLE, true, DataSourceSchemaAttributeTag.NONE, true, new Date(), new Date(), null, null)
                 ), DataSourceType.CUSTOMER, null);
 
         cassandraSyncRepository.createTableIfNotExists(tenantId, holder, true);

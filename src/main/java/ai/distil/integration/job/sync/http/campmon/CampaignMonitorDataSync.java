@@ -1,7 +1,7 @@
 package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
+import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetPage;
 import ai.distil.integration.controller.dto.data.DatasetPageRequest;
@@ -21,6 +21,7 @@ import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateCu
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateListBody;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.SubscribersImportResponse;
 import ai.distil.integration.job.sync.http.campmon.vo.*;
+import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
@@ -37,14 +38,22 @@ import static ai.distil.model.types.DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_
 public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection implements IDataSync {
 
     public static final String DEFAULT_UNSUBSCRIBE_SETTINGS = "AllClientLists";
-    public static final String FAKE_NAME_FOR_ATTR = "FAKE_NAME";
-    public static final String DEFAULT_FIELD_NAME = "Text";
+    public static final String DEFAULT_FIELD_TYPE = "Text";
     public static final String EMAIL_ADDRESS_FIELD = "EmailAddress";
-    private DestinationIntegrationDTO destinationIntegration;
 
-    public CampaignMonitorDataSync(DTOConnection dtoConnection, DestinationIntegrationDTO destinationIntegration, RestService restService, CampaignMonitorFieldsHolder fieldsHolder) {
+    private DestinationIntegrationDTO destinationIntegration;
+    private List<DTODataSourceAttributeExtended> attributes;
+    private SyncSettings syncSettings;
+
+    public CampaignMonitorDataSync(DTOConnection dtoConnection,
+                                   DestinationIntegrationDTO destinationIntegration, RestService restService,
+                                   CampaignMonitorFieldsHolder fieldsHolder,
+                                   List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings) {
         super(dtoConnection, restService, fieldsHolder);
+
         this.destinationIntegration = destinationIntegration;
+        this.attributes = attributes;
+        this.syncSettings = syncSettings;
     }
 
     @Override
@@ -99,25 +108,23 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
                 CustomFieldDefinition::getFieldName,
                 CustomFieldDefinition::getKey);
 
-        List<DestinationIntegrationAttributeDTO> attributes = this.destinationIntegration.getAttributes();
-
-        List<CustomAttributeDefinition> createdAttributes = ConcurrentUtils.wait(attributes.stream().filter(attr -> {
-            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getAttributeId());
+        List<CustomAttributeDefinition> createdAttributes = ConcurrentUtils.wait(retrieveAllAttributesBySettings().stream().filter(attr -> {
+            String fieldName = buildCustomFieldName(attr.getAttributeSourceName(), attr.getId());
             String key = currentCustomFields.get(fieldName);
 
             if (key == null) {
                 return true;
             }
 
-            result.add(new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getAttributeId()));
+            result.add(new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getId()));
             return false;
         }).map(attr -> {
-            String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getAttributeId());
-            CreateCustomFieldBody body = new CreateCustomFieldBody(fieldName, DEFAULT_FIELD_NAME, true);
+            String fieldName = buildCustomFieldName(attr.getAttributeSourceName(), attr.getId());
+            CreateCustomFieldBody body = new CreateCustomFieldBody(fieldName, DEFAULT_FIELD_TYPE, true);
 
             CreateCustomFieldCampaignMonitorRequest request = new CreateCustomFieldCampaignMonitorRequest(listId, getConnectionSettings().getApiKey(), body);
             return this.restService.executeAsync(getBaseUrl(), request, JsonDataConverter.getInstance())
-                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getAttributeId()));
+                    .thenApply(key -> new CustomAttributeDefinition(key, fieldName, attr.getAttributeDataTag(), attr.getId()));
 
         }).collect(Collectors.toList()));
 
@@ -155,6 +162,15 @@ public class CampaignMonitorDataSync extends CampaignMonitorHttpConnection imple
                 .ifPresent(v -> result.add(String.valueOf(v.getValue()))));
 
         return result;
+    }
+
+//  todo generalize, keep it like this for now
+    private List<DTODataSourceAttributeExtended> retrieveAllAttributesBySettings() {
+        Integer defaultProductsCount = this.syncSettings.getDefaultProductsCount();
+
+        return this.attributes.stream()
+                .filter(attr -> !attr.getAutoGenerated() || attr.getPosition() <= defaultProductsCount)
+                .collect(Collectors.toList());
     }
 
     private Subscriber generateMockData(List<CustomAttributeDefinition> attributes) {

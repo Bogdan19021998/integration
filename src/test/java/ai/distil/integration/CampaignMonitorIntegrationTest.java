@@ -12,6 +12,7 @@ import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
+import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
@@ -102,7 +103,7 @@ public class CampaignMonitorIntegrationTest {
     @Test
     public void createCampaignMonitor() {
         DTOConnection connectionDTO = defaultConnection();
-        IDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination());
+        IDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination(), new SyncSettings(5), Lists.newArrayList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
 

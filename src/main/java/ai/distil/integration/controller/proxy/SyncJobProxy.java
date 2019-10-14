@@ -2,6 +2,7 @@ package ai.distil.integration.controller.proxy;
 
 import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
+import ai.distil.integration.controller.dto.ScheduleDestinationSyncRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -29,5 +30,9 @@ public interface SyncJobProxy {
     @ApiOperation(value = "Run now a new sync connection task")
     @PostMapping("/run_now/connection")
     void runSyncConnectionNow(@RequestBody @Valid ScheduleConnectionSyncRequest request);
+
+    @ApiOperation(value = "Run now a new destination sync task")
+    @PostMapping("/destination/run")
+    void runDestinationSyncNow(@RequestBody @Valid ScheduleDestinationSyncRequest request);
 
 }

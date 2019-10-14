@@ -18,6 +18,7 @@ import ai.distil.integration.job.sync.http.mailchimp.vo.MembersWrapper;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMembersRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
+import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
@@ -43,6 +44,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -239,7 +241,7 @@ public class MailChimpIntegrationTest {
 
     @Test
     public void testSimpleIngestion() throws Exception {
-        IDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination());
+        IDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination(), new SyncSettings(5), Collections.emptyList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
 

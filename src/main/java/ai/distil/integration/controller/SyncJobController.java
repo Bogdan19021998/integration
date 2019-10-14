@@ -2,6 +2,7 @@ package ai.distil.integration.controller;
 
 import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
+import ai.distil.integration.controller.dto.ScheduleDestinationSyncRequest;
 import ai.distil.integration.controller.proxy.SyncJobProxy;
 import ai.distil.integration.service.JobExecutionService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,12 @@ public class SyncJobController implements SyncJobProxy {
     public void runSyncConnectionNow(@Valid ScheduleConnectionSyncRequest request) {
         log.debug("Run connection sync job now {}", request);
         jobExecutionService.runConnectionSyncNow(request);
+    }
+
+    @Override
+    public void runDestinationSyncNow(@Valid ScheduleDestinationSyncRequest request) {
+        log.debug("Run destination sync job now {}", request);
+        jobExecutionService.runDestinationSyncNow(request);
     }
 
 }

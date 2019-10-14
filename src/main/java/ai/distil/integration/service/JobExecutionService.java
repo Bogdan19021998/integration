@@ -2,6 +2,7 @@ package ai.distil.integration.service;
 
 import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
+import ai.distil.integration.controller.dto.ScheduleDestinationSyncRequest;
 import ai.distil.integration.job.JobDefinitionEnum;
 import ai.distil.integration.mapper.JobMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,10 @@ public class JobExecutionService {
 
     public void runConnectionSyncNow(ScheduleConnectionSyncRequest request) {
         jobScheduler.scheduleOneTimeJobNow(JobDefinitionEnum.SYNC_CONNECTION, jobMapper.mapSyncConnectionRequest(request));
+    }
+
+    public void runDestinationSyncNow(ScheduleDestinationSyncRequest request) {
+        jobScheduler.scheduleOneTimeJobNow(JobDefinitionEnum.SYNC_DESTINATION, jobMapper.mapDestinationSyncRequest(request));
     }
 
 }
