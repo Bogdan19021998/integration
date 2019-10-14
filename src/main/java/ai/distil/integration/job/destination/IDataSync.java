@@ -1,6 +1,7 @@
 package ai.distil.integration.job.destination;
 
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.model.org.CustomerRecord;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface IDataSync {
      * */
     String createListIfNotExists();
     List<CustomAttributeDefinition> syncCustomAttributesSchema(String listId);
-    void ingestData(String listId, List<CustomAttributeDefinition> attributes);
+    void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data);
 
     List<String> retrieveCurrentEmails(String listId);
 

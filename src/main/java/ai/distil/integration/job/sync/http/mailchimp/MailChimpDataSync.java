@@ -22,6 +22,7 @@ import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.HashHelper;
 import ai.distil.integration.utils.ListUtils;
+import ai.distil.model.org.CustomerRecord;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -111,7 +112,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
         return ConcurrentUtils.wait(this.destinationIntegration.getAttributes().stream().map(attr -> {
             String fieldName = buildCustomFieldName(FAKE_NAME_FOR_ATTR, attr.getAttributeId());
             return Optional.ofNullable(existingFields.get(fieldName))
-                    .map(fieldId -> CompletableFuture.completedFuture(new CustomAttributeDefinition(fieldId, fieldName, attr.getAttributeDataTag(), attr.getAttributeId())))
+                    .map(fieldId -> CompletableFuture.completedFuture(new CustomAttributeDefinition(fieldId, fieldName, attr.getAttributeDataTag(), attr.getAttributeId(), false, 1)))
                     .orElseGet(() -> {
 //                        todo add tag generation (10 characters)
                         MailChimpMergeField field = new MailChimpMergeField(null, fieldName, TEXT_TYPE, false,
@@ -119,7 +120,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
 
                         return this.executeAsyncRequest(new CreateMergeFieldMailChimpRequest(getApiKey(), listId, field))
                                 .thenApply(r -> new CustomAttributeDefinition(String.valueOf(r.getTag()), fieldName,
-                                        attr.getAttributeDataTag(), attr.getAttributeId()));
+                                        attr.getAttributeDataTag(), attr.getAttributeId(), false, 1));
 
                     });
         }).collect(Collectors.toList()));
@@ -128,7 +129,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
     //    todo batch operations
 //    https://mailchimp.com/developer/guides/how-to-use-batch-operations/#Use_Batch_Operations
     @Override
-    public void ingestData(String listId, List<CustomAttributeDefinition> attributes) {
+    public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
         List<String> currentEmails = retrieveCurrentEmails(listId);
 
         for (int i = 0; i < 10; i++) {

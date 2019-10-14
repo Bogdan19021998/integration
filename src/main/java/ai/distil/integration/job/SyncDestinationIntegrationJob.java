@@ -13,6 +13,7 @@ import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.RequestMapper;
+import ai.distil.model.org.CustomerRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -75,10 +76,8 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
         String listId = dataSyncService.createListIfNotExists();
         List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);
 
-//        todo pagination
-//        ResponseEntity<List<CustomerRecord>> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId());
-
-
+        List<CustomerRecord> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
+        dataSyncService.ingestData(listId, createdAttributes, records);
 
     }
 }

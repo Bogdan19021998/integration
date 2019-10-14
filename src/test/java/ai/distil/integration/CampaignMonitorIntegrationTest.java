@@ -107,7 +107,7 @@ public class CampaignMonitorIntegrationTest {
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
 
-        dataSync.ingestData(listId, attributes);
+        dataSync.ingestData(listId, attributes, null);
     }
 
     private DestinationIntegrationDTO defaultDestination() {

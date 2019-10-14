@@ -245,7 +245,7 @@ public class MailChimpIntegrationTest {
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
 
-        dataSync.ingestData(listId, customAttributeDefinitions);
+        dataSync.ingestData(listId, customAttributeDefinitions, null);
 
         System.out.println();
     }
