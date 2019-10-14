@@ -138,7 +138,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                 result.add(allTablesQuery.mapResultSet(resultSet));
             }
         } catch (SQLException e) {
-            throw new JDBCException("Can't retrieve all MySQL tables.", e, sql);
+            throw new JDBCException("Can't retrieve all tables.", e, sql);
         }
 
         return result;

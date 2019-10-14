@@ -22,7 +22,7 @@ public enum SyncTableDefinition {
     CUSTOMER("CUSTOMER", "customers", DataSourceType.CUSTOMER,
             new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
                 put(CUSTOMER_EXTERNAL_ID, FieldDefinition.builder()
-                        .eligibleFieldNames(Sets.newHashSet("ID"))
+                        .eligibleFieldNames(Sets.newHashSet("ID", "CUSTOMERID"))
                         .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                         .mandatory(true)
                         .primaryKey(true)
@@ -101,7 +101,7 @@ public enum SyncTableDefinition {
 
                 put(PRODUCT_PRECIS,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("PRECIS", "PRODUCTPRECIS"))
+                                .eligibleFieldNames(Sets.newHashSet("PRECIS", "PRODUCTPRECIS", "DESCRIPTION", "PRODUCTDESCRIPTION"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
 
@@ -132,7 +132,7 @@ public enum SyncTableDefinition {
 
                 put(PRODUCT_CATEGORY,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("PRODUCTCATEGORY", "CATEGORY"))
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTCATEGORY","CATEGORY","PRODUCTCATEGORIES","CATEGORIES"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
 
@@ -141,7 +141,7 @@ public enum SyncTableDefinition {
     CONTENT("CONTENT", "content", DataSourceType.CONTENT,
             new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
                 put(CONTENT_EXTERNAL_ID, FieldDefinition.builder()
-                        .eligibleFieldNames(Sets.newHashSet("ID"))
+                        .eligibleFieldNames(Sets.newHashSet("ID", "CONTENTID"))
                         .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                         .mandatory(true)
                         .primaryKey(true)
@@ -200,11 +200,18 @@ public enum SyncTableDefinition {
     public DataSourceSchemaAttributeTag tryToGetAttributeType(@NotNull String columnName) {
         String column = sanitizeColumnName(columnName);
 
-        return this.getTagsDefinitions().entrySet().stream()
-                .filter(entry -> entry.getValue().getEligibleFieldNames().contains(column))
-                .findFirst()
-                .map(Map.Entry::getKey)
-                .orElse(NONE);
+        //Do it the old fashioned way (i.e. no streams / lambda) so that its easier to see whats going on...
+        DataSourceSchemaAttributeTag returnTag = NONE;
+        for(Map.Entry<DataSourceSchemaAttributeTag, FieldDefinition> tag : getTagsDefinitions().entrySet()){
+
+            if(tag.getValue().getEligibleFieldNames().contains(column))
+            {
+                returnTag = tag.getKey();
+                break;
+            }
+        }
+
+        return returnTag;
     }
 
     public boolean isPrimaryKey(DataSourceSchemaAttributeTag tag) {
@@ -270,7 +277,7 @@ public enum SyncTableDefinition {
         //    it's must be in the separate class, otherwise we will have compilation error
         public static Map<DataSourceSchemaAttributeTag, FieldDefinition> ORDER_TAGS_DEFINITION = new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
             put(ORDER_EXTERNAL_ID, FieldDefinition.builder()
-                    .eligibleFieldNames(Sets.newHashSet("ID"))
+                    .eligibleFieldNames(Sets.newHashSet("ID", "ORDERID"))
                     .eligibleTypes(ID_TYPES)
                     .mandatory(true)
                     .primaryKey(true)

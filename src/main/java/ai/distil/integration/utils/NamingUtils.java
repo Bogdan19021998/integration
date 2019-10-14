@@ -7,13 +7,14 @@ public class NamingUtils {
     public static final int MAX_TABLE_NAME_LENGTH = 48;
     //    this is cassandra naming pattern
     private static final String NAMING_PATTERN = "[^a-zA-Z_0-9]+";
+    private static final String NON_ALPHA_NUMERIC = "[^\\p{IsAlphabetic}^\\p{IsDigit}]";
 
     private static final String TABLE_NAME_PREFIX = "t";
     private static final String COLUMN_NAME_PREFIX = "c";
 
 
     public static String sanitizeColumnName(String columnName) {
-        return columnName.trim().toUpperCase().replaceAll("_", "");
+        return columnName.trim().replaceAll(NON_ALPHA_NUMERIC, "").toUpperCase();
     }
 
     public static String generateTableName(String sourceTable) {

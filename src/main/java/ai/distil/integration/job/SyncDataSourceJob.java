@@ -144,7 +144,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
 
         List<StackCardDataSourceSyncCompletedAttributeInfo> attributes = schema.getAllAttributes().stream()
                 .map(attribute -> new StackCardDataSourceSyncCompletedAttributeInfo(attribute.getId(),
-                        attribute.getAttributeSourceName(), attribute.getAttributeDataTag()))
+                        attribute.getAttributeDisplayName(), attribute.getAttributeDataTag()))
                 .collect(Collectors.toList());
 
         SaveNewsfeedCardRequest saveRequest = new SaveNewsfeedCardRequest(dataSource.getId(), new DataSourceSyncDetails(

@@ -14,11 +14,16 @@ cassandra:
 
 ai:
   distil:
+    integrations:
+      app:
+        maxDataSourceSize: -1
     api:
       integrations:
         url: http://localhost:8889
       internal:
         url: https://staging-api.distil.ai:8888
+      public:
+        url: https://staging-api.distil.ai:8890/public/{org}/{api-code}/customerId
 
 server:
   port: 8889
