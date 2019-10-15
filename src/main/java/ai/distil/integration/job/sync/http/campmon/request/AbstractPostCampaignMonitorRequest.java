@@ -32,6 +32,10 @@ public abstract class AbstractPostCampaignMonitorRequest<T, B> extends AbstractC
 //                this means that thing already created, and it's fine
             case "250":
             case "255":
+                break;
+//                failed to ingest some customers, just log it
+            case "210":
+                log.warn("Can't ingest customers data - failure details: {}", response.getResponseBody());
                 return;
             default:
                 throw new RuntimeException(String.format("Unexpected error happen, can't proceed with it. Details - %s", error));

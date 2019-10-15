@@ -130,7 +130,7 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
 //    https://mailchimp.com/developer/guides/how-to-use-batch-operations/#Use_Batch_Operations
     @Override
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
-        List<String> currentEmails = retrieveCurrentEmails(listId);
+        Set<String> currentEmails = retrieveCurrentEmails(listId);
 
         for (int i = 0; i < 10; i++) {
             InsertMember insertMember = generateMockData(attributes);
@@ -142,8 +142,8 @@ public class MailChimpDataSync extends MailChimpHttpConnection implements IDataS
     }
 
     @Override
-    public List<String> retrieveCurrentEmails(String listId) {
-        List<String> existingEmails = new ArrayList<>(10000);
+    public Set<String> retrieveCurrentEmails(String listId) {
+        Set<String> existingEmails = new HashSet<>(10000);
         IRowIterator iterator = getIterator(new DataSourceDataHolder(listId, null, Lists.newArrayList(), DataSourceType.CUSTOMER, null));
         iterator.forEachRemaining(row -> existingEmails.add(String.valueOf(row.getValues().stream().findFirst().map(DatasetValue::getValue))));
 
