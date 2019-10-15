@@ -7,7 +7,7 @@ import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
-import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
@@ -103,7 +103,7 @@ public class CampaignMonitorIntegrationTest {
     @Test
     public void createCampaignMonitor() {
         DTOConnection connectionDTO = defaultConnection();
-        IDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination(), new SyncSettings(5), Lists.newArrayList());
+        AbstractDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination(), new SyncSettings(5), Lists.newArrayList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
 

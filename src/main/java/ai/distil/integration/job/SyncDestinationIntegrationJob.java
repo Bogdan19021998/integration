@@ -7,7 +7,7 @@ import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.model.dto.destination.HyperPersonalizedDestinationDTO;
 import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
-import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
@@ -71,7 +71,7 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
 
         log.info("Ready to sync {} attributes for the integration - {}", attributes.size(), integration.getId());
 
-        IDataSync dataSyncService = connectionFactory.buildDataSync(connection, integration, new SyncSettings(recommendationsCount), attributes);
+        AbstractDataSync dataSyncService = connectionFactory.buildDataSync(connection, integration, new SyncSettings(recommendationsCount), attributes);
 
         String listId = dataSyncService.createListIfNotExists();
         List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);

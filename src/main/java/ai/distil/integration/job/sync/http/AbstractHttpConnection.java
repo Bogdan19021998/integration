@@ -10,12 +10,14 @@ import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.model.org.ConnectionSettings;
+import lombok.Getter;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractHttpConnection extends AbstractConnection {
+    @Getter
     protected RestService restService;
     protected IFieldsHolder<?> fieldsHolder;
 
@@ -35,14 +37,15 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
 //        do nothing
     }
 
-    protected <T> T executeRequest(IHttpRequest<T> r) {
+    public <T> T executeRequest(IHttpRequest<T> r) {
         return this.restService.execute(getBaseUrl(), r, JsonDataConverter.getInstance());
     }
-    protected <T> CompletableFuture<T> executeAsyncRequest(IHttpRequest<T> r) {
+
+    public <T> CompletableFuture<T> executeAsyncRequest(IHttpRequest<T> r) {
         return this.restService.executeAsync(getBaseUrl(), r, JsonDataConverter.getInstance());
     }
 
-    protected String getApiKey() {
+    public String getApiKey() {
         return Optional.ofNullable(this.getConnectionData())
                 .map(DTOConnection::getConnectionSettings)
                 .map(ConnectionSettings::getApiKey)

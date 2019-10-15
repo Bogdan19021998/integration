@@ -3,7 +3,7 @@ package ai.distil.integration.service.sync;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
-import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SshConnection;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorDataSync;
@@ -47,12 +47,12 @@ public class ConnectionFactory {
     }
 
 
-    public IDataSync buildDataSync(DTOConnection connection, DestinationIntegrationDTO integration, SyncSettings settings, List<DTODataSourceAttributeExtended> attributes) {
+    public AbstractDataSync buildDataSync(DTOConnection connection, DestinationIntegrationDTO integration, SyncSettings settings, List<DTODataSourceAttributeExtended> attributes) {
         switch (connection.getConnectionType()) {
             case CAMPAIGN_MONITOR:
-                return new CampaignMonitorDataSync(connection, integration, restService, campaignMonitorFieldsHolder, attributes, settings);
+                return new CampaignMonitorDataSync(integration, attributes, settings, connection, restService);
             case MAILCHIMP:
-                return new MailChimpDataSync(connection, integration, restService, mailChimpMembersFieldsHolder);
+                return new MailChimpDataSync(integration, attributes, settings, connection, restService);
             default:
                 throw new UnsupportedOperationException();
         }

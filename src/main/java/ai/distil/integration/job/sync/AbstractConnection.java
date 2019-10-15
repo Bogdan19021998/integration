@@ -62,7 +62,7 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     public abstract boolean dataSourceExist(DataSourceDataHolder dataSource);
 
-    protected ConnectionSettings getConnectionSettings() {
+    public ConnectionSettings getConnectionSettings() {
         return this.getConnectionData().getConnectionSettings();
     }
 

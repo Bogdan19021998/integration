@@ -8,7 +8,7 @@ import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.controller.dto.data.DatasetRow;
-import ai.distil.integration.job.destination.IDataSync;
+import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
@@ -241,7 +241,7 @@ public class MailChimpIntegrationTest {
 
     @Test
     public void testSimpleIngestion() throws Exception {
-        IDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination(), new SyncSettings(5), Collections.emptyList());
+        AbstractDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination(), new SyncSettings(5), Collections.emptyList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
 
