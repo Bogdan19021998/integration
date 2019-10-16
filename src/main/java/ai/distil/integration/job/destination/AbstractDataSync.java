@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ai.distil.model.types.DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS;
+import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 
 
 /**
@@ -65,6 +65,10 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
 
     //    warn impure
     protected abstract void setEmail(S subscriber, String value);
+
+    protected abstract void setFirstName(S subscriber, String value);
+    protected abstract void setLastName(S subscriber, String value);
+
 
     protected abstract String getEmailAddress(S subscriber);
 
@@ -127,6 +131,10 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
 
             if (CUSTOMER_EMAIL_ADDRESS.equals(attr.getTag())) {
                 this.setEmail(result, customerValues.get(distilAttributeId).asText());
+            } else if(CUSTOMER_FIRST_NAME.equals(attr.getTag())) {
+                this.setFirstName(result, customerValues.get(distilAttributeId).asText());
+            } else if(CUSTOMER_LAST_NAME.equals(attr.getTag())) {
+                this.setLastName(result, customerValues.get(distilAttributeId).asText());
             } else {
                 Optional<JsonNode> jsonNode = Optional.ofNullable(customerValues.get(distilAttributeId));
 

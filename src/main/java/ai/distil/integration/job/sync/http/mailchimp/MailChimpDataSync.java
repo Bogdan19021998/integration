@@ -34,6 +34,10 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     public static final String EMAIL_ID_FIELD = "email_address";
     public static final int MAX_TAG_LENGTH = 10;
 
+    public static final String FIRST_NAME_FIELD = "FNAME";
+    public static final String LAST_NAME_FIELD = "LNAME";
+
+
     public MailChimpDataSync(DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
                              DTOConnection connection, RestService restService) {
         super(destinationIntegration, attributes, syncSettings, null);
@@ -135,6 +139,16 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     @Override
     protected void setEmail(InsertMember subscriber, String value) {
         subscriber.setEmailAddress(value);
+    }
+
+    @Override
+    protected void setFirstName(InsertMember subscriber, String value) {
+        subscriber.getMergeFields().put(FIRST_NAME_FIELD, value);
+    }
+
+    @Override
+    protected void setLastName(InsertMember subscriber, String value) {
+        subscriber.getMergeFields().put(LAST_NAME_FIELD, value);
     }
 
     @Override

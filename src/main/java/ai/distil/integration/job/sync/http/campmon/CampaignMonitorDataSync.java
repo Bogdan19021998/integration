@@ -150,6 +150,16 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
     }
 
     @Override
+    protected void setFirstName(Subscriber subscriber, String value) {
+//todo implement
+    }
+
+    @Override
+    protected void setLastName(Subscriber subscriber, String value) {
+//todo implement
+    }
+
+    @Override
     protected String getEmailAddress(Subscriber subscriber) {
         return subscriber.getEmailAddress();
     }
