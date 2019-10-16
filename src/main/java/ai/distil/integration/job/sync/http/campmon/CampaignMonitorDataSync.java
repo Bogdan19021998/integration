@@ -8,6 +8,7 @@ import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.campmon.request.CustomListFieldsCampaignMonitorRequest;
+import ai.distil.integration.job.sync.http.campmon.request.DeleteSubscriberCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateCustomFieldCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateListCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.ImportSubscribersCampaignMonitorRequest;
@@ -115,8 +116,13 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
     }
 
     @Override
-    protected void removeSubscribers(List<Subscriber> subscribers) {
-//        todo implement
+    protected void removeSubscribers(String listId, Collection<String> subscribersIds) {
+        subscribersIds.forEach(subscriberId -> {
+            DeleteSubscriberCampaignMonitorRequest request = new DeleteSubscriberCampaignMonitorRequest(this.httpConnection.getApiKey(),
+                    listId,
+                    subscriberId);
+            this.httpConnection.executeRequest(request);
+        });
     }
 
     @Override

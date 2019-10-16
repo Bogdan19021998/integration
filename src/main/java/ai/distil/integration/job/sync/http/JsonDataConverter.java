@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ public class JsonDataConverter implements IDataConverter {
     @Override
     public <T> T fromString(String t, TypeReference<T> clazz) {
         try {
-            return mapper.readValue(t, clazz);
+            return StringUtils.isEmpty(t) ? null : mapper.readValue(t, clazz);
         } catch (IOException e) {
             throw new ConverterException(false, "Can't deserialize json object", e);
         }

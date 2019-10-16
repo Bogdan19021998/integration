@@ -13,6 +13,7 @@ import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesR
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateListMailChimpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateMergeFieldMailChimpRequest;
+import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.DeleteMemberMailChimpRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.UpsertMemberMailChimpRequest;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
@@ -118,7 +119,7 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     public Set<String> retrieveCurrentEmails(String listId) {
         Set<String> existingEmails = new HashSet<>(10000);
         IRowIterator iterator = this.httpConnection.getIterator(new DataSourceDataHolder(listId, null, Lists.newArrayList(), DataSourceType.CUSTOMER, null));
-        iterator.forEachRemaining(row -> existingEmails.add(String.valueOf(row.getValues().stream().findFirst().map(DatasetValue::getValue))));
+        iterator.forEachRemaining(row -> row.getValues().stream().findFirst().map(DatasetValue::getValue).ifPresent(v -> existingEmails.add(String.valueOf(v))));
 
         return existingEmails;
     }
@@ -149,14 +150,18 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     @Override
     protected void sendSubscribers(String listId, List<InsertMember> subscribers) {
         subscribers.forEach(subscriber -> {
-            String hash = HashHelper.md5Hash(subscriber.getEmailAddress());
+            String hash = HashHelper.md5Hash(subscriber.getEmailAddress().toLowerCase()).toLowerCase();
             this.httpConnection.executeRequest(new UpsertMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash, subscriber));
         });
     }
 
     @Override
-    protected void removeSubscribers(List<InsertMember> subscribers) {
-        //  todo implement
+    protected void removeSubscribers(String listId, Collection<String> subscribersIds) {
+        subscribersIds.forEach(subscribersId -> {
+            String hash = HashHelper.md5Hash(subscribersId.toLowerCase()).toLowerCase();
+            DeleteMemberMailChimpRequest deleteRequest = new DeleteMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash);
+            this.httpConnection.executeRequest(deleteRequest);
+        });
     }
 
 }

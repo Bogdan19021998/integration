@@ -72,7 +72,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
 
     protected abstract void sendSubscribers(String listId, List<S> subscribers);
 
-    protected abstract void removeSubscribers(List<S> subscribers);
+    protected abstract void removeSubscribers(String listId, Collection<String> subscribersIds);
 
 
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
@@ -108,7 +108,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
 
         log.info("Subscribers to delete -> {}", currentSubscribers);
 
-        //todo process customers removal
+        removeSubscribers(listId, currentSubscribers);
 
     }
 
