@@ -140,14 +140,14 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
                         Optional<JsonNode> node = Optional.ofNullable(customerValues.get(s));
 
                         if (node.isPresent() && !node.get().isNull()) {
-                            this.addCustomField(result, attr.getName(), node.get().asText());
+                            this.addCustomField(result, attr.getId(), node.get().asText());
                             break;
                         }
 //                      this means that some auto generated required column can't be backfilled that's why we need to skip this consumer
                         return null;
                     }
                 } else {
-                    jsonNode.ifPresent(node -> this.addCustomField(result, attr.getName(), node.asText()));
+                    jsonNode.ifPresent(node -> this.addCustomField(result, attr.getId(), node.asText()));
                 }
             }
         }
