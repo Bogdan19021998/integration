@@ -3,6 +3,7 @@ package ai.distil.integration.job.sync.http.campmon;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
+import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
@@ -125,13 +126,27 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
     }
 
     @Override
-    public Set<String> retrieveCurrentEmails(String listId) {
-        Set<String> result = new HashSet<>(10000);
+    public Map<String, String> retrieveCurrentUsersAndHashes(String listId) {
+        Map<String, String> result = new HashMap<>(10000);
         IRowIterator iterator = this.httpConnection.getIterator(new DataSourceDataHolder(listId, null, Collections.emptyList(), DataSourceType.CUSTOMER, null));
-        iterator.forEachRemaining(row -> row.getValues().stream()
-                .filter(r -> EMAIL_ADDRESS_FIELD.equals(r.getAlias()))
-                .findFirst()
-                .ifPresent(v -> result.add(String.valueOf(v.getValue()))));
+        iterator.forEachRemaining(row -> {
+            String email = null;
+            String hash = null;
+
+            for (DatasetValue value : row.getValues()) {
+                if (EMAIL_ADDRESS_FIELD.equalsIgnoreCase(value.getAlias())) {
+                    email = (String) value.getValue();
+                } else if (HASH_CODE_FIELD_NAME.equalsIgnoreCase(value.getAlias())) {
+                    hash = (String) value.getValue();
+                }
+            }
+
+            if (email != null && hash != null) {
+                result.put(email, hash);
+            } else {
+                log.info("Email or hash is null, somethings wrong in CM data. Row - {}", row);
+            }
+        });
 
         return result;
     }

@@ -13,32 +13,49 @@ import ai.distil.integration.service.RestService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MailChimpCustomFieldsHttpConnection extends MailChimpHttpConnection {
 
     public static final String MEMBERS_KEY = "members";
+    public static final String MERGE_FIELDS_KEY = "merge_fields";
     private List<String> fields;
+    private List<String> mergeFields;
 
-    public MailChimpCustomFieldsHttpConnection(DTOConnection dtoConnection, RestService restService, MailChimpMembersFieldsHolder fieldsHolder, List<String> fields) {
+    public MailChimpCustomFieldsHttpConnection(DTOConnection dtoConnection, RestService restService, MailChimpMembersFieldsHolder fieldsHolder, List<String> fields, List<String> mergeFields) {
         super(dtoConnection, restService, fieldsHolder);
         this.fields = fields;
+        this.mergeFields = mergeFields;
     }
 
     @Override
     public DatasetPage getNextPage(DataSourceDataHolder dataSourceHolder, DatasetPageRequest pageRequest) {
+        List<String> fieldsToProcess = Stream.concat(
+                fields.stream().map(field -> MEMBERS_KEY + "." + field),
+                mergeFields.stream().map(field -> MEMBERS_KEY + "." + MERGE_FIELDS_KEY + "." + field)
+        ).collect(Collectors.toList());
+
         MailChimpMembersWithSpecificFieldsRequest request = new MailChimpMembersWithSpecificFieldsRequest(
                 dataSourceHolder.getDataSourceId(),
                 getApiKey(),
                 pageRequest,
-                fields.stream().map(field -> MEMBERS_KEY + "." + field).collect(Collectors.toList()));
+                fieldsToProcess);
 
         MembersWrapper response = executeRequest(request);
 
         return new DatasetPage(Optional.ofNullable(response).map(MembersWrapper::getMembers).orElse(Collections.emptyList())
                 .stream()
-                .map(row -> new DatasetRow(fields.stream().map(field -> new DatasetValue(row.get(field), field)).collect(Collectors.toList())))
+                .map(row -> {
+
+                    List<DatasetValue> fields = Stream.concat(
+                            this.fields.stream().map(field -> new DatasetValue(row.get(field), field)),
+                            mergeFields.stream().map(field -> new DatasetValue(((Map<String, Object>) row.get(MERGE_FIELDS_KEY)).get(field), field)))
+                            .collect(Collectors.toList());
+                    return new DatasetRow(fields);
+                })
                 .collect(Collectors.toList()), null);
     }
 

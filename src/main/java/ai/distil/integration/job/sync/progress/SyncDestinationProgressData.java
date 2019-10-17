@@ -14,7 +14,7 @@ public class SyncDestinationProgressData extends SyncProgressTrackingData {
      */
     private long excluded;
 
-    public void incrementExcludersCounter() {
+    public void incrementExcludedCounter() {
         this.processed++;
         this.excluded++;
     }

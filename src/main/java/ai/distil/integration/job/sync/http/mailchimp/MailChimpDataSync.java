@@ -23,10 +23,12 @@ import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHttpConnection, InsertMember> {
 
     private static final String TEXT_TYPE = "text";
@@ -38,7 +40,7 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
         super(destinationIntegration, attributes, syncSettings, null);
 
         this.httpConnection = new MailChimpCustomFieldsHttpConnection(connection, restService, null,
-                Lists.newArrayList(EMAIL_ID_FIELD));
+                Lists.newArrayList(EMAIL_ID_FIELD), Lists.newArrayList(String.valueOf(buildFieldId(DEFAULT_HASH_CODE_FIELD_ID))));
 
     }
 
@@ -111,10 +113,30 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
 //    public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data);
 
     @Override
-    public Set<String> retrieveCurrentEmails(String listId) {
-        Set<String> existingEmails = new HashSet<>(10000);
+    public Map<String, String> retrieveCurrentUsersAndHashes(String listId) {
+        Map<String, String> existingEmails = new HashMap<>(10000);
         IRowIterator iterator = this.httpConnection.getIterator(new DataSourceDataHolder(listId, null, Lists.newArrayList(), DataSourceType.CUSTOMER, null));
-        iterator.forEachRemaining(row -> row.getValues().stream().findFirst().map(DatasetValue::getValue).ifPresent(v -> existingEmails.add(String.valueOf(v))));
+
+        iterator.forEachRemaining(row -> {
+
+            String email = null;
+            String hash = null;
+
+            for(DatasetValue value : row.getValues()) {
+                if(HASH_CODE_FIELD_NAME.equalsIgnoreCase(value.getAlias())) {
+                    hash = (String) value.getValue();
+                } else {
+                    email = (String) value.getValue();
+                }
+            }
+
+            if(email != null && hash != null) {
+                existingEmails.put(email, hash);
+            } else {
+                log.warn("Empty hash or email value for the subscriber -> row data {}", row);
+            }
+
+        });
 
         return existingEmails;
     }

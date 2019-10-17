@@ -36,7 +36,8 @@ import static ai.distil.integration.utils.HashHelper.STRING_FUNNEL;
 public abstract class AbstractDataSync<C extends AbstractHttpConnection, S extends AbstractSubscriber> {
     private static final Integer DEFAULT_BATCH_SIZE = 100;
     private static final String LIST_NAME_TEMPLATE = "DISTIL-%s";
-    private static final long DEFAULT_HASH_CODE_FIELD_ID = -1000_000L;
+    protected static final long DEFAULT_HASH_CODE_FIELD_ID = -1000_000L;
+    protected static final String HASH_CODE_FIELD_NAME = buildFieldId(DEFAULT_HASH_CODE_FIELD_ID);
 
     protected DestinationIntegrationDTO destinationIntegration;
     private List<DTODataSourceAttributeExtended> attributes;
@@ -50,13 +51,13 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
     public abstract List<CustomAttributeDefinition> syncCustomAttributesSchema(String listId);
 
-    protected abstract Set<String> retrieveCurrentEmails(String listId);
+    protected abstract Map<String, String> retrieveCurrentUsersAndHashes(String listId);
 
     protected String buildListName(Long destinationId) {
         return String.format(LIST_NAME_TEMPLATE, destinationId).toUpperCase().trim();
     }
 
-    protected String buildFieldId(Long id) {
+    protected static String buildFieldId(Long id) {
         return String.format("D-%s", id);
     }
 
@@ -99,7 +100,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
                         .sorted(Comparator.comparingInt(DTODataSourceAttributeExtended::getPosition)).collect(Collectors.toList()),
                 DTODataSourceAttributeExtended::getAttributeDataTag, dsa -> String.valueOf(dsa.getId()));
 
-        Set<String> currentSubscribers = retrieveCurrentEmails(listId);
+        Map<String, String> currentSubscribers = retrieveCurrentUsersAndHashes(listId);
         progressData.setBeforeRowsCount(currentSubscribers.size());
 
         List<S> subscribers = new ArrayList<>();
@@ -107,26 +108,35 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
         data.forEach(record -> {
             S subscriber = generateSubscriberData(attributes, record, attributesToBackfill);
             if (subscriber == null) {
-                progressData.incrementExcludersCounter();
+                progressData.incrementExcludedCounter();
             } else {
 
-                subscribers.add(subscriber);
 
-                if (currentSubscribers.remove(subscriber.getEmailAddress())) {
-                    progressData.incrementUpdatesCounter();
+                Optional<String> existingHashOptional = Optional.ofNullable(currentSubscribers.remove(subscriber.getEmailAddress()));
+
+                if (existingHashOptional.isPresent()) {
+                    String hash = existingHashOptional.get();
+                    if (subscriber.getHashCode().equals(hash)) {
+                        progressData.incrementNotChangedCounter();
+                    } else {
+                        subscribers.add(subscriber);
+                        progressData.incrementUpdatesCounter();
+                    }
                 } else {
                     progressData.incrementCreatesCounter();
+                    subscribers.add(subscriber);
                 }
-//                todo not changed count
             }
 
             if (subscribers.size() > DEFAULT_BATCH_SIZE) {
+                log.info("Sending next subscribers batch - {} subscribers", DEFAULT_BATCH_SIZE);
                 sendSubscribers(listId, subscribers);
                 subscribers.clear();
             }
         });
 
         if (subscribers.size() > 0) {
+            log.info("Sending last subscribers batch - {} subscribers", subscribers.size());
             sendSubscribers(listId, subscribers);
             subscribers.clear();
         }
@@ -135,7 +145,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
         progressData.setDeleted(currentSubscribers.size());
 
-        removeSubscribers(listId, currentSubscribers);
+        removeSubscribers(listId, currentSubscribers.keySet());
 
 //      todo newsfeed card?
         log.info("Successfully finished data sync for the integration - result {}", progressData);
