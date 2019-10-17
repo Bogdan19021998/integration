@@ -11,12 +11,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import static ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder.formatCustomFieldName;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
 public class Subscriber extends AbstractSubscriber {
+    public static final String DISTIL_HASH_FIELD = formatCustomFieldName(HASH_CODE_FRIENDLY_NAME.replaceAll(" ", ""));
+
     private String emailAddress;
     private String name;
     private List<CustomField> customFields;
@@ -31,7 +35,7 @@ public class Subscriber extends AbstractSubscriber {
     @Override
     public void setHashCode(String field, String hashCode) {
         this.hashCode = hashCode;
-        this.customFields.add(new CustomField(field, hashCode));
+        this.customFields.add(new CustomField(DISTIL_HASH_FIELD, hashCode));
     }
 
     @Override

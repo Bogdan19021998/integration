@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Component
 public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDefinition> {
-    private static final String CUSTOM_FIELDS_KEY = "CustomFields";
+    public static final String CUSTOM_FIELDS_KEY = "CustomFields";
     private static final String KEY_FIELD = "Key";
     private static final String VALUE_FIELD = "Value";
 
@@ -108,5 +108,9 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
         return Collections.singletonList(
                 buildSimpleField(null, field.getKey(), field.getFieldName(), defineType(field.getDataType()))
         );
+    }
+
+    public static String formatCustomFieldName(String fieldName) {
+        return String.format("[%s]", fieldName);
     }
 }

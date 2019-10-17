@@ -13,15 +13,25 @@ import ai.distil.integration.job.sync.http.campmon.vo.SubscribersPage;
 import ai.distil.integration.service.RestService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder.CUSTOM_FIELDS_KEY;
 
 public class CampaignMonitorWithCustomFieldsHttpConnection extends CampaignMonitorHttpConnection {
 
+    public static final String DEFAULT_KEY_FIELD = "Key";
+    public static final String DEFAULT_VALUE_FIELD = "Value";
     private List<String> fields;
+    private List<String> mergeFields;
 
-    public CampaignMonitorWithCustomFieldsHttpConnection(DTOConnection dtoConnection, RestService restService, CampaignMonitorFieldsHolder fieldsHolder, List<String> fields) {
+    public CampaignMonitorWithCustomFieldsHttpConnection(DTOConnection dtoConnection, RestService restService, CampaignMonitorFieldsHolder fieldsHolder, List<String> fields, List<String> mergeFields) {
         super(dtoConnection, restService, fieldsHolder);
         this.fields = fields;
+        this.mergeFields = mergeFields;
     }
 
     @Override
@@ -31,7 +41,23 @@ public class CampaignMonitorWithCustomFieldsHttpConnection extends CampaignMonit
 
         List<DatasetRow> rows = subscribers.getResults()
                 .stream()
-                .map(row -> new DatasetRow(fields.stream().map(field -> new DatasetValue(row.get(field), field)).collect(Collectors.toList())))
+                .map(row -> {
+
+                    List<DatasetValue> resultFields = Stream.concat(
+                            fields.stream().map(field -> new DatasetValue(row.get(field), field)),
+                            mergeFields.stream().map(field -> Optional.ofNullable(row.get(CUSTOM_FIELDS_KEY)).map(customFields -> {
+                                List<Map<String, Object>> fields = (List<Map<String, Object>>) customFields;
+
+                                return fields.stream().filter(customField -> field.equals(customField.get(DEFAULT_KEY_FIELD)))
+                                        .findFirst()
+                                        .map(fieldValue -> new DatasetValue(fieldValue.get(DEFAULT_VALUE_FIELD), field))
+                                        .orElse(null);
+
+                            }).orElse(null))).filter(Objects::nonNull).collect(Collectors.toList());
+
+                    return resultFields.size() == 0 ? null : new DatasetRow(resultFields);
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return new DatasetPage(rows, null);
