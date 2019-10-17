@@ -15,6 +15,10 @@ public class HashHelper {
         into.putLong(value.getValue().hashCode());
     };
 
+    public static final Funnel<String> STRING_FUNNEL = (Funnel<String>) (value, into) -> {
+        into.putString(value, Charsets.UTF_8);
+    };
+
     public static final String md5Hash(String value) {
         try {
             return DatatypeConverter.printHexBinary(

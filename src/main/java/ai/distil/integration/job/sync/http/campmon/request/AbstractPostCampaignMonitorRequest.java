@@ -37,6 +37,9 @@ public abstract class AbstractPostCampaignMonitorRequest<T, B> extends AbstractC
             case "210":
                 log.warn("Can't ingest customers data - failure details: {}", response.getResponseBody());
                 return;
+            case "500":
+//                todo throw appropriate exception
+//                Details - CampaignMonitorPostError(code=500, message=Sorry, we've run into a problem. Please try again or contact support)
             default:
                 throw new RuntimeException(String.format("Unexpected error happen, can't proceed with it. Details - %s", error));
         }
