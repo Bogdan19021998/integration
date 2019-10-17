@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class SyncProgressTrackingData {
     private long currentTrackingTime;
-    private long processed;
+    protected long processed;
     private long created;
     private long updated;
     private long deleted;

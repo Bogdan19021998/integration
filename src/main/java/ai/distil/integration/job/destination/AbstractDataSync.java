@@ -5,6 +5,7 @@ import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
+import ai.distil.integration.job.sync.progress.SyncDestinationProgressData;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.CustomerRecord;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
@@ -28,6 +29,8 @@ import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 @AllArgsConstructor
 public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
     private static final Integer DEFAULT_BATCH_SIZE = 100;
+
+    private static final String CUSTOM_HASH_FIELD_NAME = "";
 
     private static final String LIST_NAME_TEMPLATE = "DISTIL-%s";
 
@@ -80,8 +83,9 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
 
 
     public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
+        SyncDestinationProgressData progressData = new SyncDestinationProgressData();
 
-//        sort attributes first
+//        sort attributes first, it's required for current products logic
         attributes.sort(Comparator.comparing(cad -> Optional.ofNullable(cad).map(CustomAttributeDefinition::getPosition).orElse(-1)));
 
         Map<DataSourceSchemaAttributeTag, Set<String>> attributesToBackfill = ListUtils.groupByToLinkedSet(this.attributes.stream()
@@ -90,14 +94,25 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
                 DTODataSourceAttributeExtended::getAttributeDataTag, dsa -> String.valueOf(dsa.getId()));
 
         Set<String> currentSubscribers = retrieveCurrentEmails(listId);
+        progressData.setBeforeRowsCount(currentSubscribers.size());
 
         List<S> subscribers = new ArrayList<>();
 
         data.forEach(record -> {
-            Optional.ofNullable(generateSubscriberData(attributes, record, attributesToBackfill)).ifPresent(subscriber -> {
+            S subscriber = generateSubscriberData(attributes, record, attributesToBackfill);
+            if(subscriber == null) {
+                progressData.incrementExcludersCounter();
+            } else {
+
                 subscribers.add(subscriber);
-                currentSubscribers.remove(this.getEmailAddress(subscriber));
-            });
+
+                if(currentSubscribers.remove(this.getEmailAddress(subscriber))) {
+                    progressData.incrementUpdatesCounter();
+                } else {
+                    progressData.incrementCreatesCounter();
+                }
+//                todo not changed count
+            }
 
             if (subscribers.size() > DEFAULT_BATCH_SIZE) {
                 sendSubscribers(listId, subscribers);
@@ -110,9 +125,14 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S> {
             subscribers.clear();
         }
 
-        log.info("Subscribers to delete -> {}", currentSubscribers);
+        log.info("Subscribers to delete -> {}", currentSubscribers.size());
+
+        progressData.setDeleted(currentSubscribers.size());
 
         removeSubscribers(listId, currentSubscribers);
+
+//      todo newsfeed card?
+        log.info("Successfully finished data sync for the integration - result {}", progressData);
 
     }
 
