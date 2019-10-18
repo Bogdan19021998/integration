@@ -2,6 +2,7 @@ package ai.distil.integration.service.sync;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.AbstractConnection;
@@ -47,12 +48,12 @@ public class ConnectionFactory {
     }
 
 
-    public AbstractDataSync buildDataSync(DTOConnection connection, DestinationIntegrationDTO integration, SyncSettings settings, List<DTODataSourceAttributeExtended> attributes) {
+    public AbstractDataSync buildDataSync(DestinationDTO destination, DTOConnection connection, DestinationIntegrationDTO integration, SyncSettings settings, List<DTODataSourceAttributeExtended> attributes) {
         switch (connection.getConnectionType()) {
             case CAMPAIGN_MONITOR:
-                return new CampaignMonitorDataSync(integration, attributes, settings, connection, restService);
+                return new CampaignMonitorDataSync(destination, integration, attributes, settings, connection, restService);
             case MAILCHIMP:
-                return new MailChimpDataSync(integration, attributes, settings, connection, restService);
+                return new MailChimpDataSync(destination, integration, attributes, settings, connection, restService);
             default:
                 throw new UnsupportedOperationException();
         }

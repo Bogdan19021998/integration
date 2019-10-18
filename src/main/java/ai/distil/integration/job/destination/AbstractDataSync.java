@@ -1,6 +1,7 @@
 package ai.distil.integration.job.destination;
 
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.sync.AbstractSubscriber;
@@ -39,6 +40,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
     protected static final long DEFAULT_HASH_CODE_FIELD_ID = -1000_000L;
     protected static final String HASH_CODE_FIELD_NAME = buildFieldId(DEFAULT_HASH_CODE_FIELD_ID);
 
+    protected DestinationDTO destination;
     protected DestinationIntegrationDTO destinationIntegration;
     private List<DTODataSourceAttributeExtended> attributes;
     protected SyncSettings syncSettings;
@@ -53,8 +55,8 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
     protected abstract Map<String, String> retrieveCurrentUsersAndHashes(String listId);
 
-    protected String buildListName(Long destinationId) {
-        return String.format(LIST_NAME_TEMPLATE, destinationId).toUpperCase().trim();
+    protected String buildListName(String destinationTitle) {
+        return String.format(LIST_NAME_TEMPLATE, destinationTitle).toUpperCase().trim();
     }
 
     protected static String buildFieldId(Long id) {

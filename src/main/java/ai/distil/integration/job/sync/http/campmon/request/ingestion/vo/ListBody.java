@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
-public class CreateListBody {
+public class ListBody {
 
     private String title;
     private String unsubscribeSetting;

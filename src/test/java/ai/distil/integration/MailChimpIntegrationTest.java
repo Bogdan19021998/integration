@@ -2,6 +2,7 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.proxy.ConnectionProxy;
@@ -241,7 +242,7 @@ public class MailChimpIntegrationTest {
 
     @Test
     public void testSimpleIngestion() throws Exception {
-        AbstractDataSync dataSync = connectionFactory.buildDataSync(defaultConnection(), defaultDestination(), new SyncSettings(5), Collections.emptyList());
+        AbstractDataSync dataSync = connectionFactory.buildDataSync(new DestinationDTO(), defaultConnection(), defaultDestination(), new SyncSettings(5), Collections.emptyList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
 

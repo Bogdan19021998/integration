@@ -3,14 +3,15 @@ package ai.distil.integration.job.sync.http.campmon.request.ingestion;
 import ai.distil.integration.job.sync.http.campmon.request.AbstractPostCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.ListBody;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.http.HttpMethod;
 
-public class CreateListCampaignMonitorRequest extends AbstractPostCampaignMonitorRequest<String, ListBody> {
+public class UpdateListCampaignMonitorRequest extends AbstractPostCampaignMonitorRequest<String, ListBody> {
 
-    private String clientId;
+    private String listId;
 
-    public CreateListCampaignMonitorRequest(String clientId, String apiKey, ListBody body) {
+    public UpdateListCampaignMonitorRequest(String listId, String apiKey, ListBody body) {
         super(apiKey, body);
-        this.clientId = clientId;
+        this.listId = listId;
     }
 
     @Override
@@ -20,6 +21,12 @@ public class CreateListCampaignMonitorRequest extends AbstractPostCampaignMonito
 
     @Override
     public String urlPart() {
-        return String.format("/lists/%s.json", this.clientId);
+        return String.format("/lists/%s.json", this.listId);
+    }
+
+
+    @Override
+    public HttpMethod httpMethod() {
+        return HttpMethod.PUT;
     }
 }

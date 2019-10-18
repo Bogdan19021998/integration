@@ -62,8 +62,7 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
 
         Integer recommendationsCount = destination instanceof HyperPersonalizedDestinationDTO ? Optional.ofNullable((HyperPersonalizedDestinationDTO) destination)
                 .map(HyperPersonalizedDestinationDTO::getNumberRecommendations)
-                .orElse(DEFAULT_PRODUCTS_SIZE) :
-                DEFAULT_PRODUCTS_SIZE;
+                .orElse(DEFAULT_PRODUCTS_SIZE) : DEFAULT_PRODUCTS_SIZE;
 
         log.info("Defined recommendations count per sync: {}, for the integration - {}", recommendationsCount, integration.getId());
 
@@ -71,9 +70,16 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
 
         log.info("Ready to sync {} attributes for the integration - {}", attributes.size(), integration.getId());
 
-        AbstractDataSync dataSyncService = connectionFactory.buildDataSync(connection, integration, new SyncSettings(recommendationsCount), attributes);
+        AbstractDataSync dataSyncService = connectionFactory.buildDataSync(destination, connection, integration, new SyncSettings(recommendationsCount), attributes);
 
-        String listId = dataSyncService.createListIfNotExists();
+        String listId = Optional.ofNullable(dataSyncService.createListIfNotExists())
+                .orElseThrow(() -> new RuntimeException("Can't create list for the integration"));
+
+        if (integration.getListId() == null) {
+            integration.setListId(listId);
+            destinationSourceProxy.updateDestinationIntegrationPrivate(request.getTenantId(), integration);
+        }
+
         List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);
 
         List<CustomerRecord> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId()).getBody();

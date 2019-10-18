@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.AbstractDataSync;
@@ -13,8 +14,9 @@ import ai.distil.integration.job.sync.http.campmon.request.DeleteSubscriberCampa
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateCustomFieldCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.CreateListCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.ImportSubscribersCampaignMonitorRequest;
+import ai.distil.integration.job.sync.http.campmon.request.ingestion.UpdateListCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateCustomFieldBody;
-import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateListBody;
+import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.ListBody;
 import ai.distil.integration.job.sync.http.campmon.vo.*;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
@@ -38,9 +40,9 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
 
     private static final String EMAIL_ADDRESS_FIELD = "EmailAddress";
 
-    public CampaignMonitorDataSync(DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
+    public CampaignMonitorDataSync(DestinationDTO destination, DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
                                    DTOConnection connection, RestService restService) {
-        super(destinationIntegration, attributes, syncSettings, null);
+        super(destination, destinationIntegration, attributes, syncSettings, null);
         this.httpConnection = new CampaignMonitorWithCustomFieldsHttpConnection(connection, restService, null,
                 Lists.newArrayList(EMAIL_ADDRESS_FIELD),
                 Lists.newArrayList(DISTIL_HASH_FIELD));
@@ -57,18 +59,29 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
         }
 
         Client client = clients.get(0);
+        String listName = buildListName(this.destination.getTitle());
 
-        String listName = buildListName(this.destinationIntegration.getId());
-        CreateListBody createListBody = new CreateListBody(listName, DEFAULT_UNSUBSCRIBE_SETTINGS, false);
-        CreateListCampaignMonitorRequest request = new CreateListCampaignMonitorRequest(client.getClientId(), this.httpConnection.getConnectionSettings().getApiKey(), createListBody);
+        return Optional.ofNullable(this.destinationIntegration.getListId()).map(listId -> {
 
-        return Optional.ofNullable(ConcurrentUtils.wait(this.httpConnection.requestLists(client))
-                .flatMap(links -> links.stream().filter(link -> listName.equalsIgnoreCase(link.getName())).findFirst())
-                .map(Link::getListId)
-                .orElseGet(() -> this.httpConnection.getRestService().execute(this.httpConnection.getBaseUrl(), request, JsonDataConverter.getInstance())))
-                .orElseThrow(() -> new RuntimeException(String.format("Can't find appropriate list id for list name - %s", listName)));
+            Link existingLink = ConcurrentUtils.wait(this.httpConnection.requestLists(client))
+                    .flatMap(links -> links.stream().filter(link -> listId.equalsIgnoreCase(link.getListId())).findFirst())
+                    .orElseThrow(() -> new RuntimeException(String.format("Campaign monitor list has been removed - %s", listId)));
 
+            if (!listName.equalsIgnoreCase(existingLink.getName())) {
+                existingLink.setName(listName);
+                ListBody listBody = new ListBody(listName, DEFAULT_UNSUBSCRIBE_SETTINGS, true);
+                UpdateListCampaignMonitorRequest updateRequest = new UpdateListCampaignMonitorRequest(listId, this.httpConnection.getApiKey(), listBody);
 
+                this.httpConnection.executeRequest(updateRequest);
+            }
+            return listId;
+
+        }).orElseGet(() -> {
+            ListBody createListBody = new ListBody(listName, DEFAULT_UNSUBSCRIBE_SETTINGS, false);
+            CreateListCampaignMonitorRequest request = new CreateListCampaignMonitorRequest(client.getClientId(), this.httpConnection.getConnectionSettings().getApiKey(), createListBody);
+
+            return this.httpConnection.executeRequest(request);
+        });
     }
 
     @Override

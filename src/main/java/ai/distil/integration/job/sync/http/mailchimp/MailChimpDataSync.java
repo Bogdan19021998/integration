@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.http.mailchimp;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.AbstractDataSync;
@@ -11,10 +12,7 @@ import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFiel
 import ai.distil.integration.job.sync.http.mailchimp.vo.*;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
 import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
-import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateListMailChimpRequest;
-import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.CreateMergeFieldMailChimpRequest;
-import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.DeleteMemberMailChimpRequest;
-import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.UpsertMemberMailChimpRequest;
+import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.*;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
@@ -35,9 +33,9 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     private static final String DEFAULT_MEMBER_STATUS = "subscribed";
     private static final String EMAIL_ID_FIELD = "email_address";
 
-    public MailChimpDataSync(DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
+    public MailChimpDataSync(DestinationDTO destination, DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
                              DTOConnection connection, RestService restService) {
-        super(destinationIntegration, attributes, syncSettings, null);
+        super(destination, destinationIntegration, attributes, syncSettings, null);
 
         this.httpConnection = new MailChimpCustomFieldsHttpConnection(connection, restService, null,
                 Lists.newArrayList(EMAIL_ID_FIELD), Lists.newArrayList(String.valueOf(buildFieldId(DEFAULT_HASH_CODE_FIELD_ID))));
@@ -47,36 +45,29 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
 
     @Override
     public String createListIfNotExists() {
-
         AudiencesWrapper result = this.httpConnection.executeRequest(new MailChimpAudiencesRequest(this.httpConnection.getApiKey()));
-        Map<String, String> existingLists = ListUtils.groupByWithOverwrite(result.getList(), Audience::getName, Audience::getId);
-        String listName = buildListName(this.destinationIntegration.getId());
+        Map<String, String> existingLists = ListUtils.groupByWithOverwrite(result.getList(), Audience::getId, Audience::getName);
 
-        return Optional.ofNullable(existingLists.get(listName))
-                .orElseGet(() -> Optional.ofNullable(this.httpConnection.executeRequest(new CreateListMailChimpRequest(this.httpConnection.getApiKey(), new MailChimpList(listName,
-                        buildContactInfo(),
-                        "Permission Reminder",
-                        false,
-                        new CampaignDefaults("Distil", "test@distil.ai", "subject", "EN"),
-                        null,
-                        null,
-                        true,
-                        "pub",
-                        true,
-                        false
-                )))).map(Audience::getId).orElseThrow(() -> new RuntimeException(String.format("Can't create audience by name - {}", listName))));
+        String listName = buildListName(this.destination.getTitle());
+        String listId = this.destinationIntegration.getListId();
 
-    }
-
-    private Contact buildContactInfo() {
-//        todo add real info?
-        return new Contact("Distil", "address1", "address2", "city",
-                "state", "zip", "country", "123123123");
+        return Optional.ofNullable(listId).map(list -> Optional.ofNullable(existingLists.get(list)).map(existingListName -> {
+            if(!existingListName.equalsIgnoreCase(listName)) {
+                MailChimpList mailChimpList = buildDefaultMailChimpList(listName);
+                EditListMailChimpRequest request = new EditListMailChimpRequest(this.httpConnection.getApiKey(), mailChimpList, listId);
+                this.httpConnection.executeRequest(request);
+            }
+            return list;
+        }).orElseThrow(() -> new RuntimeException(String.format("Looks like mail chimp audience has been removed, id - %s", list)))).orElseGet(() -> {
+            MailChimpList list = buildDefaultMailChimpList(listName);
+            return Optional.ofNullable(this.httpConnection.executeRequest(new CreateListMailChimpRequest(this.httpConnection.getApiKey(), list)))
+                    .map(Audience::getId)
+                    .orElseThrow(() -> new RuntimeException(String.format("Can't create audience by name - {}", listName)));
+        });
     }
 
     @Override
     public List<CustomAttributeDefinition> syncCustomAttributesSchema(String listId) {
-
         Map<String, Object> response = this.httpConnection.executeRequest(new MailChimpMergeFieldsRequest(this.httpConnection.getApiKey(), listId));
 
 
@@ -122,15 +113,15 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
             String email = null;
             String hash = null;
 
-            for(DatasetValue value : row.getValues()) {
-                if(HASH_CODE_FIELD_NAME.equalsIgnoreCase(value.getAlias())) {
+            for (DatasetValue value : row.getValues()) {
+                if (HASH_CODE_FIELD_NAME.equalsIgnoreCase(value.getAlias())) {
                     hash = (String) value.getValue();
                 } else {
                     email = (String) value.getValue();
                 }
             }
 
-            if(email != null && hash != null) {
+            if (email != null && hash != null) {
                 existingEmails.put(email, hash);
             } else {
                 log.warn("Empty hash or email value for the subscriber -> row data {}", row);
@@ -169,6 +160,27 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
             DeleteMemberMailChimpRequest deleteRequest = new DeleteMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash);
             this.httpConnection.executeRequest(deleteRequest);
         });
+    }
+
+    private MailChimpList buildDefaultMailChimpList(String listName) {
+        return new MailChimpList(listName,
+                buildContactInfo(),
+                "Permission Reminder",
+                false,
+                new CampaignDefaults("Distil", "test@distil.ai", "subject", "EN"),
+                null,
+                null,
+                true,
+                "pub",
+                true,
+                false
+        );
+    }
+
+    private Contact buildContactInfo() {
+//        todo add real info?
+        return new Contact("Distil", "address1", "address2", "city",
+                "state", "zip", "country", "123123123");
     }
 
 }

@@ -2,6 +2,7 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.proxy.DataSourceProxy;
@@ -103,7 +104,7 @@ public class CampaignMonitorIntegrationTest {
     @Test
     public void createCampaignMonitor() {
         DTOConnection connectionDTO = defaultConnection();
-        AbstractDataSync dataSync = connectionFactory.buildDataSync(connectionDTO, defaultDestination(), new SyncSettings(5), Lists.newArrayList());
+        AbstractDataSync dataSync = connectionFactory.buildDataSync(new DestinationDTO(), connectionDTO, defaultDestination(), new SyncSettings(5), Lists.newArrayList());
         String listId = dataSync.createListIfNotExists();
         List<CustomAttributeDefinition> attributes = dataSync.syncCustomAttributesSchema(listId);
 
