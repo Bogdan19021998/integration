@@ -1,8 +1,10 @@
 package ai.distil.integration.job.sync.http.request;
 
+import ai.distil.integration.job.sync.http.IDataConverter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mysql.jdbc.StringUtils;
 import org.asynchttpclient.Param;
+import org.asynchttpclient.Response;
 import org.springframework.http.HttpMethod;
 
 import java.util.Collections;
@@ -29,7 +31,12 @@ public interface IHttpRequest<R> {
         return Collections.emptyList();
     }
 
-    default Object body() {
+//    may throw exception if it's critical error, default error handle just suppression
+    default void handleError(Response response, IDataConverter converter) {
+        return;
+    }
+
+    default Object getBody() {
         return null;
     }
 

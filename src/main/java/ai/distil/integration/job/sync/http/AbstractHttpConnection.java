@@ -5,13 +5,19 @@ import ai.distil.integration.controller.dto.data.DatasetPage;
 import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
+import ai.distil.integration.job.sync.http.request.IHttpRequest;
 import ai.distil.integration.job.sync.iterator.HttpPaginationRowIterator;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
+import ai.distil.model.org.ConnectionSettings;
+import lombok.Getter;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractHttpConnection extends AbstractConnection {
+    @Getter
     protected RestService restService;
     protected IFieldsHolder<?> fieldsHolder;
 
@@ -31,7 +37,23 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
 //        do nothing
     }
 
-//  for some sources, page numbers starting from 1, weird things happen
+    public <T> T executeRequest(IHttpRequest<T> r) {
+        return this.restService.execute(getBaseUrl(), r, JsonDataConverter.getInstance());
+    }
+
+    public <T> CompletableFuture<T> executeAsyncRequest(IHttpRequest<T> r) {
+        return this.restService.executeAsync(getBaseUrl(), r, JsonDataConverter.getInstance());
+    }
+
+    public String getApiKey() {
+        return Optional.ofNullable(this.getConnectionData())
+                .map(DTOConnection::getConnectionSettings)
+                .map(ConnectionSettings::getApiKey)
+                .orElse(null);
+    }
+
+
+    //  for some sources, page numbers starting from 1, weird things happen
     protected int getDefaultPageNumber() {
         return 0;
     }

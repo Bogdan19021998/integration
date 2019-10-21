@@ -3,7 +3,7 @@ package ai.distil.integration.service;
 import ai.distil.integration.constants.JobPriority;
 import ai.distil.integration.job.JobDefinitionEnum;
 import ai.distil.integration.job.sync.request.IJobRequest;
-import ai.distil.integration.service.sync.ConnectionRequestMapper;
+import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.integration.utils.JobUtils;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class JobScheduler {
     private SchedulerFactoryBean slowSchedulerFactoryBean;
 
     @Autowired
-    private ConnectionRequestMapper requestMapper;
+    private RequestMapper requestMapper;
 
     @PostConstruct
     public void init() throws SchedulerException {

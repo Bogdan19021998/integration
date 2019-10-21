@@ -1,5 +1,6 @@
 package ai.distil.integration.controller.proxy;
 
+import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
 import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
 import io.swagger.annotations.Api;
@@ -29,5 +30,9 @@ public interface SyncJobProxy {
     @ApiOperation(value = "Run now a new sync connection task")
     @PostMapping("/run_now/connection")
     void runSyncConnectionNow(@RequestBody @Valid ScheduleConnectionSyncRequest request);
+
+    @ApiOperation(value = "Run now a new destination sync task")
+    @PostMapping("/destination/run")
+    void runDestinationSyncNow(@RequestBody @Valid BaseDestinationIntegrationRequest request);
 
 }

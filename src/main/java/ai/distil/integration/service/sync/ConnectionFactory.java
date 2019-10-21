@@ -1,14 +1,21 @@
 package ai.distil.integration.service.sync;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
+import ai.distil.api.internal.model.dto.destination.DestinationDTO;
+import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
+import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.SshConnection;
+import ai.distil.integration.job.sync.http.campmon.CampaignMonitorDataSync;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection;
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
+import ai.distil.integration.job.sync.http.mailchimp.MailChimpDataSync;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
 import ai.distil.integration.job.sync.http.sf.SalesforceHttpConnection;
 import ai.distil.integration.job.sync.http.sf.holder.SalesforceFieldsHolder;
+import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.jdbc.MsSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
@@ -17,6 +24,8 @@ import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +47,17 @@ public class ConnectionFactory {
         return abstractConnection;
     }
 
+
+    public AbstractDataSync buildDataSync(DestinationDTO destination, DTOConnection connection, DestinationIntegrationDTO integration, SyncSettings settings, List<DTODataSourceAttributeExtended> attributes) {
+        switch (connection.getConnectionType()) {
+            case CAMPAIGN_MONITOR:
+                return new CampaignMonitorDataSync(destination, integration, attributes, settings, connection, restService);
+            case MAILCHIMP:
+                return new MailChimpDataSync(destination, integration, attributes, settings, connection, restService);
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
 
     private AbstractConnection buildSimpleConnection(DTOConnection connection) {
         switch (connection.getConnectionType()) {

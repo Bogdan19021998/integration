@@ -2,7 +2,9 @@ package ai.distil.integration.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -10,8 +12,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ConcurrentUtils {
 
-//    todo add retries
-    public static  <T> List<T> wait(List<CompletableFuture<T>> futures) {
+    //    todo add retries
+    public static <T> List<T> wait(List<CompletableFuture<T>> futures) {
         return futures.stream().map(f -> {
             try {
                 return f.get();
@@ -20,5 +22,9 @@ public class ConcurrentUtils {
             }
             return null;
         }).collect(Collectors.toList());
+    }
+
+    public static <T> Optional<T> wait(CompletableFuture<T> future) {
+        return ListUtils.first(wait(Collections.singletonList(future)));
     }
 }

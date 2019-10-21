@@ -4,6 +4,7 @@ import ai.distil.integration.constants.JobPriority;
 import ai.distil.integration.job.sync.request.IJobRequest;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
+import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -11,7 +12,10 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 @AllArgsConstructor
 public enum JobDefinitionEnum {
     SYNC_DATASOURCE("SYNC_DATASOURCE", true, JobPriority.LOW, "0 0 0 * * ?", SyncDataSourceJob.class, SyncDataSourceRequest.class),
-    SYNC_CONNECTION("SYNC_CONNECTION", true, JobPriority.HIGH, "0 0 0 * * ?", SyncConnectionJob.class, SyncConnectionRequest.class);
+    SYNC_CONNECTION("SYNC_CONNECTION", true, JobPriority.HIGH, "0 0 0 * * ?", SyncConnectionJob.class, SyncConnectionRequest.class),
+    SYNC_DESTINATION("SYNC_DESTINATION", true, JobPriority.HIGH, "0 0 0 * * ?", SyncDestinationIntegrationJob.class, SyncDestinationRequest.class),
+
+    ;
 
     private String name;
     @Getter

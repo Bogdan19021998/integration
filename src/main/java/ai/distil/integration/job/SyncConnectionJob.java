@@ -7,7 +7,7 @@ import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
-import ai.distil.integration.service.sync.ConnectionRequestMapper;
+import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
@@ -44,7 +44,7 @@ public class SyncConnectionJob extends QuartzJobBean {
     private DataSourceProxy dataSourceProxy;
 
     @Autowired
-    private ConnectionRequestMapper requestMapper;
+    private RequestMapper requestMapper;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {

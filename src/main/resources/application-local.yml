@@ -1,5 +1,5 @@
 spring.datasource:
-  url: jdbc:postgresql://localhost:5433/distil_dev?searchpath=integrations
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=integrations
   username: postgres
   password: 1qaz2wsXX
   driver-class-name: org.postgresql.Driver
@@ -7,16 +7,13 @@ spring.datasource:
 cassandra:
   servers:
     - localhost
-  keyspace: system
+  keyspace: distil
   accountKeyspaceReplicationOptions:
     class: SimpleStrategy
     replication_factor: 1
 
 ai:
   distil:
-    integrations:
-      app:
-        maxDataSourceSize: -1
     api:
       integrations:
         url: http://localhost:8087
