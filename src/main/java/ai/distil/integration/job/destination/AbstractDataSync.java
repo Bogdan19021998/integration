@@ -1,5 +1,6 @@
 package ai.distil.integration.job.destination;
 
+import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -45,6 +46,8 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
     private List<DTODataSourceAttributeExtended> attributes;
     protected SyncSettings syncSettings;
     protected C httpConnection;
+
+    public abstract DestinationIntegrationSettingsDTO findIntegrationSettings();
 
     /**
      * @return list id

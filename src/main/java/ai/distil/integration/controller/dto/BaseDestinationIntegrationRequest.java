@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleDestinationSyncRequest {
+public class BaseDestinationIntegrationRequest {
     @NotNull(message = "Org Id must be set")
     private Long orgId;
     @NotNull(message = "Tenant Id must be set")

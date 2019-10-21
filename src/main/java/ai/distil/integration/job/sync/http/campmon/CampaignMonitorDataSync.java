@@ -1,6 +1,7 @@
 package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -26,6 +27,7 @@ import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +52,12 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
 
 
     @Override
+    public DestinationIntegrationSettingsDTO findIntegrationSettings() {
+//        todo consider about it?
+        return null;
+    }
+
+    @Override
     public String createListIfNotExists() {
         List<Client> clients = this.httpConnection.requestAllClients().orElse(Collections.emptyList());
         clients.sort(Comparator.comparing(Client::getClientId));
@@ -60,8 +68,9 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
 
         Client client = clients.get(0);
         String listName = buildListName(this.destination.getTitle());
+        String listIdValue = StringUtils.isEmpty(this.destinationIntegration.getListId()) ? null : this.destinationIntegration.getListId();
 
-        return Optional.ofNullable(this.destinationIntegration.getListId()).map(listId -> {
+        return Optional.ofNullable(listIdValue).map(listId -> {
 
             Link existingLink = ConcurrentUtils.wait(this.httpConnection.requestLists(client))
                     .flatMap(links -> links.stream().filter(link -> listId.equalsIgnoreCase(link.getListId())).findFirst())

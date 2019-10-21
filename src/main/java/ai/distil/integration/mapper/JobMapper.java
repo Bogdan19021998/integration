@@ -2,7 +2,7 @@ package ai.distil.integration.mapper;
 
 import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
-import ai.distil.integration.controller.dto.ScheduleDestinationSyncRequest;
+import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
 import ai.distil.integration.domain.SyncProgressTrackingDataEntity;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
@@ -26,7 +26,7 @@ public interface JobMapper {
 
     SyncConnectionRequest mapSyncConnectionRequest(ScheduleConnectionSyncRequest request);
 
-    SyncDestinationRequest mapDestinationSyncRequest(ScheduleDestinationSyncRequest request);
+    SyncDestinationRequest mapDestinationSyncRequest(BaseDestinationIntegrationRequest request);
 
 }
 

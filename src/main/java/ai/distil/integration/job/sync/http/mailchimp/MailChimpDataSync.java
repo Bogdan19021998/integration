@@ -1,6 +1,7 @@
 package ai.distil.integration.job.sync.http.mailchimp;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -22,6 +23,7 @@ import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,15 +46,26 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
 
 
     @Override
+    public DestinationIntegrationSettingsDTO findIntegrationSettings() {
+        RetrieveAccountInfoMailChimpRequest request = new RetrieveAccountInfoMailChimpRequest(this.httpConnection.getApiKey());
+
+        return Optional.ofNullable(this.httpConnection.executeRequest(request))
+                .map(accountInfo -> {
+                    Integer fieldsCount = accountInfo.getProEnabled() ? 80 : 30;
+                    return new DestinationIntegrationSettingsDTO(fieldsCount, null, null);
+                }).orElse(null);
+    }
+
+    @Override
     public String createListIfNotExists() {
         AudiencesWrapper result = this.httpConnection.executeRequest(new MailChimpAudiencesRequest(this.httpConnection.getApiKey()));
         Map<String, String> existingLists = ListUtils.groupByWithOverwrite(result.getList(), Audience::getId, Audience::getName);
 
         String listName = buildListName(this.destination.getTitle());
-        String listId = this.destinationIntegration.getListId();
+        String listId = StringUtils.isEmpty(this.destinationIntegration.getListId()) ? null : this.destinationIntegration.getListId();
 
         return Optional.ofNullable(listId).map(list -> Optional.ofNullable(existingLists.get(list)).map(existingListName -> {
-            if(!existingListName.equalsIgnoreCase(listName)) {
+            if (!existingListName.equalsIgnoreCase(listName)) {
                 MailChimpList mailChimpList = buildDefaultMailChimpList(listName);
                 EditListMailChimpRequest request = new EditListMailChimpRequest(this.httpConnection.getApiKey(), mailChimpList, listId);
                 this.httpConnection.executeRequest(request);

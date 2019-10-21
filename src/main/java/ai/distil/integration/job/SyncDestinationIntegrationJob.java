@@ -1,17 +1,12 @@
 package ai.distil.integration.job;
 
-import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
-import ai.distil.api.internal.model.dto.destination.DestinationDTO;
+import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
-import ai.distil.api.internal.model.dto.destination.HyperPersonalizedDestinationDTO;
-import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
-import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
-import ai.distil.integration.service.sync.ConnectionFactory;
+import ai.distil.integration.service.DestinationIntegrationService;
 import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.model.org.CustomerRecord;
 import lombok.extern.slf4j.Slf4j;
@@ -32,19 +27,14 @@ import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
 @DisallowConcurrentExecution
 public class SyncDestinationIntegrationJob extends QuartzJobBean {
 
-    private static final Integer DEFAULT_PRODUCTS_SIZE = 5;
-
     @Autowired
     private RequestMapper requestMapper;
-
-    @Autowired
-    private ConnectionProxy connectionProxy;
 
     @Autowired
     private DestinationSourceProxy destinationSourceProxy;
 
     @Autowired
-    private ConnectionFactory connectionFactory;
+    private DestinationIntegrationService destinationIntegrationService;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -52,38 +42,26 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
                 JobDefinitionEnum.SYNC_DESTINATION.getJobRequestClazz());
 
         DestinationIntegrationDTO integration = destinationSourceProxy.findOneByIdPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-        log.info("Running sync process for the destination integration - {}", integration.getId());
 
-        DTOConnection connection = connectionProxy.findOnePrivate(request.getTenantId(), request.getOrgId(), integration.getConnectionId()).getBody();
+        AbstractDataSync dataSyncronizer = destinationIntegrationService.buildDataSync(request, integration);
 
-        log.info("Retrieved connection data for the integration - {}, connection type - {}", integration.getId(), connection.getConnectionType());
+        DestinationIntegrationSettingsDTO integrationSettings = dataSyncronizer.findIntegrationSettings();
 
-        DestinationDTO destination = destinationSourceProxy.findOneDestinationPrivate(request.getTenantId(), integration.getDestinationId()).getBody();
-
-        Integer recommendationsCount = destination instanceof HyperPersonalizedDestinationDTO ? Optional.ofNullable((HyperPersonalizedDestinationDTO) destination)
-                .map(HyperPersonalizedDestinationDTO::getNumberRecommendations)
-                .orElse(DEFAULT_PRODUCTS_SIZE) : DEFAULT_PRODUCTS_SIZE;
-
-        log.info("Defined recommendations count per sync: {}, for the integration - {}", recommendationsCount, integration.getId());
-
-        List<DTODataSourceAttributeExtended> attributes = destinationSourceProxy.retrieveDestinationAttributesPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-
-        log.info("Ready to sync {} attributes for the integration - {}", attributes.size(), integration.getId());
-
-        AbstractDataSync dataSyncService = connectionFactory.buildDataSync(destination, connection, integration, new SyncSettings(recommendationsCount), attributes);
-
-        String listId = Optional.ofNullable(dataSyncService.createListIfNotExists())
+        String listId = Optional.ofNullable(dataSyncronizer.createListIfNotExists())
                 .orElseThrow(() -> new RuntimeException("Can't create list for the integration"));
 
-        if (integration.getListId() == null) {
-            integration.setListId(listId);
-            destinationSourceProxy.updateDestinationIntegrationPrivate(request.getTenantId(), integration);
-        }
+        updateDestinationIntegrationData(request, integration, integrationSettings, listId);
 
-        List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);
+        List<CustomAttributeDefinition> createdAttributes = dataSyncronizer.syncCustomAttributesSchema(listId);
 
         List<CustomerRecord> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-        dataSyncService.ingestData(listId, createdAttributes, records);
+        dataSyncronizer.ingestData(listId, createdAttributes, records);
 
+    }
+
+    private void updateDestinationIntegrationData(SyncDestinationRequest request, DestinationIntegrationDTO integration, DestinationIntegrationSettingsDTO integrationSettings, String listId) {
+        integration.setListId(listId);
+        integration.setIntegrationSettings(integrationSettings);
+        destinationSourceProxy.updateDestinationIntegrationPrivate(request.getTenantId(), integration);
     }
 }
