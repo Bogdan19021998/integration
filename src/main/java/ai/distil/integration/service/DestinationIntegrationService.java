@@ -9,6 +9,7 @@ import ai.distil.api.internal.model.dto.destination.HyperPersonalizedDestination
 import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
 import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
+import ai.distil.integration.job.JobDefinitionEnum;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
@@ -30,7 +31,7 @@ public class DestinationIntegrationService {
     private final ConnectionFactory connectionFactory;
     private final ConnectionProxy connectionProxy;
     private final DestinationSourceProxy destinationSourceProxy;
-
+    private final JobScheduler jobScheduler;
 
     public AbstractDataSync buildDataSync(SyncDestinationRequest request, DestinationIntegrationDTO integration) {
         DTOConnection connection = connectionProxy.findOnePrivate(request.getTenantId(), request.getOrgId(), integration.getConnectionId()).getBody();
@@ -56,5 +57,15 @@ public class DestinationIntegrationService {
         AbstractDataSync dataSync = connectionFactory.buildDataSync(null, connection, integration, null, Collections.emptyList());
 
         return dataSync.findIntegrationSettings();
+    }
+
+    public Boolean deleteJob(BaseDestinationIntegrationRequest request) {
+
+        return jobScheduler.deleteJobs(JobDefinitionEnum.SYNC_DESTINATION,
+                Collections.singletonList(new SyncDestinationRequest(
+                        request.getOrgId(),
+                        request.getTenantId(),
+                        request.getIntegrationId())));
+
     }
 }

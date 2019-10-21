@@ -24,4 +24,10 @@ public class DestinationIntegrationController implements DestinationIntegrationP
     public ResponseEntity<DestinationIntegrationSettingsDTO> getDestinationIntegrationSettings(BaseDestinationIntegrationRequest request) {
         return ResponseEntity.ok(destinationIntegrationService.retrieveDestinationIntegrationSettings(request));
     }
+
+    @Override
+    public ResponseEntity<Boolean> deleteDestinationIntegration(BaseDestinationIntegrationRequest request) {
+        return ResponseEntity.ok(destinationIntegrationService.deleteJob(request));
+    }
+
 }
