@@ -69,7 +69,9 @@ public enum DatasetColumnType {
     }
 
     public static DatasetColumnType simplifyType(String type) {
-        switch (type.toLowerCase()) {
+        String normalizedType = type.toLowerCase().replaceAll("\\((.*)\\)", "").replaceAll("\"", "");
+
+        switch (normalizedType) {
             case "char":
             case "text":
             case "blob":
