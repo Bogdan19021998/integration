@@ -36,9 +36,9 @@ public class MySqlJdbcConnection extends JdbcConnection {
         ConnectionSettings connectionSettings = this.getConnectionSettings();
         String address = connectionSettings.getServerAddress();
         String port = connectionSettings.getPort();
-        String schema = connectionSettings.getSchema();
+        String dbName = connectionSettings.getDatabaseName();
 
-        return String.format("jdbc:%s://%s:%s/%s%s", getProtocol(), address, port, schema, getConnectionProperties());
+        return String.format("jdbc:%s://%s:%s/%s%s", getProtocol(), address, port, dbName, getConnectionProperties());
     }
 
     @Override
