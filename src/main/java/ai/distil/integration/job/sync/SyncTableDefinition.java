@@ -277,7 +277,7 @@ public enum SyncTableDefinition {
         //    it's must be in the separate class, otherwise we will have compilation error
         public static Map<DataSourceSchemaAttributeTag, FieldDefinition> ORDER_TAGS_DEFINITION = new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
             put(ORDER_EXTERNAL_ID, FieldDefinition.builder()
-                    .eligibleFieldNames(Sets.newHashSet("ID", "ORDERID"))
+                    .eligibleFieldNames(Sets.newHashSet("ID"))
                     .eligibleTypes(ID_TYPES)
                     .mandatory(true)
                     .primaryKey(true)
