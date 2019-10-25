@@ -17,7 +17,7 @@ public class MySqlJdbcConnection extends JdbcConnection {
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
         ConnectionSettings connectionSettings = this.getConnectionSettings();
-        return new DefineSchemaQueryDefinitionMySQL(connectionSettings.getSchema(), tableName);
+        return new DefineSchemaQueryDefinitionMySQL(connectionSettings.getDatabaseName(), tableName);
     }
 
     @Override
