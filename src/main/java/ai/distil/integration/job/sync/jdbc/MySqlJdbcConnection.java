@@ -22,7 +22,7 @@ public class MySqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String schema = this.getConnectionSettings().getSchema();
+        String schema = this.getConnectionSettings().getDatabaseName();
         return new AllTablesQueryDefinitionMySQL(schema);
     }
 
