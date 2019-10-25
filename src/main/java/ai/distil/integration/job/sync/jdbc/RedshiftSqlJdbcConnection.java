@@ -25,11 +25,11 @@ public class RedshiftSqlJdbcConnection extends PostgreSqlJdbcConnection {
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        return new AllTablesQueryDefinitionRedshiftSQL(getConnectionSettings().getSchema());
+        return new AllTablesQueryDefinitionRedshiftSQL(getDbName());
     }
 
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
-        return new DefineSchemaQueryDefinitionRedshiftSQL(getConnectionSettings().getSchema(), tableName);
+        return new DefineSchemaQueryDefinitionRedshiftSQL(getDbName(), tableName);
     }
 }

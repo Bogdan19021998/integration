@@ -159,7 +159,11 @@ public abstract class JdbcConnection extends AbstractConnection {
     protected abstract String getProtocol();
 
     protected AbstractQueryDefinition<Boolean> dataSourceExistingRequest(DataSourceDataHolder dataSource) {
-        return new SimpleCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
+        return new SimpleCheckDataSourceExistingQueryDefinition(getDbName(), dataSource.getDataSourceId());
+    }
+
+    protected String getDbName() {
+        return getConnectionData().getConnectionSettings().getDatabaseName();
     }
 
     public QueryWrapper query(String query) {
@@ -235,7 +239,7 @@ public abstract class JdbcConnection extends AbstractConnection {
 
         return String.format("SELECT %s FROM %s.%s %s",
                 fieldsList,
-                quoteString(getConnectionData().getConnectionSettings().getSchema()),
+                quoteString(getDbName()),
                 quoteString(dataSource.getDataSourceId()),
                 AppConfig.MAX_DATA_SOURCE_SIZE == null ? "" : String.format(" LIMIT %s", AppConfig.MAX_DATA_SOURCE_SIZE)
                 );

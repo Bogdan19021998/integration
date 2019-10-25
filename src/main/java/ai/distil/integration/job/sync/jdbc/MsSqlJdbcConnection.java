@@ -19,14 +19,12 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
-        ConnectionSettings connectionSettings = getConnectionSettings();
-        return new DefineSchemaQueryDefinitionMsSQL(connectionSettings.getSchema(), tableName);
+        return new DefineSchemaQueryDefinitionMsSQL(getDbName(), tableName);
     }
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String schema = getConnectionSettings().getSchema();
-        return new AllTablesQueryDefinitionMsSQL(schema);
+        return new AllTablesQueryDefinitionMsSQL(getDbName());
     }
 
     @Override
@@ -56,13 +54,17 @@ public class MsSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected String getTableName(String tableName) {
-        String schema = getConnectionSettings().getSchema();
-        return quoteString(schema + "." + tableName);
+        return quoteString(getDbName() + "." + tableName);
+    }
+
+    @Override
+    protected String getDbName() {
+        return getConnectionSettings().getSchema();
     }
 
     @Override
     protected AbstractQueryDefinition<Boolean> dataSourceExistingRequest(DataSourceDataHolder dataSource) {
-        return new MsSqlCheckDataSourceExistingQueryDefinition(getConnectionData().getConnectionSettings().getSchema(), dataSource.getDataSourceId());
+        return new MsSqlCheckDataSourceExistingQueryDefinition(getDbName(), dataSource.getDataSourceId());
     }
 
     @Override

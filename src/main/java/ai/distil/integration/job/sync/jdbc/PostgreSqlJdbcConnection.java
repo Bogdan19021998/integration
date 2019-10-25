@@ -22,8 +22,7 @@ public class PostgreSqlJdbcConnection extends JdbcConnection {
 
     @Override
     protected AbstractAllTablesQueryDefinition getAllTablesQuery() {
-        String schema = getConnectionSettings().getSchema();
-        return new AllTablesQueryDefinitionPostgreSQL(schema);
+        return new AllTablesQueryDefinitionPostgreSQL(getDbName());
     }
 
     @Override
@@ -39,6 +38,11 @@ public class PostgreSqlJdbcConnection extends JdbcConnection {
         String schema = connectionSettings.getSchema();
 
         return String.format("jdbc:%s://%s:%s/%s?currentSchema=%s", getProtocol(), address, port, connectionSettings.getDatabaseName(), schema);
+    }
+
+    @Override
+    protected String getDbName() {
+        return getConnectionSettings().getSchema();
     }
 
     @Override
