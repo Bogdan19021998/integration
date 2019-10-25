@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.http.HttpMethod;
 
 public class MailChimpAudiencesRequest extends AbstractMailChimpRequest<AudiencesWrapper> {
+    private static final Integer DEFAULT_LISTS_COUNT = 1000;
+
     public MailChimpAudiencesRequest(String apiKey) {
         super(apiKey);
     }
@@ -16,7 +18,7 @@ public class MailChimpAudiencesRequest extends AbstractMailChimpRequest<Audience
 
     @Override
     public String urlPart() {
-        return "/lists";
+        return "/lists?count=" + DEFAULT_LISTS_COUNT;
     }
 
     @Override
