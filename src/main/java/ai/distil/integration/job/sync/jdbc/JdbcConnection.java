@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.distil.integration.IntegrationApp.getOverrideArguments;
+
 @Slf4j
 public abstract class JdbcConnection extends AbstractConnection {
 
@@ -185,9 +187,19 @@ public abstract class JdbcConnection extends AbstractConnection {
             Connection connection = this.getConnection(false);
             result.setConnection(connection);
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+
             if(!withoutResult) {
-                statement.setFetchSize(DEFAULT_FETCH_SIZE);
+
+                if(getOverrideArguments().doStreamMySql())
+                {
+                    log.debug("Streaming the MySql connection row by row");
+                    statement.setFetchSize(Integer.MIN_VALUE);
+                }
+                else
+                {
+                    statement.setFetchSize(DEFAULT_FETCH_SIZE);
+                }
             }
 
             for (int i = 1; i <= params.size(); i++) {
