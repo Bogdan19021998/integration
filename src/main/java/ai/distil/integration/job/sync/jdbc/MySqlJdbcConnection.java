@@ -31,6 +31,12 @@ public class MySqlJdbcConnection extends JdbcConnection {
         return DbConnectionConfiguration.MY_SQL.getProtocol();
     }
 
+
+    @Override
+    protected Integer getDefaultFetchSize() {
+        return Integer.MIN_VALUE;
+    }
+
     @Override
     protected String getConnectionString() {
         ConnectionSettings connectionSettings = this.getConnectionSettings();

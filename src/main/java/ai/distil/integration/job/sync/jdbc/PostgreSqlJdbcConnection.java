@@ -41,6 +41,11 @@ public class PostgreSqlJdbcConnection extends JdbcConnection {
     }
 
     @Override
+    protected boolean isAutoCommit() {
+        return false;
+    }
+
+    @Override
     protected String getDbName() {
         return getConnectionSettings().getSchema();
     }
