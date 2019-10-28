@@ -186,7 +186,7 @@ public abstract class JdbcConnection extends AbstractConnection {
             Connection connection = this.getConnection(false);
             result.setConnection(connection);
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             if (!withoutResult) {
                 statement.setFetchSize(getDefaultFetchSize());
             }
