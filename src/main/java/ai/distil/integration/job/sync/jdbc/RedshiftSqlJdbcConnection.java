@@ -29,6 +29,11 @@ public class RedshiftSqlJdbcConnection extends PostgreSqlJdbcConnection {
     }
 
     @Override
+    protected boolean isAutoCommit() {
+        return true;
+    }
+
+    @Override
     protected AbstractDefineSchemaQueryDefinition getDefineSchemaQuery(String tableName) {
         return new DefineSchemaQueryDefinitionRedshiftSQL(getDbName(), tableName);
     }

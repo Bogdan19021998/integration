@@ -61,7 +61,8 @@ public abstract class JdbcConnection extends AbstractConnection {
                         .orElse(false))
                 .collect(Collectors.toList());
     }
-//    select top 0 * from distil_views.v_distil_customer_dss
+
+    //    select top 0 * from distil_views.v_distil_customer_dss
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
         AbstractQueryDefinition<Boolean> queryDef = dataSourceExistingRequest(dataSource);
@@ -185,9 +186,9 @@ public abstract class JdbcConnection extends AbstractConnection {
             Connection connection = this.getConnection(false);
             result.setConnection(connection);
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            if(!withoutResult) {
-                statement.setFetchSize(DEFAULT_FETCH_SIZE);
+            PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            if (!withoutResult) {
+                statement.setFetchSize(getDefaultFetchSize());
             }
 
             for (int i = 1; i <= params.size(); i++) {
@@ -205,6 +206,10 @@ public abstract class JdbcConnection extends AbstractConnection {
             throw new JDBCException("Can't execute query. ", e, query);
         }
         return result;
+    }
+
+    protected Integer getDefaultFetchSize() {
+        return DEFAULT_FETCH_SIZE;
     }
 
     protected abstract String getConnectionString();
@@ -228,6 +233,10 @@ public abstract class JdbcConnection extends AbstractConnection {
     //  quote symbol for special characters
     protected abstract String getQuoteSymbol();
 
+    protected boolean isAutoCommit() {
+        return true;
+    }
+
     protected String getTableName(String tableName) {
         return quoteString(tableName);
     }
@@ -242,15 +251,16 @@ public abstract class JdbcConnection extends AbstractConnection {
                 quoteString(getDbName()),
                 quoteString(dataSource.getDataSourceId()),
                 AppConfig.MAX_DATA_SOURCE_SIZE == null ? "" : String.format(" LIMIT %s", AppConfig.MAX_DATA_SOURCE_SIZE)
-                );
+        );
     }
 
-    private Connection getConnection(boolean close) {
+    protected Connection getConnection(boolean close) {
         Connection connection = null;
 
         try {
             Properties properties = getProperties();
             connection = DriverManager.getConnection(getConnectionString(), properties);
+            connection.setAutoCommit(isAutoCommit());
         } catch (SQLException e) {
             throw new JDBCConnectionException("Can't connect to datasource.", e);
         } finally {

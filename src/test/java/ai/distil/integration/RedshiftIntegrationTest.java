@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 // these tests will work, only if you run the ms sql locally and ingest sample data there, check test/resources/seeds/mssql_seeds.sql
 // run development/mssql/docker-compose.yml for set up the sqlserver
@@ -86,10 +87,18 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
         String tenantId = "25";
 
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
-            connection.getAllDataSources()
+            List<DTODataSource> allDataSources = connection.getEligibleDataSources();
+
+            boolean dataSourceEligible = connection.isDataSourceEligible(allDataSources.get(0));
+            System.out.println();
+            List<DataSourceDataHolder> dsHolders = connection.getAllDataSources()
                     .stream()
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
-                    .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
+                    .collect(Collectors.toList());
+
+//            SyncProgressTrackingData syncResult = dataSyncService.reSyncDataSource("crowdfund", dsHolders.get(0), connection);
+            System.out.println();
+//            .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
     }
 
@@ -98,8 +107,8 @@ public class RedshiftIntegrationTest extends AbstractIntegrationTest {
         connectionDTO.setConnectionType(ConnectionType.REDSHIFT);
 //        SELECT table_name, table_type  FROM information_schema.tables  WHERE table_schema = ?  ORDER BY table_schema, table_name
         connectionDTO.setConnectionSettings(new ConnectionSettings(
-                "ccdatawh",
-                "1qaz2wsXX",
+                "distil",
+                "c9cfMmBnp[r",
                 null,
                 null,
                 null,
