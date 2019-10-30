@@ -20,7 +20,7 @@ public class UtmData {
         this(Boolean.TRUE.equals(destination.getUtmSourceEnabled()) ? destination.getUtmSourceText() : null,
                 Boolean.TRUE.equals(destination.getUtmMediumEnabled()) ? destination.getUtmMediumText() : null,
                 Boolean.TRUE.equals(destination.getUtmCampaignEnabled()) ? destination.getUtmCampaignText() : null,
-                destination.getApiCode());
+                Boolean.TRUE.equals(destination.getAllowTrackingParameter()) ? destination.getApiCode() : null);
     }
 
     public UtmData(String utmSourceText, String utmMediumText, String utmCampaignText, String apiCode) {
