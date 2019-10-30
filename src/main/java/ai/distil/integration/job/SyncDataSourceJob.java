@@ -110,6 +110,15 @@ public class SyncDataSourceJob extends QuartzJobBean {
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
 
+        if(Boolean.FALSE.equals(connectionDto.getEnabled()) || Boolean.FALSE.equals(dataSourceDto.getSyncTurnedOn())) {
+            log.info("Synchronisation for datasource - {} disabled, connection - {}, datasource sync - {} ",
+                    dataSourceDto.getId(),
+                    connectionDto.getEnabled(),
+                    dataSourceDto.getSyncTurnedOn());
+
+            return;
+        }
+
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
 
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);
