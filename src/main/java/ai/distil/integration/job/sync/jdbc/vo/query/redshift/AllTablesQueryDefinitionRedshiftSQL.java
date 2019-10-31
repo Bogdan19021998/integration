@@ -16,12 +16,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class AllTablesQueryDefinitionRedshiftSQL extends AbstractAllTablesQueryDefinition {
 
-    public static final String DEFAULT_SQL_QUERY =
-            " SELECT DISTINCT tablename " +
-                    " FROM PG_TABLE_DEF " +
-                    " WHERE schemaname = ?" +
-                    " AND UPPER(tablename) LIKE '%DISTIL%'" +
-                    " ORDER BY tablename ";
+    public static final String DEFAULT_SQL_QUERY = "SELECT table_name, table_type " +
+        " FROM information_schema.tables " +
+        " WHERE table_schema = ? " +
+        " AND UPPER(table_name) like '%DISTIL%'" +
+        " ORDER BY table_schema, table_name";
 
     private String schema;
 
