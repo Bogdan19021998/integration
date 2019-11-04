@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.distil.integration.IntegrationApp.getOverrideArguments;
+
 @Slf4j
 public abstract class JdbcConnection extends AbstractConnection {
 
@@ -61,8 +63,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                         .orElse(false))
                 .collect(Collectors.toList());
     }
-
-    //    select top 0 * from distil_views.v_distil_customer_dss
+//    select top 0 * from distil_views.v_distil_customer_dss
     @Override
     public boolean dataSourceExist(DataSourceDataHolder dataSource) {
         AbstractQueryDefinition<Boolean> queryDef = dataSourceExistingRequest(dataSource);
@@ -186,8 +187,9 @@ public abstract class JdbcConnection extends AbstractConnection {
             Connection connection = this.getConnection(false);
             result.setConnection(connection);
 
-            PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            if (!withoutResult) {
+            PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+
+            if(!withoutResult) {
                 statement.setFetchSize(getDefaultFetchSize());
             }
 
