@@ -27,3 +27,10 @@ ai:
 
 server:
   port: 8889
+
+
+ai.distil.datapipeline: '{
+  cmo: "http://localhost:8090",
+  crowdfund: "http://localhost:8091",
+  crowdcube: "http://localhost:8092"
+}'

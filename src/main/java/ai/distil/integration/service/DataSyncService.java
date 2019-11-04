@@ -16,7 +16,6 @@ import ai.distil.integration.job.sync.progress.ProgressAggregator;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
-import ai.distil.integration.utils.DateUtils;
 import ai.distil.model.org.DataSourceHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

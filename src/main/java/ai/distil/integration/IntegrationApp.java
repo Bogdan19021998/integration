@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
 @EnableConfigurationProperties
-@EnableFeignClients(basePackages = {"ai.distil.api.internal.proxy"})
-@SpringBootApplication(scanBasePackages = {"ai.distil.integration"}, exclude = SecurityAutoConfiguration.class)
+@EnableFeignClients(basePackages = {"ai.distil.api.internal.proxy", "ai.distil.processing.datapipeline.controller.proxy"})
+@SpringBootApplication(scanBasePackages = {"ai.distil.integration", "ai.distil.processing.datapipeline.controller.proxy"}, exclude = SecurityAutoConfiguration.class)
 public class IntegrationApp {
     public static void main(String[] args) {
         SpringApplication.run(IntegrationApp.class, args);

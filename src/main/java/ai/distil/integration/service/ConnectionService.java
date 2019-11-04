@@ -64,7 +64,7 @@ public class ConnectionService {
         }
     }
 
-    public Boolean isConnectionDisabled(String tenantId, Long orgId, Long connectionId) {
+    public boolean isConnectionDisabled(String tenantId, Long orgId, Long connectionId) {
         return !RestUtils.getBody(connectionProxy.findOnePrivate(tenantId, orgId, connectionId))
                 .map(DTOConnection::getEnabled)
                 .orElse(false);
