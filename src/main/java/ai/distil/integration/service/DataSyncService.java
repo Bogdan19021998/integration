@@ -163,7 +163,7 @@ public class DataSyncService {
         DataSourceHistory dataSourceHistory = new DataSourceHistory(
                 null,
                 dataSourceId,
-                DateUtils.toSqlDate(trackingData.getStartedDate()),
+                trackingData.getStartedDate(),
                 trackingData.getCreated(),
                 trackingData.getUpdated(),
                 trackingData.getDeleted(),

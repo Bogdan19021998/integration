@@ -15,11 +15,12 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class DefineSchemaQueryDefinitionRedshiftSQL extends AbstractDefineSchemaQueryDefinition {
-    private static final String DEFAULT_SQL_QUERY = "SELECT\n" +
-            "       \"column\",\n" +
-            "       type\n" +
-            "FROM PG_TABLE_DEF\n" +
-            "where schemaname = ? and tablename = ?";
+    private static final String DEFAULT_SQL_QUERY = "SELECT ordinal_position, " +
+        "column_name, " +
+        "data_type " +
+        "FROM INFORMATION_SCHEMA.COLUMNS " +
+        "WHERE table_schema = ? " +
+        "AND table_name = ? ";
     private String schema;
     private String tableName;
 
@@ -35,11 +36,12 @@ public class DefineSchemaQueryDefinitionRedshiftSQL extends AbstractDefineSchema
 
     @Override
     public ColumnDefinition mapResultSet(ResultSet resultSet) throws SQLException {
-        String fieldName = resultSet.getString(1);
+        int position = resultSet.getInt(1);
+        String tableName = resultSet.getString(2);
 
-        return new ColumnDefinition(null,
-                fieldName,
-                DatasetColumnType.simplifyType(resultSet.getString(2)).mapToAttributeType()
+        return new ColumnDefinition(position,
+            tableName,
+            DatasetColumnType.simplifyType(resultSet.getString(3)).mapToAttributeType()
         );
     }
 

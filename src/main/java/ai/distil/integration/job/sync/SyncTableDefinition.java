@@ -271,7 +271,7 @@ public enum SyncTableDefinition {
         private static final Set<CassandraDataSourceAttributeType> ID_TYPES = Sets.newHashSet(DECIMAL, BIGINT, INTEGER, LONG, UUID, STRING, TEXT);
         private static final Set<CassandraDataSourceAttributeType> STRING_TYPES = Sets.newHashSet(STRING, TEXT);
         private static final Set<CassandraDataSourceAttributeType> NUMBER_TYPES = Sets.newHashSet(BIGINT, INTEGER, LONG, DOUBLE, FLOAT);
-        private static final Set<CassandraDataSourceAttributeType> BOOLEAN_TYPES = Sets.newHashSet(BOOLEAN);
+        private static final Set<CassandraDataSourceAttributeType> BOOLEAN_TYPES = Sets.newHashSet(BOOLEAN, INTEGER);
         private static final Set<CassandraDataSourceAttributeType> DATE_TYPES = Sets.newHashSet(DATE, TIMESTAMP);
 
         //    it's must be in the separate class, otherwise we will have compilation error

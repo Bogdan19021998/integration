@@ -17,7 +17,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class AllTablesQueryDefinitionMySQL extends AbstractAllTablesQueryDefinition {
 
-    public static final String DEFAULT_SQL_QUERY = "SELECT table_name, table_type, table_comment FROM information_schema.tables WHERE table_schema = ?";
+    public static final String DEFAULT_SQL_QUERY = "SELECT table_name, table_type, table_comment "
+        + " FROM information_schema.tables "
+        + " WHERE table_schema = ?"
+        + " AND UPPER(table_name) like '%DISTIL%'";
+
     private String schema;
 
     @Override

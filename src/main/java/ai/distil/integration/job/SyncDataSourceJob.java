@@ -110,6 +110,18 @@ public class SyncDataSourceJob extends QuartzJobBean {
         DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
         DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
 
+        //The dataSourceDto.getSyncTurnedOn() property can be NULL - After the initial Connection creation in order to prevent datasources from being
+        //synced by default.  It is not set to false by default, as we want a way to tell if it is being enabled for the first time (i.e. from null to true)
+        //to set off an immediate sync at that point.
+        if(Boolean.FALSE.equals(connectionDto.getEnabled()) || dataSourceDto.getSyncTurnedOn() == null || Boolean.FALSE.equals(dataSourceDto.getSyncTurnedOn())) {
+            log.info("Synchronisation for datasource - {} disabled, connection - {}, datasource sync - {} ",
+                    dataSourceDto.getId(),
+                    connectionDto.getEnabled(),
+                    dataSourceDto.getSyncTurnedOn());
+
+            return;
+        }
+
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDto)) {
 
             DataSourceDataHolder dataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(dataSourceDto);

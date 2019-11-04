@@ -44,10 +44,6 @@ public abstract class AbstractConnection implements AutoCloseable {
 
     public abstract List<DTODataSource> getAllDataSources();
 
-    protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
-        return dataSources;
-    }
-
     public boolean isDataSourceEligible(DTODataSource dataSource) {
         return this.filterEligibleDataSource(Collections.singletonList(dataSource)).size() == 1;
     }
@@ -57,6 +53,8 @@ public abstract class AbstractConnection implements AutoCloseable {
     }
 
     public abstract DTODataSource getDataSource(SimpleDataSourceDefinition sourceDefinition);
+
+    protected abstract List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources);
 
     public abstract IRowIterator getIterator(DataSourceDataHolder dataSources);
 

@@ -24,10 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -95,7 +92,7 @@ public class PostgreSqlSyncTest extends AbstractSyncTest {
         String initSql = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("seeds/postgresql_seeds.sql"));
 
         Stream.of(initSql.split(";")).forEach(q -> {
-            try (final Connection conn = DriverManager.getConnection(defaultUrl); Statement statement = conn.createStatement()) {
+            try (final Connection conn = DriverManager.getConnection(defaultUrl); Statement statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
                 statement.execute(q);
             } catch (SQLException e) {
                 throw new RuntimeException(e);

@@ -191,14 +191,12 @@ public abstract class JdbcConnection extends AbstractConnection {
 
             if(!withoutResult) {
 
-                if(getOverrideArguments().doStreamMySql())
-                {
+                if(getOverrideArguments().doStreamMySql()) {
                     log.debug("Streaming the MySql connection row by row");
                     statement.setFetchSize(Integer.MIN_VALUE);
                 }
-                else
-                {
-                    statement.setFetchSize(DEFAULT_FETCH_SIZE);
+                else {
+                    statement.setFetchSize(getDefaultFetchSize());
                 }
             }
 
@@ -217,6 +215,10 @@ public abstract class JdbcConnection extends AbstractConnection {
             throw new JDBCException("Can't execute query. ", e, query);
         }
         return result;
+    }
+
+    protected Integer getDefaultFetchSize() {
+        return DEFAULT_FETCH_SIZE;
     }
 
     protected abstract String getConnectionString();
@@ -240,6 +242,10 @@ public abstract class JdbcConnection extends AbstractConnection {
     //  quote symbol for special characters
     protected abstract String getQuoteSymbol();
 
+    protected boolean isAutoCommit() {
+        return true;
+    }
+
     protected String getTableName(String tableName) {
         return quoteString(tableName);
     }
@@ -254,15 +260,16 @@ public abstract class JdbcConnection extends AbstractConnection {
                 quoteString(getDbName()),
                 quoteString(dataSource.getDataSourceId()),
                 AppConfig.MAX_DATA_SOURCE_SIZE == null ? "" : String.format(" LIMIT %s", AppConfig.MAX_DATA_SOURCE_SIZE)
-                );
+        );
     }
 
-    private Connection getConnection(boolean close) {
+    protected Connection getConnection(boolean close) {
         Connection connection = null;
 
         try {
             Properties properties = getProperties();
             connection = DriverManager.getConnection(getConnectionString(), properties);
+            connection.setAutoCommit(isAutoCommit());
         } catch (SQLException e) {
             throw new JDBCConnectionException("Can't connect to datasource.", e);
         } finally {
