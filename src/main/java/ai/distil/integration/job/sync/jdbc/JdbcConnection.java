@@ -190,14 +190,7 @@ public abstract class JdbcConnection extends AbstractConnection {
             PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
 
             if(!withoutResult) {
-
-                if(getOverrideArguments().doStreamMySql()) {
-                    log.debug("Streaming the MySql connection row by row");
-                    statement.setFetchSize(Integer.MIN_VALUE);
-                }
-                else {
-                    statement.setFetchSize(getDefaultFetchSize());
-                }
+                statement.setFetchSize(getDefaultFetchSize());
             }
 
             for (int i = 1; i <= params.size(); i++) {
