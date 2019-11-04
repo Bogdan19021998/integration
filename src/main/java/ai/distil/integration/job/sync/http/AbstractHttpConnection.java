@@ -1,6 +1,7 @@
 package ai.distil.integration.job.sync.http;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
+import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.integration.controller.dto.data.DatasetPage;
 import ai.distil.integration.controller.dto.data.DatasetPageRequest;
 import ai.distil.integration.job.sync.AbstractConnection;
@@ -12,6 +13,7 @@ import ai.distil.integration.service.RestService;
 import ai.distil.model.org.ConnectionSettings;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +27,11 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
         super(dtoConnection);
         this.restService = restService;
         this.fieldsHolder = fieldsHolder;
+    }
+
+    @Override
+    protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
+        return dataSources;
     }
 
     @Override

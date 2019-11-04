@@ -45,6 +45,11 @@ public class SshConnection extends AbstractConnection {
     }
 
     @Override
+    protected List<DTODataSource> filterEligibleDataSource(List<DTODataSource> dataSources) {
+        return connection.filterEligibleDataSource(dataSources);
+    }
+
+    @Override
     public boolean isAvailable() {
         return connection.isAvailable();
     }
