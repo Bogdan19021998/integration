@@ -7,6 +7,7 @@ import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
+import ai.distil.integration.service.DataPipelineService;
 import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.model.types.ConnectionSchemaSyncStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,10 @@ public class SyncConnectionJob extends QuartzJobBean {
     @Autowired
     private RequestMapper requestMapper;
 
+    @Autowired
+    private DataPipelineService dataPipelineService;
+
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         SyncConnectionRequest request = (SyncConnectionRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
@@ -69,7 +74,10 @@ public class SyncConnectionJob extends QuartzJobBean {
         boolean hasError = allDataSources.stream().map(dataSource -> {
             try {
                 MDC.put(DATASOURCE_ID, String.valueOf(dataSource.getId()));
-                syncDataSourceJob.execute(new SyncDataSourceRequest(request.getOrgId(), request.getTenantId(), request.getConnectionId(), dataSource.getId()));
+                SyncDataSourceRequest syncDsRequest = new SyncDataSourceRequest(request.getOrgId(), request.getTenantId(),
+                        request.getConnectionId(), dataSource.getId());
+
+                syncDataSourceJob.execute(syncDsRequest, true);
                 return false;
             } catch (Exception e) {
                 log.error("Can't sync datasource {}", dataSource.getId(), e);
@@ -80,6 +88,8 @@ public class SyncConnectionJob extends QuartzJobBean {
         ConnectionSchemaSyncStatus syncResult = hasError ? ConnectionSchemaSyncStatus.LAST_SYNC_FAILED : ConnectionSchemaSyncStatus.SYNCED;
 
         log.info("Finished syncing {} data sources with a status {}", allDataSources.size(), syncResult);
+
+        dataPipelineService.resetDataPipelineForOrg(request.getTenantId());
 
         updateConnectionData(request, syncResult);
 

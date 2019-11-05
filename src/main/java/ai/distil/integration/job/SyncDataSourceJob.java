@@ -15,6 +15,7 @@ import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
+import ai.distil.integration.service.DataPipelineService;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.RequestMapper;
@@ -68,6 +69,8 @@ public class SyncDataSourceJob extends QuartzJobBean {
     @Autowired
     private RequestMapper requestMapper;
 
+    @Autowired
+    private DataPipelineService dataPipelineService;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
@@ -86,7 +89,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
         updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNC_IN_PROGRESS);
 
         try {
-            execute(request);
+            execute(request, false);
             updateConnectionStatus(request, ConnectionSchemaSyncStatus.SYNCED);
         } catch (Exception e) {
             log.error("Can't execute datasource - {} sync ", request.getDataSourceId(), e);
@@ -97,7 +100,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
         }
     }
 
-    public void execute(SyncDataSourceRequest request) {
+    /**
+     * connectionSync - means that this task triggered from the connection sync one
+     * */
+    public void execute(SyncDataSourceRequest request, boolean connectionSync) {
 
         ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getTenantId(), request.getOrgId(),
                 request.getConnectionId(),
@@ -136,6 +142,11 @@ public class SyncDataSourceJob extends QuartzJobBean {
 
                 List<DTODataSourceAttribute> attributes = this.updateDataSourceAttributesDataAfterSync(updatedSchema.getSourceAttributes(), syncResult);
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, attributes));
+
+//                lastDataSourceSyncStatus - is null means that it first time run
+                if(!connectionSync && dataSourceDto.getLastDataSourceSyncStatus() == null) {
+                    dataPipelineService.resetDataPipelineForOrg(request.getTenantId());
+                }
 
             } else {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));

@@ -45,3 +45,10 @@ ai.distil.integrations.connections:
   redshift:
     protocol: redshift
     props: ""
+
+
+ai.distil.datapipeline: '{
+  cmo: "http://localhost:8090",
+  crowdfunder: "http://localhost:8091",
+  crowdcube: "http://localhost:8092"
+}'

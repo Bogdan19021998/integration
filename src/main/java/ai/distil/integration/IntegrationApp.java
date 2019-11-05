@@ -9,11 +9,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+@Slf4j
 @EnableJpaAuditing
 @EnableConfigurationProperties
-@EnableFeignClients(basePackages = {"ai.distil.api.internal.proxy"})
-@SpringBootApplication(scanBasePackages = {"ai.distil.integration"}, exclude = SecurityAutoConfiguration.class)
-@Slf4j
+@EnableFeignClients(basePackages = {"ai.distil.api.internal.proxy", "ai.distil.processing.datapipeline.controller.proxy"})
+@SpringBootApplication(scanBasePackages = {"ai.distil.integration", "ai.distil.processing.datapipeline.controller.proxy"}, exclude = SecurityAutoConfiguration.class)
 public class IntegrationApp {
 
     private static OverrideArguments overrideArguments;
