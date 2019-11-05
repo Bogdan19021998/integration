@@ -144,6 +144,7 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                 0,
                 allAttributes,
                 generateTableName(link.getListId()),
+                null,
                 null
         );
     }
