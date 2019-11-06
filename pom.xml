@@ -338,13 +338,11 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -367,53 +365,23 @@
                 </configuration>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>com.gkatzioura.maven.cloud</groupId>
-                <artifactId>azure-storage-wagon</artifactId>
-                <version>2.0</version>
-            </extension>
-        </extensions>
     </build>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>http://central.maven.org/maven2</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <repositories>
         <repository>
-            <id>redshift</id>
-            <url>http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release</url>
-        </repository>
-
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>distil-maven-snapshot</id>
-            <url>bs://distilmaven.blob.core.windows.net/snapshot</url>
-        </repository>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <id>distil-maven-release</id>
-            <url>bs://distilmaven.blob.core.windows.net/release</url>
+            <id>maven-group</id>
+            <url>http://40.127.201.110:8181/repository/distil-repos/</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>distil-maven-snapshot</id>
-            <url>bs://distilmaven.blob.core.windows.net/snapshot</url>
+            <id>distil-snapshot</id>
+            <url>http://40.127.201.110:8181/repository/distil-snapshot/</url>
         </snapshotRepository>
         <repository>
-            <id>distil-maven-release</id>
-            <url>bs://distilmaven.blob.core.windows.net/release</url>
+            <id>distil-release</id>
+            <url>http://40.127.201.110:8181/repository/distil-release/</url>
         </repository>
     </distributionManagement>
 
