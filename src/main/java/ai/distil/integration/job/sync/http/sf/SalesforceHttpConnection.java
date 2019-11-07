@@ -116,6 +116,7 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
                 dataSource.getDataSourceId(),
                 null,
                 dataSource.getDataSourceId(),
+                generateTableName(dataSource.getDataSourceId()),
                 null,
                 null,
                 null,
@@ -125,7 +126,6 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
                 this.fieldsHolder.getAllFields(listFields.getFields()).stream()
                         .map(this::buildDTODataSourceAttribute)
                         .collect(Collectors.toList()),
-                generateTableName(dataSource.getDataSourceId()),
                 null,
                 null
         );

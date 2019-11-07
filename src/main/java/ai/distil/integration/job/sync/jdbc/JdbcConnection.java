@@ -29,8 +29,6 @@ import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ai.distil.integration.IntegrationApp.getOverrideArguments;
-
 @Slf4j
 public abstract class JdbcConnection extends AbstractConnection {
 
@@ -115,6 +113,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                 sourceTableName,
                 tableDefinition.getDescription(),
                 sourceTableName,
+                generateTableName(sourceTableName),
                 syncSchedule,
                 new Date(),
                 null,
@@ -122,7 +121,6 @@ public abstract class JdbcConnection extends AbstractConnection {
                 null,
                 null,
                 columns,
-                generateTableName(sourceTableName),
                 null,
                 null
         );

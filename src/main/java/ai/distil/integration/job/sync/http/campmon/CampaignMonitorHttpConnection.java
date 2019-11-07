@@ -136,6 +136,7 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                 link.getName(),
                 null,
                 link.getListId(),
+                generateTableName(link.getListId()),
                 syncSchedule,
                 null,
                 null,
@@ -143,7 +144,6 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                 0,
                 0,
                 allAttributes,
-                generateTableName(link.getListId()),
                 null,
                 null
         );
