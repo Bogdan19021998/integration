@@ -49,6 +49,6 @@ ai.distil.integrations.connections:
 
 ai.distil.datapipeline: '{
   cmo: "http://localhost:8090",
-  crowdfund: "http://localhost:8091",
+  crowdfunder: "http://localhost:8091",
   crowdcube: "http://localhost:8092"
 }'

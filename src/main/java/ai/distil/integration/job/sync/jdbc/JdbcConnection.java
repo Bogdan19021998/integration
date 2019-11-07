@@ -123,6 +123,7 @@ public abstract class JdbcConnection extends AbstractConnection {
                 null,
                 columns,
                 generateTableName(sourceTableName),
+                null,
                 null
         );
     }
