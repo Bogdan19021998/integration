@@ -108,6 +108,7 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 audience.getName(),
                 null,
                 audience.getId(),
+                buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null,
                 null,
                 null,
@@ -116,7 +117,6 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 null,
                 null,
                 allAttributes,
-                buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null,
                 null
         );
