@@ -4,16 +4,26 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
 
- <servers>
+    <servers>
         <server>
-            <id>distil-maven-snapshot</id>
-            <username>distilmaven</username>
-            <password>5R4xNxW2MT3AFEUJw+FKyR6WYEz2XAXz54yva6lYBE3+P0rRyQXAZE5zVPq7k5C6vRZWNz8W+ySQEau4jOMMBQ==</password>
+            <id>distil-snapshot</id>
+            <username>distil-publisher</username>
+            <password>ZUU9L3!p@N</password>
         </server>
         <server>
-            <id>distil-maven-release</id>
-            <username>distilmaven</username>
-            <password>5R4xNxW2MT3AFEUJw+FKyR6WYEz2XAXz54yva6lYBE3+P0rRyQXAZE5zVPq7k5C6vRZWNz8W+ySQEau4jOMMBQ==</password>
+            <id>distil-release</id>
+            <username>distil-publisher</username>
+            <password>ZUU9L3!p@N</password>
         </server>
-</servers>
+    </servers>
+
+    <mirrors>
+        <mirror>
+            <id>central</id>
+            <name>central</name>
+            <url>http://40.127.201.110:8181/repository/distil-repos/</url>
+            <mirrorOf>*</mirrorOf>
+        </mirror>
+    </mirrors>
+
 </settings>
