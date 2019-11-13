@@ -1,7 +1,8 @@
 package ai.distil.integration.job;
 
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
+import ai.distil.api.internal.controller.dto.UpdateConnectionDataRequest;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
+import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
@@ -9,6 +10,7 @@ import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import ai.distil.integration.service.DestinationIntegrationService;
 import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.model.org.CustomerRecord;
+import ai.distil.model.org.destination.IntegrationSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -34,6 +36,9 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
     private DestinationSourceProxy destinationSourceProxy;
 
     @Autowired
+    private ConnectionProxy connectionProxy;
+
+    @Autowired
     private DestinationIntegrationService destinationIntegrationService;
 
     @Override
@@ -43,25 +48,33 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
 
         DestinationIntegrationDTO integration = destinationSourceProxy.findOneByIdPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
 
-        AbstractDataSync dataSyncronizer = destinationIntegrationService.buildDataSync(request, integration);
+        AbstractDataSync dataSyncService = destinationIntegrationService.buildDataSync(request, integration);
 
-        DestinationIntegrationSettingsDTO integrationSettings = dataSyncronizer.findIntegrationSettings();
+        IntegrationSettings integrationSettings = dataSyncService.findIntegrationSettings();
 
-        String listId = Optional.ofNullable(dataSyncronizer.createListIfNotExists())
+        if (dataSyncService.getAttributes().size() > Optional.ofNullable(integrationSettings.getCustomFieldsLimit()).orElse(Integer.MAX_VALUE)) {
+            log.error("{}: Can't run ingestion for the datasource because number of custom attributes exceeded", request.getKey());
+            return;
+        }
+
+        String listId = Optional.ofNullable(dataSyncService.createListIfNotExists())
                 .orElseThrow(() -> new RuntimeException("Can't create list for the integration"));
 
-        updateDestinationIntegrationData(request, integration, integrationSettings, listId);
+        updateIntegrationData(request, integration, integrationSettings, listId);
 
-        List<CustomAttributeDefinition> createdAttributes = dataSyncronizer.syncCustomAttributesSchema(listId);
+        List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);
 
         List<CustomerRecord> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-        dataSyncronizer.ingestData(listId, createdAttributes, records);
+        dataSyncService.ingestData(listId, createdAttributes, records);
 
     }
 
-    private void updateDestinationIntegrationData(SyncDestinationRequest request, DestinationIntegrationDTO integration, DestinationIntegrationSettingsDTO integrationSettings, String listId) {
+    private void updateIntegrationData(SyncDestinationRequest request, DestinationIntegrationDTO integration, IntegrationSettings integrationSettings, String listId) {
         integration.setListId(listId);
-        integration.setIntegrationSettings(integrationSettings);
         destinationSourceProxy.updateDestinationIntegrationPrivate(request.getTenantId(), integration);
+
+        UpdateConnectionDataRequest updateConnection = new UpdateConnectionDataRequest(null, integrationSettings);
+        connectionProxy.updateConnectionData(request.getTenantId(), integration.getConnectionId(), updateConnection);
+
     }
 }

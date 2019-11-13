@@ -1,6 +1,5 @@
 package ai.distil.integration.job.destination;
 
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -13,6 +12,7 @@ import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.progress.SyncDestinationProgressData;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.CustomerRecord;
+import ai.distil.model.org.destination.IntegrationSettings;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import ai.distil.model.types.DataSourceType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -47,6 +48,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
     protected DestinationDTO destination;
     protected DestinationIntegrationDTO destinationIntegration;
+    @Getter
     private List<DTODataSourceAttributeExtended> attributes;
     protected SyncSettings syncSettings;
     protected C httpConnection;
@@ -68,7 +70,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
         this.utmData = buildUtmData(destination);
     }
 
-    public abstract DestinationIntegrationSettingsDTO findIntegrationSettings();
+    public abstract IntegrationSettings findIntegrationSettings();
 
     /**
      * @return list id
@@ -136,7 +138,6 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
             if (subscriber == null) {
                 progressData.incrementExcludedCounter();
             } else {
-
 
                 Optional<String> existingHashOptional = Optional.ofNullable(currentSubscribers.remove(subscriber.getEmailAddress()));
 

@@ -1,9 +1,10 @@
 package ai.distil.integration.controller;
 
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
+import ai.distil.integration.controller.dto.BaseConnectionIntegrationRequest;
 import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
 import ai.distil.integration.controller.proxy.DestinationIntegrationProxy;
 import ai.distil.integration.service.DestinationIntegrationService;
+import ai.distil.model.org.destination.IntegrationSettings;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class DestinationIntegrationController implements DestinationIntegrationP
     private final DestinationIntegrationService destinationIntegrationService;
 
     @Override
-    public ResponseEntity<DestinationIntegrationSettingsDTO> getDestinationIntegrationSettings(BaseDestinationIntegrationRequest request) {
+    public ResponseEntity<IntegrationSettings> getDestinationIntegrationSettings(BaseConnectionIntegrationRequest request) {
         return ResponseEntity.ok(destinationIntegrationService.retrieveDestinationIntegrationSettings(request));
     }
 

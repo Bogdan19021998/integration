@@ -1,19 +1,20 @@
 package ai.distil.integration.service;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.model.dto.destination.HyperPersonalizedDestinationDTO;
 import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
+import ai.distil.integration.controller.dto.BaseConnectionIntegrationRequest;
 import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
 import ai.distil.integration.job.JobDefinitionEnum;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import ai.distil.integration.service.sync.ConnectionFactory;
+import ai.distil.model.org.destination.IntegrationSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,13 +49,10 @@ public class DestinationIntegrationService {
 
     }
 
-    public DestinationIntegrationSettingsDTO retrieveDestinationIntegrationSettings(BaseDestinationIntegrationRequest request) {
-        DestinationIntegrationDTO integration = destinationSourceProxy.findOneByIdPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-        log.info("Running sync process for the destination integration - {}", integration.getId());
+    public IntegrationSettings retrieveDestinationIntegrationSettings(BaseConnectionIntegrationRequest request) {
+        DTOConnection connection = connectionProxy.findOnePrivate(request.getTenantId(), request.getOrgId(), request.getConnectionId()).getBody();
 
-        DTOConnection connection = connectionProxy.findOnePrivate(request.getTenantId(), request.getOrgId(), integration.getConnectionId()).getBody();
-
-        AbstractDataSync dataSync = connectionFactory.buildDataSync(null, connection, integration, null, Collections.emptyList());
+        AbstractDataSync dataSync = connectionFactory.buildDataSync(null, connection, null, null, Collections.emptyList());
 
         return dataSync.findIntegrationSettings();
     }

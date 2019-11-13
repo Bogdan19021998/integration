@@ -1,7 +1,6 @@
 package ai.distil.integration.job.sync.http.campmon;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -24,6 +23,7 @@ import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.utils.ListUtils;
+import ai.distil.model.org.destination.IntegrationSettings;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -52,9 +52,9 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
 
 
     @Override
-    public DestinationIntegrationSettingsDTO findIntegrationSettings() {
-//        todo consider about it?
-        return null;
+    public IntegrationSettings findIntegrationSettings() {
+//      https://help.campaignmonitor.com/subscriber-custom-fields
+        return new IntegrationSettings(50, null, null);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
         List<Client> clients = this.httpConnection.requestAllClients().orElse(Collections.emptyList());
         clients.sort(Comparator.comparing(Client::getClientId));
 
-        if (clients.size() == 0) {
+        if (clients.isEmpty()) {
             throw new RuntimeException("There is no client to save data to.");
         }
 

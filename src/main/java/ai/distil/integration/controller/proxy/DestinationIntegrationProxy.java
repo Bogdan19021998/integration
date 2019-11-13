@@ -1,7 +1,8 @@
 package ai.distil.integration.controller.proxy;
 
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
+import ai.distil.integration.controller.dto.BaseConnectionIntegrationRequest;
 import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
+import ai.distil.model.org.destination.IntegrationSettings;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(value = "DestinationIntegrationClient", url = "${ai.distil.api.integrations.url}", path = "/destination")
 public interface DestinationIntegrationProxy {
 
-    @ApiOperation(value = "Retrieve destination integration settings", response = DestinationIntegrationSettingsDTO.class)
+    @ApiOperation(value = "Retrieve destination integration settings", response = IntegrationSettings.class)
     @PostMapping("/settings")
-    ResponseEntity<DestinationIntegrationSettingsDTO> getDestinationIntegrationSettings(@RequestBody BaseDestinationIntegrationRequest request);
+    ResponseEntity<IntegrationSettings> getDestinationIntegrationSettings(@RequestBody BaseConnectionIntegrationRequest request);
 
     @ApiOperation(value = "Delete destination integration job")
     @DeleteMapping("/job")
