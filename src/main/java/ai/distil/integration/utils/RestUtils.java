@@ -18,4 +18,19 @@ public class RestUtils {
         }
         return Optional.empty();
     }
+
+    public static <T> Optional<T> getBodyOrNullIfError(ResponseEntity<T> r) {
+        if (r == null) {
+            return Optional.empty();
+        }
+
+        if (r.getStatusCode().is2xxSuccessful()) {
+            return Optional.ofNullable(r.getBody());
+        } else if (r.getStatusCode().is4xxClientError()) {
+            return Optional.empty();
+        } else {
+            throw new IllegalStateException(String.format("Undefined result status: Code - %s, Message - %s", r.getStatusCode(), r.getBody()));
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataPipelineService;
 import ai.distil.integration.service.DataSyncService;
+import ai.distil.integration.service.JobScheduler;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.sync.RequestMapper;
 import ai.distil.integration.utils.ListUtils;
@@ -30,10 +31,10 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,6 +73,10 @@ public class SyncDataSourceJob extends QuartzJobBean {
     @Autowired
     private DataPipelineService dataPipelineService;
 
+    @Autowired
+    private JobScheduler jobScheduler;
+
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
@@ -105,16 +110,15 @@ public class SyncDataSourceJob extends QuartzJobBean {
      * */
     public void execute(SyncDataSourceRequest request, boolean connectionSync) {
 
-        ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getTenantId(), request.getOrgId(),
-                request.getConnectionId(),
-                request.getDataSourceId());
+        Optional<DataSourceWithConnectionResponse> dsAndConnection = connectionService.findDataSourceAndConnection(request);
 
-        if (dataSourceResponse.getStatusCode().isError() || dataSourceResponse.getBody() == null) {
-            throw new IllegalArgumentException("There is no data source by this data or some internal error");
+        if(!dsAndConnection.isPresent()) {
+            jobScheduler.deleteJobs(JobDefinitionEnum.SYNC_DATASOURCE, Collections.singleton(request));
+            return;
         }
 
-        DTOConnection connectionDto = dataSourceResponse.getBody().getConnection();
-        DTODataSource dataSourceDto = dataSourceResponse.getBody().getDataSource();
+        DTOConnection connectionDto = dsAndConnection.map(DataSourceWithConnectionResponse::getConnection).orElse(null);
+        DTODataSource dataSourceDto = dsAndConnection.map(DataSourceWithConnectionResponse::getDataSource).orElse(null);
 
         //The dataSourceDto.getSyncTurnedOn() property can be NULL - After the initial Connection creation in order to prevent datasources from being
         //synced by default.  It is not set to false by default, as we want a way to tell if it is being enabled for the first time (i.e. from null to true)
