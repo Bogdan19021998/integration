@@ -15,6 +15,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -136,9 +137,9 @@ public class JobScheduler {
         }
     }
 
-    public boolean deleteJobs(JobDefinitionEnum jobDefinitionEnum, List<? extends IJobRequest> jobRequests) {
+    public boolean deleteJobs(JobDefinitionEnum jobDefinitionEnum, Collection<? extends IJobRequest> jobRequests) {
         List<JobKey> jobsToDelete = jobRequests.stream()
-                .map(v -> new JobKey(v.getKey(), jobDefinitionEnum.getGroup()))
+                .map(v -> new JobKey(jobDefinitionEnum.getJobKey(v), jobDefinitionEnum.getGroup()))
                 .collect(Collectors.toList());
 
         try {

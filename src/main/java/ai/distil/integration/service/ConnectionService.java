@@ -1,5 +1,6 @@
 package ai.distil.integration.service;
 
+import ai.distil.api.internal.controller.dto.DataSourceWithConnectionResponse;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.proxy.ConnectionProxy;
@@ -14,10 +15,12 @@ import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.utils.RestUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -62,6 +65,21 @@ public class ConnectionService {
             log.error("Can't define data sources", e);
             return null;
         }
+    }
+
+    public Optional<DataSourceWithConnectionResponse> findDataSourceAndConnection(SyncDataSourceRequest request) {
+        ResponseEntity<DataSourceWithConnectionResponse> dataSourceResponse = connectionProxy.findOneDataSourcePrivate(request.getTenantId(), request.getOrgId(),
+                request.getConnectionId(),
+                request.getDataSourceId());
+
+        return RestUtils.getBodyOrNullIfError(dataSourceResponse);
+    }
+
+    /**
+     * empty optional means that it's missing
+     * */
+    public Optional<DTOConnection> findConnection(String tenantId, Long orgId, Long connectionId) {
+        return RestUtils.getBodyOrNullIfError(connectionProxy.findOnePrivate(tenantId, orgId, connectionId));
     }
 
     public boolean isConnectionDisabled(String tenantId, Long orgId, Long connectionId) {
