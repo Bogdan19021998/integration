@@ -7,6 +7,7 @@ import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,6 +85,7 @@ public class DataSourceDataHolder {
     private DTODataSourceAttribute definePrimaryKey(List<DTODataSourceAttribute> attributes) {
         return attributes.stream()
                 .filter(attribute -> this.syncTableDefinition.isPrimaryKey(attribute.getAttributeDataTag()))
+                .sorted(Comparator.comparingInt(value -> this.syncTableDefinition.getPrimaryKeyPriority(value.getAttributeSourceName(), value.getAttributeDataTag())))
                 .findFirst()
                 .orElse(null);
     }

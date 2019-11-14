@@ -35,7 +35,7 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     }};
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING_FOR_NAMES = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
-        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, Sets.newHashSet("EMAILADDRESS"));
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAILADDRESS"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE, Sets.newHashSet("POSTCODE", "ZIP"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FNAME", "FIRSTNAME", "GIVENNAME"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_LAST_NAME, Sets.newHashSet("LNAME", "LASTNAME", "SURNAME"));
