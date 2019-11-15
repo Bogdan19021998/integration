@@ -9,6 +9,7 @@ import lombok.Getter;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataSourceDataHolder {
@@ -61,8 +62,8 @@ public class DataSourceDataHolder {
                 .orElseThrow(() -> new RuntimeException(String.format("Unable to recognize datasource type - %s", dataSourceType)));
 
         //Inferred
-        this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(this.allAttributes);
         this.primaryKey = definePrimaryKey(this.allAttributes);
+        this.attributesWithoutPrimaryKey = defineAttributesWithoutPrimaryKey(this.allAttributes);
     }
 
     public static DataSourceDataHolder mapFromDTODataSourceEntity(DTODataSource dataSource) {
@@ -75,10 +76,12 @@ public class DataSourceDataHolder {
     }
 
     private List<DTODataSourceAttribute> defineAttributesWithoutPrimaryKey(List<DTODataSourceAttribute> attributes) {
+        String attrDistilName = Optional.ofNullable(this.primaryKey).map(DTODataSourceAttribute::getAttributeDistilName).orElse(null);
+
         return ImmutableList.copyOf(attributes
                 .stream()
                 .filter(DTODataSourceAttribute::getVerifiedStillPresent)
-                .filter(attribute -> !this.syncTableDefinition.isPrimaryKey(attribute.getAttributeDataTag()))
+                .filter(attribute -> !attribute.getAttributeDistilName().equalsIgnoreCase(attrDistilName))
                 .collect(Collectors.toList()));
     }
 

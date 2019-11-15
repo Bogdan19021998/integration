@@ -23,6 +23,9 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     public static final String CUSTOM_FIELDS_KEY = "CustomFields";
     private static final String KEY_FIELD = "Key";
     private static final String VALUE_FIELD = "Value";
+    public static final String EMAIL_ADDRESS_FIELD = "EmailAddress";
+    public static final String MOCK_ID_FIELD = "Id";
+
 
     private static final Map<String, CassandraDataSourceAttributeType> DATA_TYPE_MAPPING = new HashMap<String, CassandraDataSourceAttributeType>() {{
         this.put("TEXT", CassandraDataSourceAttributeType.STRING);
@@ -35,6 +38,7 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
     }};
 
     private static final Map<DataSourceSchemaAttributeTag, Set<String>> TAGS_MAPPING_FOR_NAMES = new HashMap<DataSourceSchemaAttributeTag, Set<String>>() {{
+        this.put(DataSourceSchemaAttributeTag.CUSTOMER_EXTERNAL_ID, Sets.newHashSet("ID"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_EMAIL_ADDRESS, Sets.newHashSet("EMAILADDRESS"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_POSTCODE, Sets.newHashSet("POSTCODE", "ZIP"));
         this.put(DataSourceSchemaAttributeTag.CUSTOMER_FIRST_NAME, Sets.newHashSet("FNAME", "FIRSTNAME", "GIVENNAME"));
@@ -59,7 +63,7 @@ public class CampaignMonitorFieldsHolder implements IFieldsHolder<CustomFieldDef
         }).orElse(Collections.emptyMap()));
     }};
 
-    private final List<SimpleDataSourceField> DEFAULT_STATIC_FIELDS = Stream.of("EmailAddress", "Name", "Date", "State", "ReadsEmailWith")
+    private final List<SimpleDataSourceField> DEFAULT_STATIC_FIELDS = Stream.of(MOCK_ID_FIELD, "EmailAddress", "Name", "Date", "State", "ReadsEmailWith")
             .map(field -> buildSimpleField(null, field, field, CassandraDataSourceAttributeType.STRING))
             .collect(Collectors.toList());
 
