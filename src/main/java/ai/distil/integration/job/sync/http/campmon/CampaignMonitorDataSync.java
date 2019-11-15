@@ -62,7 +62,7 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
         List<Client> clients = this.httpConnection.requestAllClients().orElse(Collections.emptyList());
         clients.sort(Comparator.comparing(Client::getClientId));
 
-        if (clients.size() == 0) {
+        if (clients.isEmpty()) {
             throw new RuntimeException("There is no client to save data to.");
         }
 

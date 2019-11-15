@@ -26,20 +26,23 @@ public enum SyncTableDefinition {
                         .eligibleTypes(StaticTypesDefinition.ID_TYPES)
                         .mandatory(true)
                         .primaryKey(true)
+                        .primaryKeyPriority(0)
                         .build());
 
                 put(CUSTOMER_EMAIL_ADDRESS, FieldDefinition.builder()
                         .eligibleFieldNames(Sets.newHashSet("EMAIL", "EMAILADDRESS"))
                         .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .primaryKey(true)
+                        .primaryKeyPriority(1)
                         .build());
                 put(CUSTOMER_POSTCODE, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("POSTCODE"))
-                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("POSTCODE"))
+                        .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .build());
                 put(CUSTOMER_FIRST_NAME, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("FIRSTNAME", "GIVENNAME"))
-                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("FIRSTNAME", "GIVENNAME"))
+                        .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .build());
 
                 put(CUSTOMER_LAST_NAME, FieldDefinition.builder()
                         .eligibleFieldNames(Sets.newHashSet("LASTNAME", "SURNAME"))
@@ -132,7 +135,7 @@ public enum SyncTableDefinition {
 
                 put(PRODUCT_CATEGORY,
                         FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("PRODUCTCATEGORY","CATEGORY","PRODUCTCATEGORIES","CATEGORIES"))
+                                .eligibleFieldNames(Sets.newHashSet("PRODUCTCATEGORY", "CATEGORY", "PRODUCTCATEGORIES", "CATEGORIES"))
                                 .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
                                 .build());
 
@@ -147,20 +150,20 @@ public enum SyncTableDefinition {
                         .primaryKey(true)
                         .build());
                 put(CONTENT_TITLE, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("NAME", "TITLE"))
-                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
-                                .mandatory(true)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("NAME", "TITLE"))
+                        .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .mandatory(true)
+                        .build());
                 put(CONTENT_URL, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("URL", "CONTENTURL", "LINK"))
-                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
-                                .mandatory(true)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("URL", "CONTENTURL", "LINK"))
+                        .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .mandatory(true)
+                        .build());
 
                 put(CONTENT_IMAGE_URL, FieldDefinition.builder()
-                                .eligibleFieldNames(Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"))
-                                .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
-                                .build());
+                        .eligibleFieldNames(Sets.newHashSet("IMAGE", "IMAGEURL", "IMAGELINK"))
+                        .eligibleTypes(StaticTypesDefinition.STRING_TYPES)
+                        .build());
             }}),
     ORDER("ORDER", "orders", DataSourceType.ORDER, StaticTypesDefinition.ORDER_TAGS_DEFINITION),
     PURCHASE_HISTORY("PURCHASE_HISTORY", "purchase_history", DataSourceType.ORDER, StaticTypesDefinition.ORDER_TAGS_DEFINITION);
@@ -202,10 +205,9 @@ public enum SyncTableDefinition {
 
         //Do it the old fashioned way (i.e. no streams / lambda) so that its easier to see whats going on...
         DataSourceSchemaAttributeTag returnTag = NONE;
-        for(Map.Entry<DataSourceSchemaAttributeTag, FieldDefinition> tag : getTagsDefinitions().entrySet()){
+        for (Map.Entry<DataSourceSchemaAttributeTag, FieldDefinition> tag : getTagsDefinitions().entrySet()) {
 
-            if(tag.getValue().getEligibleFieldNames().contains(column))
-            {
+            if (tag.getValue().getEligibleFieldNames().contains(column)) {
                 returnTag = tag.getKey();
                 break;
             }
@@ -218,6 +220,17 @@ public enum SyncTableDefinition {
         return Optional.ofNullable(tag).map(this.tagsDefinitions::get)
                 .map(FieldDefinition::isPrimaryKey)
                 .orElse(false);
+    }
+
+    public int getPrimaryKeyPriority(String fieldName, DataSourceSchemaAttributeTag tag) {
+        return Optional.ofNullable(tag).map(this.tagsDefinitions::get)
+                .map(f -> {
+                    String column = sanitizeColumnName(fieldName);
+                    return f.getPrimaryKeyPriority() == null
+                            ? new ArrayList(f.getEligibleFieldNames()).indexOf(column)
+                            : f.getPrimaryKeyPriority();
+                })
+                .orElse(0);
     }
 
     public boolean isDataSourceAvailableByName(String tableName) {
@@ -247,7 +260,7 @@ public enum SyncTableDefinition {
                 .findFirst();
     }
 
-//  todo fix this one day
+    //  todo fix this one day
     public static Optional<SyncTableDefinition> defineSyncTableDefinition(DataSourceType dataSourceType, String name) {
         return Stream.of(SyncTableDefinition.values())
                 .filter(s -> s.getDataSourceType().equals(dataSourceType) && s.isDataSourceAvailableByName(name))
@@ -265,6 +278,9 @@ public enum SyncTableDefinition {
         private boolean mandatory = false;
         @Builder.Default
         private boolean primaryKey = false;
+
+        //        lower is higher..., 0 will have high priority than 1,2,3...
+        private Integer primaryKeyPriority;
     }
 
     private static final class StaticTypesDefinition {
@@ -277,7 +293,7 @@ public enum SyncTableDefinition {
         //    it's must be in the separate class, otherwise we will have compilation error
         public static Map<DataSourceSchemaAttributeTag, FieldDefinition> ORDER_TAGS_DEFINITION = new HashMap<DataSourceSchemaAttributeTag, FieldDefinition>() {{
             put(ORDER_EXTERNAL_ID, FieldDefinition.builder()
-                    .eligibleFieldNames(Sets.newHashSet("ID"))
+                    .eligibleFieldNames(new LinkedHashSet<>(Sets.newHashSet("ID", "ORDERID")))
                     .eligibleTypes(ID_TYPES)
                     .mandatory(true)
                     .primaryKey(true)

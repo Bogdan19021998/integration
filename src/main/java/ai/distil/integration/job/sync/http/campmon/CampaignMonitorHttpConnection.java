@@ -28,7 +28,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder.EMAIL_ADDRESS_FIELD;
+import static ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder.MOCK_ID_FIELD;
+
 public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
+
 
     protected CampaignMonitorFieldsHolder fieldsHolder;
 
@@ -44,7 +48,10 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
 
         return new DatasetPage(subscribers.getResults()
                 .stream()
-                .map(row -> fieldsHolder.transformRow(row, dataSource))
+                .map(row -> {
+                    row.put(MOCK_ID_FIELD, row.get(EMAIL_ADDRESS_FIELD));
+                    return fieldsHolder.transformRow(row, dataSource);
+                })
                 .collect(Collectors.toList()), null);
     }
 
