@@ -9,11 +9,11 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseDestinationIntegrationRequest {
+public class BaseConnectionIntegrationRequest {
     @NotNull(message = "Org Id must be set")
     private Long orgId;
     @NotNull(message = "Tenant Id must be set")
     private String tenantId;
-    @NotNull(message = "Integration id must be set")
-    private Long integrationId;
+    @NotNull(message = "Connection id must be set")
+    private Long connectionId;
 }

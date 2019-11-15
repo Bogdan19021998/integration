@@ -1,7 +1,6 @@
 package ai.distil.integration.job.sync.http.mailchimp;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
-import ai.distil.api.internal.model.dto.DestinationIntegrationSettingsDTO;
 import ai.distil.api.internal.model.dto.datasource.DTODataSourceAttributeExtended;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -19,6 +18,7 @@ import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.HashHelper;
 import ai.distil.integration.utils.ListUtils;
+import ai.distil.model.org.destination.IntegrationSettings;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -46,13 +46,13 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
 
 
     @Override
-    public DestinationIntegrationSettingsDTO findIntegrationSettings() {
+    public IntegrationSettings findIntegrationSettings() {
         RetrieveAccountInfoMailChimpRequest request = new RetrieveAccountInfoMailChimpRequest(this.httpConnection.getApiKey());
 
         return Optional.ofNullable(this.httpConnection.executeRequest(request))
                 .map(accountInfo -> {
                     Integer fieldsCount = accountInfo.getProEnabled() ? 80 : 30;
-                    return new DestinationIntegrationSettingsDTO(fieldsCount, null, null);
+                    return new IntegrationSettings(fieldsCount, null, null);
                 }).orElse(null);
     }
 

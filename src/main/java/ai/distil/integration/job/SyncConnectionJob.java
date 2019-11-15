@@ -111,6 +111,6 @@ public class SyncConnectionJob extends QuartzJobBean {
     }
 
     private void updateConnectionData(SyncConnectionRequest request, ConnectionSchemaSyncStatus syncInProgress) {
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress, null));
     }
 }

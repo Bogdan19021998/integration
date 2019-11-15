@@ -164,7 +164,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
     }
 
     private void updateConnectionStatus(SyncDataSourceRequest request, ConnectionSchemaSyncStatus syncInProgress) {
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress));
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress, null));
     }
 
     private void createNewsfeedCard(SyncDataSourceRequest request, DTOConnection connection, DTODataSource dataSource, DataSourceDataHolder schema, SyncProgressTrackingData trackingData) {
