@@ -14,6 +14,6 @@ public class BaseDestinationIntegrationRequest {
     private Long orgId;
     @NotNull(message = "Tenant Id must be set")
     private String tenantId;
-    @NotNull(message = "DataSource id must be set")
+    @NotNull(message = "Integration id must be set")
     private Long integrationId;
 }
