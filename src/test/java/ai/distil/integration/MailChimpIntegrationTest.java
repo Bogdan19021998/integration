@@ -2,6 +2,7 @@ package ai.distil.integration;
 
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
+import ai.distil.api.internal.model.dto.DataSourceHistoryDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationAttributeDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
@@ -27,7 +28,6 @@ import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.model.org.ConnectionSettings;
-import ai.distil.model.org.DataSourceHistory;
 import ai.distil.model.types.ConnectionType;
 import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
@@ -204,7 +204,7 @@ public class MailChimpIntegrationTest {
         try (AbstractConnection connection = connectionFactory.buildConnection(connectionDTO)) {
             oldDataSource = DataSourceDataHolder.mapFromDTODataSourceEntity(connection.getAllDataSources().get(0));
             ArgumentCaptor<String> tenantIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
-            ArgumentCaptor<DataSourceHistory> dataSourceHistoryArgumentCaptor = ArgumentCaptor.forClass(DataSourceHistory.class);
+            ArgumentCaptor<DataSourceHistoryDTO> dataSourceHistoryArgumentCaptor = ArgumentCaptor.forClass(DataSourceHistoryDTO.class);
             Mockito.when(dataSourceProxy.save(tenantIdArgumentCaptor.capture(), dataSourceHistoryArgumentCaptor.capture()))
                     .thenReturn(null);
 

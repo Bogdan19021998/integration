@@ -71,7 +71,7 @@ public class SyncConnectionJob extends QuartzJobBean {
             return;
         }
 
-        if (connection.map(DTOConnection::getEnabled).orElse(false)) {
+        if (!connection.map(DTOConnection::getEnabled).orElse(false)) {
             log.info("Connection {} is disabled, skipping sync.", request.getConnectionId());
             return;
         }
@@ -110,7 +110,7 @@ public class SyncConnectionJob extends QuartzJobBean {
 
     }
 
-    private void updateConnectionData(SyncConnectionRequest request, ConnectionSchemaSyncStatus syncInProgress) {
-        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncInProgress, null));
+    private void updateConnectionData(SyncConnectionRequest request, ConnectionSchemaSyncStatus syncStatus) {
+        connectionProxy.updateConnectionData(request.getTenantId(), request.getConnectionId(), new UpdateConnectionDataRequest(syncStatus, null));
     }
 }

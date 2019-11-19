@@ -24,6 +24,7 @@ import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.integration.service.RestService;
 import ai.distil.model.types.DataSourceType;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -118,14 +119,13 @@ public class SalesforceHttpConnection extends AbstractHttpConnection {
                 dataSource.getDataSourceId(),
                 generateTableName(dataSource.getDataSourceId()),
                 null,
-                null,
+                new Date(),
                 null,
                 DataSourceType.CUSTOMER,
-                0,
-                0,
                 this.fieldsHolder.getAllFields(listFields.getFields()).stream()
                         .map(this::buildDTODataSourceAttribute)
                         .collect(Collectors.toList()),
+                null,
                 null,
                 null
         );

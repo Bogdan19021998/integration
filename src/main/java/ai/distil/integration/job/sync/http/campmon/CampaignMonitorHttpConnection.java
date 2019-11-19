@@ -21,10 +21,7 @@ import ai.distil.model.org.SyncSchedule;
 import ai.distil.model.types.DataSourceType;
 import ai.distil.model.types.SyncFrequency;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -145,12 +142,11 @@ public class CampaignMonitorHttpConnection extends AbstractHttpConnection {
                 link.getListId(),
                 generateTableName(link.getListId()),
                 syncSchedule,
-                null,
+                new Date(),
                 null,
                 DataSourceType.CUSTOMER,
-                0,
-                0,
                 allAttributes,
+                null,
                 null,
                 null
         );

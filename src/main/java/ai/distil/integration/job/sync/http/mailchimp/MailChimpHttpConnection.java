@@ -20,10 +20,7 @@ import ai.distil.integration.utils.ArrayUtils;
 import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.model.types.DataSourceType;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -110,13 +107,12 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
                 audience.getId(),
                 buildTableName(DataSourceType.CUSTOMER, audience.getId()),
                 null,
-                null,
+                new Date(),
                 null,
 //                    todo may be dynamic for other sources
                 DataSourceType.CUSTOMER,
-                null,
-                null,
                 allAttributes,
+                null,
                 null,
                 null
         );

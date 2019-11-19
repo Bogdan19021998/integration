@@ -3,10 +3,8 @@ package ai.distil.integration.service;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
-import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.integration.cassandra.repository.CassandraSyncRepository;
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
-import ai.distil.integration.constants.SyncErrors;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.parser.AbstractParser;
@@ -16,7 +14,6 @@ import ai.distil.integration.job.sync.progress.ProgressAggregator;
 import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
-import ai.distil.model.org.DataSourceHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ public class DataSyncService {
     private static final int MAX_CONSECUTIVE_ERRORS_COUNT = 5;
 
     private final CassandraSyncRepository cassandraSyncRepository;
-    private final DataSourceProxy dataSourceProxy;
     private final ConnectionFactory connectionFactory;
     private final SchemaSyncService schemaSyncService;
 
@@ -55,7 +51,7 @@ public class DataSyncService {
 
         DataSourceDataHolder newSchema = ParserFactory.buildParser(connection, currentSchema, ParserType.SIMPLE).refreshSchema();
 
-        if(newSchema == null) {
+        if (newSchema == null) {
             throw new IllegalStateException("Datasource is not accessible anymore");
         }
 
@@ -142,36 +138,8 @@ public class DataSyncService {
         SyncProgressTrackingData trackingData = progressAggregator.getSyncTrackingData();
 
         log.debug("Saving sync tracking Data : {}", trackingData);
-        saveDataSourceHistory(tenantId, currentSchema.getDataSourceForeignKey(), trackingData);
 
         return trackingData;
-    }
-
-
-    public void saveDataSourceHistory(String tenantId, Long dataSourceId, SyncProgressTrackingData trackingData) {
-
-        log.debug("Saving data source history for data source {}", dataSourceId);
-
-        boolean numberOfRecordsMatch = trackingData.getProcessed() == trackingData.getCurrentRowsCount();
-
-        String notUniquePrimaryKeyError = numberOfRecordsMatch ? null : SyncErrors.NUMBER_OF_RECORDS_NOT_MATCH;
-
-//        keep it like this, then we will be able to extend in case of adding new errors
-        boolean hasError = !numberOfRecordsMatch;
-
-        DataSourceHistory dataSourceHistory = new DataSourceHistory(
-                null,
-                dataSourceId,
-                trackingData.getStartedDate(),
-                trackingData.getCreated(),
-                trackingData.getUpdated(),
-                trackingData.getDeleted(),
-                trackingData.getTaskDurationInSeconds(),
-                hasError,
-                notUniquePrimaryKeyError
-        );
-
-        dataSourceProxy.save(tenantId, dataSourceHistory);
     }
 
 }
