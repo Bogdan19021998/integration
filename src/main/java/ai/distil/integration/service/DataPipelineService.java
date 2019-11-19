@@ -1,11 +1,13 @@
 package ai.distil.integration.service;
 
 import ai.distil.processing.datapipeline.controller.proxy.DataPipelineClient;
+import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Slf4j
@@ -18,6 +20,11 @@ public class DataPipelineService {
 
 
     private final DataPipelineClient dataPipelineClient;
+
+    @PostConstruct
+    public void init() {
+        this.tenantCodesByApiUrl = this.tenantCodesByApiUrl == null ? ImmutableMap.of() : this.tenantCodesByApiUrl;
+    }
 
     public void resetDataPipelineForOrg(String tenantCode) {
         String url = tenantCodesByApiUrl.get(tenantCode);
