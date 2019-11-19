@@ -6,9 +6,12 @@ import ai.distil.api.internal.controller.dto.UpdateDataSourceDataRequest;
 import ai.distil.api.internal.model.dto.DTOConnection;
 import ai.distil.api.internal.model.dto.DTODataSource;
 import ai.distil.api.internal.model.dto.DTODataSourceAttribute;
+import ai.distil.api.internal.model.dto.DataSourceHistoryDTO;
 import ai.distil.api.internal.model.dto.newsfeed.SaveNewsfeedCardRequest;
 import ai.distil.api.internal.proxy.ConnectionProxy;
+import ai.distil.api.internal.proxy.DataSourceProxy;
 import ai.distil.api.internal.proxy.NewsfeedProxy;
+import ai.distil.integration.constants.SyncErrors;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
@@ -74,6 +77,9 @@ public class SyncDataSourceJob extends QuartzJobBean {
     private DataPipelineService dataPipelineService;
 
     @Autowired
+    private DataSourceProxy dataSourceProxy;
+
+    @Autowired
     private JobScheduler jobScheduler;
 
 
@@ -117,8 +123,11 @@ public class SyncDataSourceJob extends QuartzJobBean {
             return;
         }
 
-        DTOConnection connectionDto = dsAndConnection.map(DataSourceWithConnectionResponse::getConnection).orElse(null);
-        DTODataSource dataSourceDto = dsAndConnection.map(DataSourceWithConnectionResponse::getDataSource).orElse(null);
+        DTOConnection connectionDto = dsAndConnection.map(DataSourceWithConnectionResponse::getConnection)
+                .orElseThrow(() -> new IllegalStateException(String.format("Connection - %s no longer exists", request)));
+
+        DTODataSource dataSourceDto = dsAndConnection.map(DataSourceWithConnectionResponse::getDataSource)
+                .orElseThrow(() -> new IllegalStateException(String.format("DataSource - %s no longer exists", request)));
 
         //The dataSourceDto.getSyncTurnedOn() property can be NULL - After the initial Connection creation in order to prevent datasources from being
         //synced by default.  It is not set to false by default, as we want a way to tell if it is being enabled for the first time (i.e. from null to true)
@@ -139,13 +148,15 @@ public class SyncDataSourceJob extends QuartzJobBean {
             if (connection.dataSourceExist(dataSource)) {
                 DataSourceDataHolder updatedSchema = dataSyncService.syncSchema(request.getTenantId(), dataSource, connection);
 
-                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(null, updatedSchema.getSourceAttributes()));
+                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(dataSourceDto.getNumberOfRecords(), null, updatedSchema.getSourceAttributes()));
                 SyncProgressTrackingData syncResult = dataSyncService.syncDataSource(request.getTenantId(), updatedSchema, connection);
 
                 createNewsfeedCard(request, connectionDto, dataSourceDto, updatedSchema, syncResult);
+//                tracking ds sync history
+                saveDataSourceHistory(request.getTenantId(), request.getDataSourceId(), syncResult);
 
                 List<DTODataSourceAttribute> attributes = this.updateDataSourceAttributesDataAfterSync(updatedSchema.getSourceAttributes(), syncResult);
-                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.SUCCESS, attributes));
+                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(syncResult.getCurrentRowsCount(), LastDataSourceSyncStatus.SUCCESS, attributes));
 
 //                lastDataSourceSyncStatus - is null means that it first time run
                 if(!connectionSync && dataSourceDto.getLastDataSourceSyncStatus() == null) {
@@ -153,12 +164,12 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 }
 
             } else {
-                connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(LastDataSourceSyncStatus.ERROR, null));
                 throw new IllegalStateException("The data source no longer exists - updating the datasource details");
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("The error happened while running the job, do not rethrow exception because of retry policy", e);
+            connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(dataSourceDto.getNumberOfRecords(), LastDataSourceSyncStatus.ERROR, null));
+            throw new RuntimeException("The error happened while running the job", e);
         }
 
     }
@@ -201,6 +212,35 @@ public class SyncDataSourceJob extends QuartzJobBean {
                         .ifPresent((v) -> v.setNotNullValuesCount(notNullRowsCount)));
 
         return attributes;
+    }
+
+
+    private void saveDataSourceHistory(String tenantId, Long dataSourceId, SyncProgressTrackingData sync) {
+
+        log.debug("Saving data source history for data source {}", dataSourceId);
+
+        boolean numberOfRecordsMatch = sync.getProcessed() == sync.getCurrentRowsCount();
+
+        String notUniquePrimaryKeyError = numberOfRecordsMatch ? null : SyncErrors.NUMBER_OF_RECORDS_NOT_MATCH;
+
+//        keep it like this, then we will be able to extend in case of adding new errors
+        boolean hasError = !numberOfRecordsMatch;
+
+        DataSourceHistoryDTO history = new DataSourceHistoryDTO(
+                null,
+                dataSourceId,
+                sync.getCurrentRowsCount(),
+                sync.getCreated(),
+                sync.getUpdated(),
+                sync.getDeleted(),
+                sync.getTaskDurationInSeconds(),
+                hasError,
+                notUniquePrimaryKeyError,
+                sync.getStartedDate(),
+                LastDataSourceSyncStatus.SUCCESS
+        );
+
+        dataSourceProxy.save(tenantId, history);
     }
 
 }

@@ -118,9 +118,8 @@ public abstract class JdbcConnection extends AbstractConnection {
                 new Date(),
                 null,
                 syncTableDefinition.map(SyncTableDefinition::getDataSourceType).orElse(null),
-                null,
-                null,
                 columns,
+                null,
                 null,
                 null
         );
