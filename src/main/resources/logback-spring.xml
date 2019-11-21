@@ -13,7 +13,7 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} | %-10.10thread | %5p | %-36.36logger{36} | %m%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} | %-10.10thread | %X{tenantCode} | %5p | %-36.36logger{36} | %m%n</pattern>
         </encoder>
     </appender>
 
