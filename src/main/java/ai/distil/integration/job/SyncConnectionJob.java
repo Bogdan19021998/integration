@@ -26,15 +26,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
+import static ai.distil.integration.constants.JobConstants.*;
 
 @Slf4j
 @Component
 @DisallowConcurrentExecution
 public class SyncConnectionJob extends QuartzJobBean {
-
-    private static String CONNECTION_LOG_KEY = "cn";
-    private static String DATASOURCE_ID = "ds";
 
     @Autowired
     private SyncDataSourceJob syncDataSourceJob;
@@ -63,6 +60,8 @@ public class SyncConnectionJob extends QuartzJobBean {
         SyncConnectionRequest request = (SyncConnectionRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_CONNECTION.getJobRequestClazz());
 
+        MDC.put(TENANT_CODE_KEY, String.valueOf(request.getTenantId()));
+        MDC.put(CONNECTION_LOG_KEY, String.valueOf(request.getConnectionId()));
 
         Optional<DTOConnection> connection = connectionService.findConnection(request.getTenantId(), request.getOrgId(), request.getConnectionId());
 
@@ -75,8 +74,6 @@ public class SyncConnectionJob extends QuartzJobBean {
             log.info("Connection {} is disabled, skipping sync.", request.getConnectionId());
             return;
         }
-
-        MDC.put(CONNECTION_LOG_KEY, String.valueOf(request.getConnectionId()));
 
         log.info("Starting connection sync task for {} connection", request.getConnectionId());
 

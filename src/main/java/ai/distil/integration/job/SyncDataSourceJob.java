@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ai.distil.integration.constants.JobConstants.JOB_REQUEST;
+import static ai.distil.integration.constants.JobConstants.*;
 
 @Slf4j
 @Component
@@ -88,12 +88,14 @@ public class SyncDataSourceJob extends QuartzJobBean {
         SyncDataSourceRequest request = (SyncDataSourceRequest) requestMapper.deserialize(jobExecutionContext.getMergedJobDataMap().getString(JOB_REQUEST),
                 JobDefinitionEnum.SYNC_DATASOURCE.getJobRequestClazz());
 
-        if(connectionService.isConnectionDisabled(request.getTenantId(), request.getOrgId(), request.getConnectionId())) {
+        if (connectionService.isConnectionDisabled(request.getTenantId(), request.getOrgId(), request.getConnectionId())) {
             log.info("Connection {} is disabled, skipping sync.", request.getConnectionId());
             return;
         }
 
+        MDC.put(CONNECTION_LOG_KEY, String.valueOf(request.getConnectionId()));
         MDC.put(DATA_SOURCE_LOG_KEY, String.valueOf(request.getDataSourceId()));
+        MDC.put(TENANT_CODE_KEY, String.valueOf(request.getTenantId()));
 
         log.info("Starting sync job for datasource {}", request);
 
@@ -113,12 +115,13 @@ public class SyncDataSourceJob extends QuartzJobBean {
 
     /**
      * connectionSync - means that this task triggered from the connection sync one
-     * */
+     */
     public void execute(SyncDataSourceRequest request, boolean connectionSync) {
 
         Optional<DataSourceWithConnectionResponse> dsAndConnection = connectionService.findDataSourceAndConnection(request);
 
-        if(!dsAndConnection.isPresent()) {
+        if (!dsAndConnection.isPresent()) {
+            log.info("Connection or datasource no longer exists - deleting scheduled job: {}", request);
             jobScheduler.deleteJobs(JobDefinitionEnum.SYNC_DATASOURCE, Collections.singleton(request));
             return;
         }
@@ -132,7 +135,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
         //The dataSourceDto.getSyncTurnedOn() property can be NULL - After the initial Connection creation in order to prevent datasources from being
         //synced by default.  It is not set to false by default, as we want a way to tell if it is being enabled for the first time (i.e. from null to true)
         //to set off an immediate sync at that point.
-        if(Boolean.FALSE.equals(connectionDto.getEnabled()) || dataSourceDto.getSyncTurnedOn() == null || Boolean.FALSE.equals(dataSourceDto.getSyncTurnedOn())) {
+        if (Boolean.FALSE.equals(connectionDto.getEnabled()) || dataSourceDto.getSyncTurnedOn() == null || Boolean.FALSE.equals(dataSourceDto.getSyncTurnedOn())) {
             log.info("Synchronisation for datasource - {} disabled, connection - {}, datasource sync - {} ",
                     dataSourceDto.getId(),
                     connectionDto.getEnabled(),
@@ -159,12 +162,13 @@ public class SyncDataSourceJob extends QuartzJobBean {
                 connectionProxy.updateDataSourceData(request.getTenantId(), request.getDataSourceId(), new UpdateDataSourceDataRequest(syncResult.getCurrentRowsCount(), LastDataSourceSyncStatus.SUCCESS, attributes));
 
 //                lastDataSourceSyncStatus - is null means that it first time run
-                if(!connectionSync && dataSourceDto.getLastDataSourceSyncStatus() == null) {
+                if (!connectionSync && dataSourceDto.getLastDataSourceSyncStatus() == null) {
                     dataPipelineService.resetDataPipelineForOrg(request.getTenantId());
                 }
 
             } else {
-                throw new IllegalStateException("The data source no longer exists - updating the datasource details");
+                log.info("The data source no longer exists - updating the datasource details. DS: {}", dataSource.getDataSourceId());
+                return;
             }
 
         } catch (Exception e) {
@@ -203,7 +207,7 @@ public class SyncDataSourceJob extends QuartzJobBean {
         newsfeedProxy.saveNewsfeedCardPrivate(saveRequest, request.getTenantId());
     }
 
-//    warn impure, updating DTO here
+    //    warn impure, updating DTO here
     private List<DTODataSourceAttribute> updateDataSourceAttributesDataAfterSync(List<DTODataSourceAttribute> attributes, SyncProgressTrackingData trackingData) {
         Map<Long, DTODataSourceAttribute> attributesById = ListUtils.groupByWithOverwrite(attributes, DTODataSourceAttribute::getId, false);
 
