@@ -14,6 +14,7 @@ import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import ai.distil.integration.service.sync.ConnectionFactory;
+import ai.distil.integration.utils.RestUtils;
 import ai.distil.model.org.destination.IntegrationSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -33,6 +35,7 @@ public class DestinationIntegrationService {
     private final ConnectionProxy connectionProxy;
     private final DestinationSourceProxy destinationSourceProxy;
     private final JobScheduler jobScheduler;
+    private final JobExecutionService jobExecutionService;
 
     public AbstractDataSync buildDataSync(SyncDestinationRequest request, DestinationIntegrationDTO integration) {
         DTOConnection connection = connectionProxy.findOnePrivate(request.getTenantId(), request.getOrgId(), integration.getConnectionId()).getBody();
@@ -55,6 +58,13 @@ public class DestinationIntegrationService {
         AbstractDataSync dataSync = connectionFactory.buildDataSync(null, connection, null, null, Collections.emptyList());
 
         return dataSync.findIntegrationSettings();
+    }
+
+    public void runAllJobsForIntegrations(Long orgId, String tenantId, Set<Long> segments) {
+
+        RestUtils.getBodyOrNullIfError(destinationSourceProxy.retrieveIntegrationsBySegments(tenantId, segments)).ifPresent(integrations ->
+                integrations.forEach(
+                        integration -> jobExecutionService.runDestinationSyncNow(new BaseDestinationIntegrationRequest(orgId, tenantId, integration.getId()))));
     }
 
     public Boolean deleteJob(BaseDestinationIntegrationRequest request) {

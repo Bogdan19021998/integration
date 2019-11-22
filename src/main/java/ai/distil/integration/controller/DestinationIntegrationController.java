@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +31,12 @@ public class DestinationIntegrationController implements DestinationIntegrationP
     @Override
     public ResponseEntity<Boolean> deleteDestinationIntegration(BaseDestinationIntegrationRequest request) {
         return ResponseEntity.ok(destinationIntegrationService.deleteJob(request));
+    }
+
+    @Override
+    public ResponseEntity<Boolean> scheduleIntegrationSync(String tenantCode, Long orgId, Set<Long> segments) {
+        destinationIntegrationService.runAllJobsForIntegrations(orgId, tenantCode, segments);
+        return ResponseEntity.ok(true);
     }
 
 }
