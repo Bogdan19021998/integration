@@ -73,7 +73,7 @@ public class RestService {
 
         } catch (ExecutionException | InterruptedException e) {
 //          add appropriate message builder
-            throw new RuntimeException("Can't execute HTTP request. " + request);
+            throw new RuntimeException("Can't execute HTTP request. " + request, e);
         }
     }
 
