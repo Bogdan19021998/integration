@@ -82,11 +82,11 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
     protected abstract Map<String, String> retrieveCurrentUsersAndHashes(String listId);
 
     protected String buildListName(String destinationTitle) {
-        return String.format(LIST_NAME_TEMPLATE, destinationTitle).toUpperCase().trim();
+        return String.format(LIST_NAME_TEMPLATE, destinationTitle).trim();
     }
 
     protected static String buildFieldId(Long id) {
-        return String.format("D-%s", id);
+        return String.format("D%s", id);
     }
 
     protected List<DTODataSourceAttributeExtended> retrieveAllAttributesBySettings() {
