@@ -13,6 +13,7 @@ import ai.distil.integration.job.sync.progress.SyncDestinationProgressData;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.CustomerRecord;
 import ai.distil.model.org.destination.IntegrationSettings;
+import ai.distil.model.types.DataSourceAttributeType;
 import ai.distil.model.types.DataSourceSchemaAttributeTag;
 import ai.distil.model.types.DataSourceType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,6 +43,8 @@ import static ai.distil.model.types.DataSourceSchemaAttributeTag.*;
 @Slf4j
 @AllArgsConstructor
 public abstract class AbstractDataSync<C extends AbstractHttpConnection, S extends AbstractSubscriber> {
+    private static final DecimalFormat DEFAULT_NUMBER_FORMAT = new DecimalFormat("#,##0.00");
+
     private static final Integer DEFAULT_BATCH_SIZE = 100;
     private static final String LIST_NAME_TEMPLATE = "DISTIL-%s";
     protected static final long DEFAULT_HASH_CODE_FIELD_ID = -1000_000L;
@@ -223,13 +227,13 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
                     attributesProcessed.add(s);
 
                     getValueAndUpdateHashIfNotNull(attr.getTag(), customerValues.get(s), hasher)
-                            .ifPresent(value -> this.addCustomField(result, attr.getId(), value));
+                            .ifPresent(value -> this.addCustomField(result, attr.getId(), formatField(attr.getTag(), attr.getType(), value)));
 
 //                      this means that some auto generated required column can't be backfilled that's why we need to skip this consumer
                     return null;
                 }
             } else if (valueOptional.isPresent()) {
-                String value = valueOptional.get();
+                String value = formatField(attr.getTag(), attr.getType(), valueOptional.get());
                 this.addCustomField(result, attr.getId(), value);
             }
         }
@@ -260,12 +264,46 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
     }
 
     private UtmData buildUtmData(DestinationDTO destination) {
-        if(destination instanceof HyperPersonalizedDestinationDTO) {
+        if (destination instanceof HyperPersonalizedDestinationDTO) {
             HyperPersonalizedDestinationDTO destinationPersonalized = (HyperPersonalizedDestinationDTO) destination;
             return new UtmData(destinationPersonalized);
         }
 
         return new UtmData();
+    }
+
+    private String formatField(DataSourceSchemaAttributeTag tag, DataSourceAttributeType type, String value) {
+
+        if (type == null || value == null) {
+            return value;
+        }
+
+        switch (type) {
+            case DOUBLE:
+            case INTEGER:
+                return toDoubleIfCan(value);
+            default:
+                if (tag == null) {
+                    return null;
+                } else {
+                    switch (tag) {
+                        case PRODUCT_LIST_PRICE_EX_TAX:
+                        case PRODUCT_LIST_PRICE_INC_TAX:
+                            return toDoubleIfCan(value);
+                        default:
+                            return value;
+                    }
+                }
+        }
+    }
+
+    private String toDoubleIfCan(String value) {
+        try {
+            return DEFAULT_NUMBER_FORMAT.format(Double.parseDouble(value));
+        } catch (Exception e) {
+            log.warn("Can't parse double value: {}", value);
+        }
+        return value;
     }
 
 }
