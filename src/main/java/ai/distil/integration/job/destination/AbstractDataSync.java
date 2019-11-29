@@ -284,7 +284,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
                 return toDoubleIfCan(value);
             default:
                 if (tag == null) {
-                    return null;
+                    return value;
                 } else {
                     switch (tag) {
                         case PRODUCT_LIST_PRICE_EX_TAX:
