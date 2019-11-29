@@ -281,7 +281,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
         switch (type) {
             case DOUBLE:
             case INTEGER:
-                return DEFAULT_NUMBER_FORMAT.format(toDoubleIfCan(value));
+                return toDoubleIfCan(value);
             default:
                 if (tag == null) {
                     return null;
@@ -289,7 +289,7 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
                     switch (tag) {
                         case PRODUCT_LIST_PRICE_EX_TAX:
                         case PRODUCT_LIST_PRICE_INC_TAX:
-                            return DEFAULT_NUMBER_FORMAT.format(toDoubleIfCan(value));
+                            return toDoubleIfCan(value);
                         default:
                             return value;
                     }
@@ -297,9 +297,9 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
         }
     }
 
-    private Object toDoubleIfCan(String value) {
+    private String toDoubleIfCan(String value) {
         try {
-            return Double.parseDouble(value);
+            return DEFAULT_NUMBER_FORMAT.format(Double.parseDouble(value));
         } catch (Exception e) {
             log.warn("Can't parse double value: {}", value);
         }
