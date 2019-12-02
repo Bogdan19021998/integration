@@ -17,11 +17,9 @@ import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.jdbc.SimpleDataSourceDefinition;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.ArrayUtils;
-import ai.distil.integration.utils.ConcurrentUtils;
 import ai.distil.model.types.DataSourceType;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class MailChimpHttpConnection extends AbstractHttpConnection {
@@ -120,13 +118,13 @@ public class MailChimpHttpConnection extends AbstractHttpConnection {
 
     private List<DTODataSource> buildMultipleDataSources(List<Audience> audiences) {
 
-        List<CompletableFuture<DTODataSource>> allDataSources = audiences.stream()
-                .map(audience -> restService.executeAsync(getBaseUrl(),
-                new MailChimpMergeFieldsRequest(getApiKey(), audience.getId()), JsonDataConverter.getInstance(),
-                mergeFields -> buildDataSource(audience, getDataSourceAttributes(mergeFields))))
-                .collect(Collectors.toList());
+        List<DTODataSource> allDataSources = audiences.stream()
+                .map(audience -> {
+                    Map<String, Object> mergeFields = restService.execute(getBaseUrl(), new MailChimpMergeFieldsRequest(getApiKey(), audience.getId()), JsonDataConverter.getInstance());
+                    return buildDataSource(audience, getDataSourceAttributes(mergeFields));
+                }).collect(Collectors.toList());
 
-        return ConcurrentUtils.wait(allDataSources);
+        return allDataSources;
     }
 
     //  todo make dynamic if needed
