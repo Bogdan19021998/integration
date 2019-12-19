@@ -1,5 +1,6 @@
 package ai.distil.integration.job.sync.progress;
 
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.domain.repository.SyncProgressTrackingDataRepository;
 import ai.distil.integration.mapper.JobMapper;
 import lombok.RequiredArgsConstructor;

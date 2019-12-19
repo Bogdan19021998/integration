@@ -38,6 +38,7 @@ services:
     # Cassandra ulimt recommended settings
     ports:
       - "9042:9042"
+      - "7199:7199"
     ulimits:
       memlock: -1
       nproc: 32768

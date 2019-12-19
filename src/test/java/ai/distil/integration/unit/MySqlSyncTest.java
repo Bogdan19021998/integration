@@ -9,7 +9,7 @@ import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.jdbc.JdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.vo.QueryWrapper;
-import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.utils.ColumnsUtils;

@@ -15,7 +15,7 @@ import ai.distil.integration.constants.SyncErrors;
 import ai.distil.integration.job.sync.AbstractConnection;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.progress.SimpleSyncProgressListener;
-import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.service.ConnectionService;
 import ai.distil.integration.service.DataPipelineService;

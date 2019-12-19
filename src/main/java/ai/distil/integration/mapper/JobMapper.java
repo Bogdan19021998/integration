@@ -4,7 +4,7 @@ import ai.distil.integration.controller.dto.ScheduleConnectionSyncRequest;
 import ai.distil.integration.controller.dto.ScheduleDatasourceSyncRequest;
 import ai.distil.integration.controller.dto.BaseDestinationIntegrationRequest;
 import ai.distil.integration.domain.SyncProgressTrackingDataEntity;
-import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.job.sync.request.SyncConnectionRequest;
 import ai.distil.integration.job.sync.request.SyncDataSourceRequest;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;

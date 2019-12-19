@@ -11,7 +11,7 @@ import ai.distil.integration.job.sync.parser.AbstractParser;
 import ai.distil.integration.job.sync.parser.ParserFactory;
 import ai.distil.integration.job.sync.parser.ParserType;
 import ai.distil.integration.job.sync.progress.ProgressAggregator;
-import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.service.sync.ConnectionFactory;
 import ai.distil.integration.service.vo.AttributeChangeInfo;
 import lombok.RequiredArgsConstructor;

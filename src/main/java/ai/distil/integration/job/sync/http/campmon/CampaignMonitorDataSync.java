@@ -7,6 +7,7 @@ import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.job.destination.vo.SendSubscribersResult;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.JsonDataConverter;
 import ai.distil.integration.job.sync.http.campmon.request.CustomListFieldsCampaignMonitorRequest;
@@ -17,6 +18,7 @@ import ai.distil.integration.job.sync.http.campmon.request.ingestion.ImportSubsc
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.UpdateListCampaignMonitorRequest;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.CreateCustomFieldBody;
 import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.ListBody;
+import ai.distil.integration.job.sync.http.campmon.request.ingestion.vo.SubscribersImportResponse;
 import ai.distil.integration.job.sync.http.campmon.vo.*;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
@@ -130,11 +132,15 @@ public class CampaignMonitorDataSync extends AbstractDataSync<CampaignMonitorWit
     }
 
     @Override
-    protected void sendSubscribers(String listId, List<Subscriber> subscribers) {
+    protected SendSubscribersResult sendSubscribers(String listId, List<Subscriber> subscribers) {
         ImportSubscribersCampaignMonitorRequest importRequest = new ImportSubscribersCampaignMonitorRequest(this.httpConnection.getConnectionSettings().getApiKey(),
                 listId, new Subscribers(subscribers));
 
-        this.httpConnection.getRestService().execute(this.httpConnection.getBaseUrl(), importRequest, JsonDataConverter.getInstance());
+        SubscribersImportResponse response = this.httpConnection.getRestService().execute(this.httpConnection.getBaseUrl(), importRequest, JsonDataConverter.getInstance());
+
+        long totalSuccess = Optional.ofNullable(response).map(r -> r.getTotalExistingSubscribers() + response.getTotalNewSubscribers()).orElse(0);
+//todo deal with errors;
+        return new SendSubscribersResult(new HashSet<>(), totalSuccess);
     }
 
     @Override

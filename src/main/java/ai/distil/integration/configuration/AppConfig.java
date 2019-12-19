@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
 import static ai.distil.integration.IntegrationApp.getOverrideArguments;
 
 @Data
@@ -18,11 +19,11 @@ public class AppConfig {
 
     @PostConstruct
     public void init() {
-        if(maxDataSourceSize != null && maxDataSourceSize > 0) {
+        if (maxDataSourceSize != null && maxDataSourceSize > 0) {
             MAX_DATA_SOURCE_SIZE = maxDataSourceSize;
         }
 
-        if(getOverrideArguments().getMaxDataSourceSize()>0){
+        if (getOverrideArguments().getMaxDataSourceSize() > 0) {
             MAX_DATA_SOURCE_SIZE = getOverrideArguments().getMaxDataSourceSize();
         }
     }
