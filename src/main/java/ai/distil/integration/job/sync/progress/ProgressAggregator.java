@@ -2,6 +2,7 @@ package ai.distil.integration.job.sync.progress;
 
 import ai.distil.integration.cassandra.repository.vo.IngestionResult;
 import ai.distil.integration.cassandra.repository.vo.IngestionStatus;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import lombok.Getter;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 

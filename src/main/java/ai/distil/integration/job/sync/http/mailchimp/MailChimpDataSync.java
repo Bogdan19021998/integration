@@ -7,6 +7,7 @@ import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.integration.controller.dto.data.DatasetValue;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.job.destination.vo.SendSubscribersResult;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.vo.*;
@@ -149,7 +150,7 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     @Override
     protected InsertMember buildBaseSubscriber() {
         InsertMember insertMember = new InsertMember();
-        insertMember.setStatus(MailChimpDataSync.DEFAULT_MEMBER_STATUS);
+        insertMember.setStatusIfNew(MailChimpDataSync.DEFAULT_MEMBER_STATUS);
         insertMember.setMergeFields(new HashMap<>(50));
         return insertMember;
     }
@@ -160,11 +161,23 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     }
 
     @Override
-    protected void sendSubscribers(String listId, List<InsertMember> subscribers) {
-        subscribers.forEach(subscriber -> {
-            String hash = HashHelper.md5Hash(subscriber.getEmailAddress().toLowerCase()).toLowerCase();
-            this.httpConnection.executeRequest(new UpsertMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash, subscriber));
-        });
+    protected SendSubscribersResult sendSubscribers(String listId, List<InsertMember> subscribers) {
+
+        Set<String> failedSubscribers = new HashSet<>();
+        long successCount = 0;
+
+        for (InsertMember subscriber : subscribers) {
+            String email = subscriber.getEmailAddress().toLowerCase();
+            String hash = HashHelper.md5Hash(email).toLowerCase();
+            Member member = this.httpConnection.executeRequest(new UpsertMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash, subscriber));
+
+            if (member == null) {
+                failedSubscribers.add(email);
+            } else {
+                successCount++;
+            }
+        }
+        return new SendSubscribersResult(failedSubscribers, successCount);
     }
 
     @Override

@@ -18,8 +18,9 @@ public class IntegrationApp {
 
     private static OverrideArguments overrideArguments;
 
-    public static OverrideArguments getOverrideArguments(){
-        return overrideArguments;
+    public static OverrideArguments getOverrideArguments() {
+//        need it for unit tests
+        return overrideArguments == null ? new OverrideArguments() : overrideArguments;
     }
 
     public static void main(String[] args) {
@@ -30,8 +31,8 @@ public class IntegrationApp {
         try {
             //populate the argument class from the command line args
             JCommander commander = JCommander.newBuilder()
-                .addObject(overrideArguments)
-                .build();
+                    .addObject(overrideArguments)
+                    .build();
 
             commander.parse(args);
 

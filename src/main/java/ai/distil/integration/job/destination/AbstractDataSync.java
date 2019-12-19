@@ -5,11 +5,12 @@ import ai.distil.api.internal.model.dto.destination.DestinationDTO;
 import ai.distil.api.internal.model.dto.destination.DestinationIntegrationDTO;
 import ai.distil.api.internal.model.dto.destination.HyperPersonalizedDestinationDTO;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.job.destination.vo.SendSubscribersResult;
 import ai.distil.integration.job.destination.vo.UtmData;
 import ai.distil.integration.job.sync.AbstractSubscriber;
 import ai.distil.integration.job.sync.http.AbstractHttpConnection;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
-import ai.distil.integration.job.sync.progress.SyncDestinationProgressData;
+import ai.distil.integration.controller.dto.destination.SyncDestinationProgressData;
 import ai.distil.integration.utils.ListUtils;
 import ai.distil.model.org.CustomerRecord;
 import ai.distil.model.org.destination.IntegrationSettings;
@@ -117,12 +118,12 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
     protected abstract void addCustomField(S subscriber, String fieldName, String value);
 
-    protected abstract void sendSubscribers(String listId, List<S> subscribers);
+    protected abstract SendSubscribersResult sendSubscribers(String listId, List<S> subscribers);
 
     protected abstract void removeSubscribers(String listId, Collection<String> subscribersIds);
 
 
-    public void ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
+    public SyncDestinationProgressData ingestData(String listId, List<CustomAttributeDefinition> attributes, List<CustomerRecord> data) {
         SyncDestinationProgressData progressData = new SyncDestinationProgressData();
 
 //        sort attributes first, it's required for current products logic
@@ -162,14 +163,14 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 
             if (subscribers.size() > DEFAULT_BATCH_SIZE) {
                 log.info("Sending next subscribers batch - {} subscribers", DEFAULT_BATCH_SIZE);
-                sendSubscribers(listId, subscribers);
+                sendSubscribersAndTrackStats(listId, progressData, subscribers);
                 subscribers.clear();
             }
         });
 
         if (subscribers.size() > 0) {
             log.info("Sending last subscribers batch - {} subscribers", subscribers.size());
-            sendSubscribers(listId, subscribers);
+            sendSubscribersAndTrackStats(listId, progressData, subscribers);
             subscribers.clear();
         }
 
@@ -182,6 +183,15 @@ public abstract class AbstractDataSync<C extends AbstractHttpConnection, S exten
 //      todo newsfeed card?
         log.info("Successfully finished data sync for the integration - result {}", progressData);
 
+        return progressData;
+
+    }
+
+    private void sendSubscribersAndTrackStats(String listId, SyncDestinationProgressData progressData, List<S> subscribers) {
+        SendSubscribersResult sendSubscribersResult = sendSubscribers(listId, subscribers);
+
+        progressData.addFailedEmails(sendSubscribersResult.getFailedSubscribers());
+        progressData.updateErrorsCount(sendSubscribersResult.getFailedSubscribers().size());
     }
 
     protected S generateSubscriberData(List<CustomAttributeDefinition> attributes, CustomerRecord data, Map<DataSourceSchemaAttributeTag, Set<String>> fieldToBackfillByTags) {

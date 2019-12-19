@@ -11,7 +11,7 @@ import ai.distil.integration.job.sync.http.sf.request.SalesforceLoginRequest;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceDataPage;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceListFields;
 import ai.distil.integration.job.sync.http.sf.vo.SalesforceLoginResponse;
-import ai.distil.integration.job.sync.progress.SyncProgressTrackingData;
+import ai.distil.integration.controller.dto.destination.SyncProgressTrackingData;
 import ai.distil.integration.service.DataSyncService;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.service.sync.ConnectionFactory;

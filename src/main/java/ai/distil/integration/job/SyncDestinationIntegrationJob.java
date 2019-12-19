@@ -6,6 +6,7 @@ import ai.distil.api.internal.proxy.ConnectionProxy;
 import ai.distil.api.internal.proxy.DestinationSourceProxy;
 import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
+import ai.distil.integration.controller.dto.destination.SyncDestinationProgressData;
 import ai.distil.integration.job.sync.request.SyncDestinationRequest;
 import ai.distil.integration.service.DestinationIntegrationService;
 import ai.distil.integration.service.sync.RequestMapper;
@@ -65,7 +66,9 @@ public class SyncDestinationIntegrationJob extends QuartzJobBean {
         List<CustomAttributeDefinition> createdAttributes = dataSyncService.syncCustomAttributesSchema(listId);
 
         List<CustomerRecord> records = destinationSourceProxy.retrieveDestinationDataPrivate(request.getTenantId(), request.getIntegrationId()).getBody();
-        dataSyncService.ingestData(listId, createdAttributes, records);
+        SyncDestinationProgressData syncDestinationResult = dataSyncService.ingestData(listId, createdAttributes, records);
+
+        destinationSourceProxy.saveDestinationSyncResult(request.getTenantId(), integration.getId(), syncDestinationResult);
 
     }
 

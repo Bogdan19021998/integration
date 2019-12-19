@@ -1,4 +1,4 @@
-package ai.distil.integration.job.sync.progress;
+package ai.distil.integration.controller.dto.destination;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -54,8 +54,12 @@ public class SyncProgressTrackingData {
         this.errorsCount++;
     }
 
+    public void updateErrorsCount(long errorsCount) {
+        this.errorsCount += errorsCount;
+    }
+
     public void aggregateAttributeValues(Set<Long> notNullAttributesIds) {
-        if(notNullAttributesIds == null) {
+        if (notNullAttributesIds == null) {
             return;
         }
 
