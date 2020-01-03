@@ -1,0 +1,22 @@
+
+Csquid:S1444",Make this "public static MY_SQL" field final(ËÃ­Â
+Hsquid:S1444"1Make this "public static POSTGRE_SQL" field final(®ç§
+Csquid:S1444",Make this "public static MS_SQL" field final(Íé¦
+Esquid:S1444".Make this "public static REDSHIFT" field final(Ø¬Áæ
+€"squid:ClassVariableVisibilityCheck"RMake MY_SQL a static final constant or non-public and provide accessors if needed.(ËÃ­Â
+…"squid:ClassVariableVisibilityCheck"WMake POSTGRE_SQL a static final constant or non-public and provide accessors if needed.(®ç§
+€"squid:ClassVariableVisibilityCheck"RMake MS_SQL a static final constant or non-public and provide accessors if needed.(Íé¦
+‚"squid:ClassVariableVisibilityCheck"TMake REDSHIFT a static final constant or non-public and provide accessors if needed.(Ø¬Áæ
+"squid:ClassVariableVisibilityCheck"QMake mySql a static final constant or non-public and provide accessors if needed.(Ïöù‚
+„"squid:ClassVariableVisibilityCheck"VMake postgreSql a static final constant or non-public and provide accessors if needed.(ö¦èÔ
+"squid:ClassVariableVisibilityCheck"QMake msSql a static final constant or non-public and provide accessors if needed.(ŠŸ‹ê
+‚"squid:ClassVariableVisibilityCheck"TMake redshift a static final constant or non-public and provide accessors if needed.(ÀÖ—ò
+hsquid:S3008"QRename this field "MY_SQL" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ËÃ­Â
+msquid:S3008"VRename this field "POSTGRE_SQL" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(®ç§
+hsquid:S3008"QRename this field "MS_SQL" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Íé¦
+jsquid:S3008"SRename this field "REDSHIFT" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø¬Áæ
+~squid:S1845"gRename field "redshift" to prevent any misunderstanding/clash with field "REDSHIFT" defined on line 18.(ÀÖ—ò
+Msquid:S2696"6Make the enclosing method "static" or remove this set.(Ìıöš
+Msquid:S2696"6Make the enclosing method "static" or remove this set.(¾øö
+Rsquid:S2696"6Make the enclosing method "static" or remove this set.(õ¹Ì‡ıÿÿÿÿ
+Rsquid:S2696"6Make the enclosing method "static" or remove this set.(ÉİÖÂûÿÿÿÿ

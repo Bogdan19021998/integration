@@ -1,0 +1,35 @@
+spring.datasource:
+  url: jdbc:postgresql://distil-postgresql.postgres.database.azure.com:5432/distil?searchpath=distil
+  username: distilAdmin@distil-postgresql
+  password: 1qaz2wsXX
+  driver-class-name: org.postgresql.Driver
+
+cassandra:
+  servers:
+    - 10.2.2.4
+    - 10.2.2.5
+    - 10.2.2.6
+  keyspace: distil_app
+  accountKeyspaceReplicationOptions:
+    class: NetworkTopologyStrategy
+    distil-production: 3
+
+ai:
+  distil:
+    integrations:
+      app:
+        maxDataSourceSize: -1
+    api:
+      integrations:
+        url: http://localhost:8889
+      internal:
+        url: https://cassandra-cluster.distil.ai:8888
+      public:
+        url: https://cassandra-cluster.distil.ai:8890/public/{org}/{api-code}/customerId
+
+server:
+  port: 8889
+
+
+ai.distil.datapipeline: '{
+}'

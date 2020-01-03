@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+Test set: ai.distil.integration.unit.ParseUtilsTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.76 s <<< FAILURE! - in ai.distil.integration.unit.ParseUtilsTest
+testAttributesTags  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.IllegalStateException: Failed to load ApplicationContext
+Caused by: org.springframework.beans.factory.BeanCreationException: 
+Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Invocation of init method failed; nested exception is org.flywaydb.core.internal.exception.FlywaySqlException: 
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: 
+
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.postgresql.util.PSQLException: FATAL: database "distil" does not exist
+

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="ai.distil" level="INFO"/>
+    <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active"/>
+
+    <if condition='"true".equalsIgnoreCase(property("DEBUG"))'>
+        <then>
+            <logger name="ai.distil" level="DEBUG"/>
+        </then>
+    </if>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} | %-10.10thread | %X{tenantCode} | %5p | %-36.36logger{36} | %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="production,staging">
+        <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+            <graylogHost>distil-staging-cassandra-1.northeurope.cloudapp.azure.com</graylogHost>
+            <graylogPort>12201</graylogPort>
+            <maxChunkSize>508</maxChunkSize>
+            <useCompression>true</useCompression>
+            <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+                <originHost>distil-staging-cassandra-1.northeurope.cloudapp.azure.com</originHost>
+                <includeRawMessage>false</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>true</includeCallerData>
+                <includeRootCauseData>true</includeRootCauseData>
+                <includeLevelName>true</includeLevelName>
+                <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortPatternLayout>
+                <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%n</pattern>
+                </fullPatternLayout>
+                <numbersAsString>false</numbersAsString>
+                <staticField>ms:integrations</staticField>
+                <staticField>env:${ACTIVE_PROFILE}</staticField>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <springProfile name="local,production-local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="production,staging">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="GELF"/>
+        </root>
+    </springProfile>
+
+</configuration>

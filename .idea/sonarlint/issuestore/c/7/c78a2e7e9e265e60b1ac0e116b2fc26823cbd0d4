@@ -1,0 +1,11 @@
+
+Qsquid:S1444
+"3Make this "public static DATASOURCE_ID" field final(ƒ£ƒ·8µ‰Øîè-
+zsquid:S3008	"]Rename this field "CONNECTION_LOG_KEY" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÏŠ­V8ŠÛ×îè-
+Ž"squid:ClassVariableVisibilityCheck
+"YMake DATASOURCE_ID a static final constant or non-public and provide accessors if needed.(ƒ£ƒ·8µ‰Øîè-
+vsquid:S3008
+"XRename this field "DATASOURCE_ID" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ƒ£ƒ·8ŠÛ×îè-
+Usquid:S1444	"8Make this "public static CONNECTION_LOG_KEY" field final(ÏŠ­V8µ‰Øîè-
+’"squid:ClassVariableVisibilityCheck	"^Make CONNECTION_LOG_KEY a static final constant or non-public and provide accessors if needed.(ÏŠ­V8µ‰Øîè-
+Qsquid:S1118":Add a private constructor to hide the implicit public one.(¢š÷Ö

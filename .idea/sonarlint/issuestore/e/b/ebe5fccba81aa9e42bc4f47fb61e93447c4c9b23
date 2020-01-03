@@ -1,0 +1,7 @@
+
+dsquid:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8‹¢Ú–ò-
+psquid:S4276"RRefactor this code to use the more specialised Functional Interface 'Predicate<T>'(åÀ‹ƒ8¬ÖÙ–ò-
+Xsquid:S1118":Add a private constructor to hide the implicit public one.(˜çëİ8¹ÉÌ–ò-
+Hsquid:S5411
+"*Use the primitive boolean expression here.(ÊêÃù8¬ÖÙ–ò-
+jsquid:S00112"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8¹¨Û–ò-

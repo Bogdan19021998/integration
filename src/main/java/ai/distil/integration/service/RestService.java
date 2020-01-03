@@ -30,11 +30,11 @@ public class RestService {
         String body = bodyToString(dataConverter, request.getBody());
         Request baseRequest = this.getBaseRequest(baseUrl, request.httpMethod().name(), request.urlPart(), request.headers(), request.params(), body);
 
-        return execute(baseRequest, dataConverter, request);
+        return execute(baseRequest, dataConverter, request, request.fromBytes());
     }
 
     public <R, T> CompletableFuture<R> executeAsync(String baseUrl, IHttpRequest<T> request, IDataConverter dataConverter,
-                                 Function<T, R> f) {
+                                                    Function<T, R> f) {
         CompletableFuture<T> responseFuture = executeAsync(baseUrl, request, dataConverter);
         return responseFuture.thenApply(f);
 
@@ -47,23 +47,25 @@ public class RestService {
         return this.httpClient.executeRequest(baseRequest)
                 .toCompletableFuture()
                 .thenApply(response -> ofNullable(HttpStatus.resolve(response.getStatusCode())).map(HttpStatus::is2xxSuccessful)
-                .map(isSuccess -> {
-                    if(isSuccess) {
-                        return dataConverter.fromString(response.getResponseBody(), request.resultType());
-                    }
-                    request.handleError(response, dataConverter);
-                    return null;
-                })
-                .orElse(null));
+                        .map(isSuccess -> {
+                            if (isSuccess) {
+                                return dataConverter.fromString(response.getResponseBody(), request.resultType());
+                            }
+                            request.handleError(response, dataConverter);
+                            return null;
+                        })
+                        .orElse(null));
     }
 
-    private <R> R execute(Request request, IDataConverter dataConverter, IHttpRequest<R> httpRequest) {
+    private <R> R execute(Request request, IDataConverter dataConverter, IHttpRequest<R> httpRequest, boolean fromBytes) {
         ListenableFuture<Response> responseFuture = this.httpClient.executeRequest(request);
 
         try {
             Response response = responseFuture.get();
-            if(HttpStatus.resolve(response.getStatusCode()).is2xxSuccessful()) {
-                return dataConverter.fromString(response.getResponseBody(), httpRequest.resultType());
+            if (HttpStatus.resolve(response.getStatusCode()).is2xxSuccessful()) {
+                return fromBytes
+                        ? dataConverter.fromBytes(response.getResponseBodyAsBytes(), httpRequest.resultType())
+                        : dataConverter.fromString(response.getResponseBody(), httpRequest.resultType());
             } else {
                 log.error("Can't execute http request: {}, error: {}", request, response.getResponseBody());
 //                        may throw exception if it's real error

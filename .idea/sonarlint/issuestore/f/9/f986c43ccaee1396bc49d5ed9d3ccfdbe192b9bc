@@ -1,0 +1,17 @@
+
+Lsquid:S1444"0Make this "public static MAIL_CHIMP" field final(β„Μÿÿÿÿÿ
+Rsquid:S1444"6Make this "public static CAMPAIGN_MONITOR" field final(¨λ£ÿÿÿÿÿ
+Lsquid:S1444"0Make this "public static SALESFORCE" field final(‡Κ¦ωÿÿÿÿ
+‰"squid:ClassVariableVisibilityCheck"VMake MAIL_CHIMP a static final constant or non-public and provide accessors if needed.(β„Μÿÿÿÿÿ
+"squid:ClassVariableVisibilityCheck"\Make CAMPAIGN_MONITOR a static final constant or non-public and provide accessors if needed.(¨λ£ÿÿÿÿÿ
+‰"squid:ClassVariableVisibilityCheck"VMake SALESFORCE a static final constant or non-public and provide accessors if needed.(‡Κ¦ωÿÿÿÿ
+ƒ"squid:ClassVariableVisibilityCheck"UMake mailChimp a static final constant or non-public and provide accessors if needed.(‹μ
+‰"squid:ClassVariableVisibilityCheck"[Make campaignMonitor a static final constant or non-public and provide accessors if needed.(ξ΅ώ
+‰"squid:ClassVariableVisibilityCheck"VMake salesforce a static final constant or non-public and provide accessors if needed.(γ¨Ήφωÿÿÿÿ
+qsquid:S3008"URename this field "MAIL_CHIMP" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(β„Μÿÿÿÿÿ
+wsquid:S3008"[Rename this field "CAMPAIGN_MONITOR" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¨λ£ÿÿÿÿÿ
+qsquid:S3008"URename this field "SALESFORCE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡Κ¦ωÿÿÿÿ
+‡squid:S1845"kRename field "salesforce" to prevent any misunderstanding/clash with field "SALESFORCE" defined on line 18.(γ¨Ήφωÿÿÿÿ
+Msquid:S2696"6Make the enclosing method "static" or remove this set.(ΙΒωθ
+Msquid:S2696"6Make the enclosing method "static" or remove this set.(‰–νό
+Rsquid:S2696"6Make the enclosing method "static" or remove this set.(βρΪΜωÿÿÿÿ

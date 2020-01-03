@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="test" uuid="ef1d6f8a-8cbc-4164-8d0d-4572878b4b0e">
+      <driver-ref>redshift</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.amazon.redshift.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:redshift://dwh.clgb5kxf1w5l.eu-west-2.redshift.amazonaws.com:5439/distil_test</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="crowdfund" uuid="4d2323b2-b40d-4b31-b75b-fc0aefe61134">
+      <driver-ref>redshift</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.amazon.redshift.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:redshift://redshift.cc-internal.com:5439/dwh</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="staging" uuid="ed0dec6a-473d-4068-8ec8-e631318fa615">
+      <driver-ref>cassandra</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.CassandraJdbcDriver</jdbc-driver>
+      <jdbc-url>jdbc:cassandra://40.127.201.110:9042</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="postgres@localhost" uuid="df2a2452-5139-48f1-a5f6-8a06bfd9c6f8">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="@40.127.201.179" uuid="69f67776-e721-4203-8f4f-d03723513eb5">
+      <driver-ref>cassandra</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.CassandraJdbcDriver</jdbc-driver>
+      <jdbc-url>jdbc:cassandra://40.127.201.179:9042</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="@localhost" uuid="d2b5a47e-2807-4d2d-8022-c0d71a657cce">
+      <driver-ref>cassandra</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.CassandraJdbcDriver</jdbc-driver>
+      <jdbc-url>jdbc:cassandra://localhost:9042</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="crowdfund_ssh" uuid="4560a420-c968-42fc-b6c5-632476cb3441">
+      <driver-ref>mysql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://127.0.0.1:3306/cf_main</jdbc-url>
+      <driver-properties>
+        <property name="autoReconnect" value="true" />
+        <property name="zeroDateTimeBehavior" value="convertToNull" />
+        <property name="tinyInt1isBit" value="false" />
+        <property name="characterEncoding" value="utf8" />
+        <property name="characterSetResults" value="utf8" />
+        <property name="yearIsDateType" value="false" />
+      </driver-properties>
+    </data-source>
+    <data-source source="LOCAL" name="Staging local" uuid="a9487749-e9ff-4555-b05a-b4802cdf9dc1">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://40.127.201.110:5432/distil</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="distil@distil-postgresql.postgres.database.azure.com" uuid="018ac488-d304-4844-9da4-62e55767b783">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://distil-postgresql.postgres.database.azure.com:5432/distil?currentSchema=distil_org_xx</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="distil@localhost" uuid="2b5fbe4a-01f4-4c99-9608-d4622179fc62">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/distil</jdbc-url>
+    </data-source>
+  </component>
+</project>

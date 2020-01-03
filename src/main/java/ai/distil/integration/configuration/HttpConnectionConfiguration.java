@@ -15,11 +15,13 @@ public class HttpConnectionConfiguration {
 
     public static SimpleHttpConnectionProps MAIL_CHIMP;
     public static SimpleHttpConnectionProps CAMPAIGN_MONITOR;
+    public static SimpleHttpConnectionProps KLAVIYO;
     public static SalesforceHttpConnectionProps SALESFORCE;
 
     public SimpleHttpConnectionProps mailChimp;
     public SimpleHttpConnectionProps campaignMonitor;
     public SalesforceHttpConnectionProps salesforce;
+    public SimpleHttpConnectionProps klaviyo;
 
 
     @PostConstruct
@@ -27,6 +29,7 @@ public class HttpConnectionConfiguration {
         MAIL_CHIMP = this.mailChimp;
         CAMPAIGN_MONITOR = this.campaignMonitor;
         SALESFORCE = this.salesforce;
+        KLAVIYO = this.klaviyo;
     }
 
 }

@@ -9,21 +9,26 @@ import ai.distil.integration.job.destination.AbstractDataSync;
 import ai.distil.integration.job.destination.vo.CustomAttributeDefinition;
 import ai.distil.integration.job.destination.vo.SendSubscribersResult;
 import ai.distil.integration.job.sync.holder.DataSourceDataHolder;
+import ai.distil.integration.job.sync.http.JsonDataConverter;
+import ai.distil.integration.job.sync.http.JsonTarDataConverter;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
 import ai.distil.integration.job.sync.http.mailchimp.vo.*;
-import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpAudiencesRequest;
-import ai.distil.integration.job.sync.http.request.mailchimp.MailChimpMergeFieldsRequest;
+import ai.distil.integration.job.sync.http.mailchimp.vo.batch.BatchOperationResult;
+import ai.distil.integration.job.sync.http.mailchimp.vo.batch.BatchTrackingResponse;
+import ai.distil.integration.job.sync.http.request.mailchimp.*;
 import ai.distil.integration.job.sync.http.request.mailchimp.ingestion.*;
 import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.iterator.IRowIterator;
 import ai.distil.integration.service.RestService;
 import ai.distil.integration.utils.HashHelper;
 import ai.distil.integration.utils.ListUtils;
+import ai.distil.integration.utils.WaitUtils;
 import ai.distil.model.org.destination.IntegrationSettings;
 import ai.distil.model.types.DataSourceType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -35,6 +40,7 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
     private static final String TEXT_TYPE = "text";
     private static final String DEFAULT_MEMBER_STATUS = "subscribed";
     private static final String EMAIL_ID_FIELD = "email_address";
+    private static final String FINISHED_BATCH_STATE = "finished";
 
     public MailChimpDataSync(DestinationDTO destination, DestinationIntegrationDTO destinationIntegration, List<DTODataSourceAttributeExtended> attributes, SyncSettings syncSettings,
                              DTOConnection connection, RestService restService) {
@@ -166,18 +172,38 @@ public class MailChimpDataSync extends AbstractDataSync<MailChimpCustomFieldsHtt
         Set<String> failedSubscribers = new HashSet<>();
         long successCount = 0;
 
-        for (InsertMember subscriber : subscribers) {
+        List<UpsertMemberMailChimpRequest> requests = subscribers.stream().map(subscriber -> {
             String email = subscriber.getEmailAddress().toLowerCase();
             String hash = HashHelper.md5Hash(email).toLowerCase();
-            Member member = this.httpConnection.executeRequest(new UpsertMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash, subscriber));
+            return new UpsertMemberMailChimpRequest(this.httpConnection.getApiKey(), listId, hash, subscriber);
+        }).collect(Collectors.toList());
 
-            if (member == null) {
-                failedSubscribers.add(email);
+        BatchRequest batchRequest = new BatchRequest(this.httpConnection.getApiKey(), requests, JsonDataConverter.getInstance());
+        BatchTrackingResponse batchResponse = this.httpConnection.executeRequest(batchRequest);
+
+        BatchTrackingResponse result = WaitUtils.wait(() -> this.httpConnection.executeRequest(new GetBatchDataRequest(this.httpConnection.getApiKey(), batchResponse.getId())),
+                r -> FINISHED_BATCH_STATE.equalsIgnoreCase(r.getStatus()), 1000);
+
+        List<BatchOperationResult<Member>> batchResult = this.httpConnection.executeRequest(result.getResponseBodyUrl(), new GetBatchResultRequest<>(), JsonTarDataConverter.getInstance());
+
+        return buildSendSubscribersResultFromBatchResponse(batchResult);
+    }
+
+    private SendSubscribersResult buildSendSubscribersResultFromBatchResponse(List<BatchOperationResult<Member>> results) {
+
+        long success = 0;
+        Set<String> failedEmails = new HashSet<>();
+
+        for (BatchOperationResult result : results) {
+            if(result.getStatusCode().equals(HttpStatus.OK.value())) {
+                success++;
             } else {
-                successCount++;
+//                failedEmails.add();
+                System.out.println();
             }
         }
-        return new SendSubscribersResult(failedSubscribers, successCount);
+        return new SendSubscribersResult(failedEmails, success);
+
     }
 
     @Override

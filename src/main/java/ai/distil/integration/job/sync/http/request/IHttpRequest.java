@@ -23,6 +23,13 @@ public interface IHttpRequest<R> {
 
     HttpMethod httpMethod();
 
+    /**
+     * this means that deserialization should be done using bytes and not string value
+     * */
+    default boolean fromBytes() {
+        return false;
+    }
+
     default Map<String, Object> headers() {
         return Collections.emptyMap();
     }
@@ -31,7 +38,7 @@ public interface IHttpRequest<R> {
         return Collections.emptyList();
     }
 
-//    may throw exception if it's critical error, default error handle just suppression
+    //    may throw exception if it's critical error, default error handle just suppression
     default void handleError(Response response, IDataConverter converter) {
         return;
     }

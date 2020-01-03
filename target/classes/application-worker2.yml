@@ -1,0 +1,46 @@
+spring:
+
+  profiles.active: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: true
+    properties:
+      hibernate:
+        temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+
+spring.datasource:
+  url: jdbc:postgresql://localhost:5432/distil
+  username: postgres
+  password: 1qaz2wsXX
+  driver-class-name: org.postgresql.Driver
+
+ai:
+  distil:
+    api:
+      integrations:
+        url: http://localhost:8086
+
+app:
+  name: distil_integration
+
+logging.level.org.springframework: ERROR
+
+server:
+  port: 8089
+
+ai.distil.integrations.connections:
+  mySql:
+    protocol: mysql
+    props: "?useReadAheadInput=false&useFastDateParsing=false&zeroDateTimeBehavior=convertToNull&useCursorFetch=true"
+  postgreSql:
+    protocol: postgresql
+    props: ""
+  msSql:
+    protocol: sqlserver
+    props: ";integratedSecurity=true"
+  redshift:
+    protocol: redshift
+    props: ""

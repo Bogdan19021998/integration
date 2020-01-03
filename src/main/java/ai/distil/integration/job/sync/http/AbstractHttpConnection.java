@@ -44,8 +44,12 @@ public abstract class AbstractHttpConnection extends AbstractConnection {
 //        do nothing
     }
 
+    public <T> T executeRequest(String url, IHttpRequest<T> r, IDataConverter dataConverter) {
+        return this.restService.execute(url, r, dataConverter);
+    }
+
     public <T> T executeRequest(IHttpRequest<T> r) {
-        return this.restService.execute(getBaseUrl(), r, JsonDataConverter.getInstance());
+        return this.executeRequest(getBaseUrl(), r, JsonDataConverter.getInstance());
     }
 
     public <T> CompletableFuture<T> executeAsyncRequest(IHttpRequest<T> r) {

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="test" uuid="ef1d6f8a-8cbc-4164-8d0d-4572878b4b0e">
+      <database-info product="PostgreSQL" version="08.00.0002" jdbc-version="4.2" driver-name="RedshiftJDBC" driver-version="01.02.16.1027" dbms="REDSHIFT" exact-version="1.0.11116" exact-driver-version="1.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <secret-storage>master_key</secret-storage>
+      <user-name>vitaliy</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+              <node kind="external-schema" qname="@" />
+            </node>
+            <node kind="database" qname="distil_demo_data">
+              <node kind="schema">
+                <name qname="@" />
+                <name qname="pg_catalog" />
+                <name qname="spirit_shop_data" />
+              </node>
+              <node kind="external-schema">
+                <name qname="@" />
+                <name qname="pg_catalog" />
+                <name qname="spirit_shop_data" />
+              </node>
+            </node>
+            <node kind="database" qname="distil_test">
+              <node kind="schema" negative="1" />
+              <node kind="external-schema" negative="1" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="crowdfund" uuid="4d2323b2-b40d-4b31-b75b-fc0aefe61134">
+      <database-info product="PostgreSQL" version="08.00.0002" jdbc-version="4.2" driver-name="RedshiftJDBC" driver-version="01.02.16.1027" dbms="REDSHIFT" exact-version="1.0.11420" exact-driver-version="1.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <secret-storage>master_key</secret-storage>
+      <user-name>ccdatawh</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" negative="1">
+              <node kind="schema" negative="1" />
+              <node kind="external-schema" negative="1" />
+            </node>
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+              <node kind="external-schema" qname="@" />
+            </node>
+            <node kind="database">
+              <name qname="dev" />
+              <name qname="padb_harvest" />
+              <node kind="schema" qname="" />
+              <node kind="external-schema" qname="" />
+            </node>
+            <node kind="database" qname="dwh">
+              <node kind="schema">
+                <name qname="ccdwh" />
+                <name qname="distil_org_crowdcube" />
+              </node>
+              <node kind="external-schema">
+                <name qname="ccdwh" />
+                <name qname="distil_org_crowdcube" />
+              </node>
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="staging" uuid="ed0dec6a-473d-4068-8ec8-e631318fa615">
+      <database-info product="Cassandra" version="3.11.4" jdbc-version="4.2" driver-name="Cassandra JDBC Driver" driver-version="1.3.2" dbms="CASSANDRA" exact-version="3.11.4" exact-driver-version="1.3">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema">
+            <name qname="distil" />
+            <name qname="distil_org_xx" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="postgres@localhost" uuid="df2a2452-5139-48f1-a5f6-8a06bfd9c6f8">
+      <database-info product="PostgreSQL" version="12.1 (Ubuntu 12.1-1.pgdg19.10+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="12.1" exact-driver-version="42.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database">
+              <name qname="distil" />
+              <name qname="postgres" />
+              <name qname="spirit_shop_test" />
+              <node kind="schema" negative="1" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="@40.127.201.179" uuid="69f67776-e721-4203-8f4f-d03723513eb5">
+      <database-info product="Cassandra" version="3.11.5" jdbc-version="4.2" driver-name="Cassandra JDBC Driver" driver-version="1.3.2" dbms="CASSANDRA" exact-version="3.11.5" exact-driver-version="1.3">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" negative="1" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="@localhost" uuid="d2b5a47e-2807-4d2d-8022-c0d71a657cce">
+      <database-info product="Cassandra" version="3.11.1" jdbc-version="4.2" driver-name="Cassandra JDBC Driver" driver-version="1.3.4" dbms="CASSANDRA" exact-version="3.11.1" exact-driver-version="1.3">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" negative="1" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="crowdfund_ssh" uuid="4560a420-c968-42fc-b6c5-632476cb3441">
+      <database-info product="MySQL" version="5.5.5-10.3.15-MariaDB-log" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.47 ( Revision: fe1903b1ecb4a96a917f7ed3190d80c049b1de29 )" dbms="MARIADB" exact-version="10.3.15" exact-driver-version="5.1">
+        <extra-name-characters>#@</extra-name-characters>
+        <identifier-quote-string>`</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>bigdata</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="@" />
+        </introspection-scope>
+      </schema-mapping>
+      <ssh-properties>
+        <enabled>true</enabled>
+        <proxy-host>185.219.236.31</proxy-host>
+        <proxy-port>2223</proxy-port>
+        <secret-storage>master_key</secret-storage>
+        <user>bcdata</user>
+        <use-password>false</use-password>
+        <auth-type>KEY_PAIR</auth-type>
+        <private-key-path>$USER_HOME$/.ssh/crowd.pem</private-key-path>
+      </ssh-properties>
+    </data-source>
+    <data-source name="Staging local" uuid="a9487749-e9ff-4555-b05a-b4802cdf9dc1">
+      <database-info product="PostgreSQL" version="11.3 (Debian 11.3-1.pgdg90+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="11.3" exact-driver-version="42.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database">
+              <name qname="distil" />
+              <name qname="postgres" />
+              <node kind="schema" negative="1" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="distil@distil-postgresql.postgres.database.azure.com" uuid="018ac488-d304-4844-9da4-62e55767b783">
+      <database-info product="PostgreSQL" version="11.5" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="11.5" exact-driver-version="42.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>distilAdmin@distil-postgresql</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database" qname="distil">
+              <node kind="schema">
+                <name qname="distil_app" />
+                <name qname="distil_org_cmo" />
+                <name qname="distil_org_crowdcube" />
+                <name qname="distil_org_crowdfunder" />
+                <name qname="distil_org_spiritshop" />
+                <name qname="distil_org_xx" />
+                <name qname="distil_reserved_0" />
+                <name qname="distil_types" />
+              </node>
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="distil@localhost" uuid="2b5fbe4a-01f4-4c99-9608-d4622179fc62">
+      <database-info product="PostgreSQL" version="12.1 (Ubuntu 12.1-1.pgdg19.10+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="12.1" exact-driver-version="42.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+  </component>
+</project>

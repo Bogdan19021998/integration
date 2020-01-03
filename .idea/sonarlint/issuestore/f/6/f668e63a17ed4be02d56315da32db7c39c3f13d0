@@ -1,0 +1,13 @@
+
+6squid:S1640/"Convert this Map to an EnumMap.(õÓ»
+6squid:S16407"Convert this Map to an EnumMap.(âÏ§
+psquid:S3008"YRename this field "EXCLUDE_FIELDS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¹Ûã
+~squid:S3008"bRename this field "DEFAULT_ATTRIBUTES_TYPE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ãšà¦øÿÿÿÿ
+ysquid:S30087"bRename this field "DEFAULT_ATTRIBUTES_TAGS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(âÏ§
+xsquid:S00116."`Rename this field "CUSTOM_VALUES_MAPPERS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ªÚ¾
+Hsquid:S3599",Use another way to initialize this instance.(Ãšà¦øÿÿÿÿ
+usquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(Ãšà¦øÿÿÿÿ
+Csquid:S3599/",Use another way to initialize this instance.(õÓ»
+psquid:S1171/"YMove the contents of this initializer to a standard constructor or to field initializers.(õÓ»
+Csquid:S35997",Use another way to initialize this instance.(âÏ§
+psquid:S11717"YMove the contents of this initializer to a standard constructor or to field initializers.(âÏ§

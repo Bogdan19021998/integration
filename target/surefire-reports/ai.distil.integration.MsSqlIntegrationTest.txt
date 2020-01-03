@@ -1,0 +1,44 @@
+-------------------------------------------------------------------------------
+Test set: ai.distil.integration.MsSqlIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 2.699 s <<< FAILURE! - in ai.distil.integration.MsSqlIntegrationTest
+testSimpleSync  Time elapsed: 0 s  <<< ERROR!
+java.lang.IllegalStateException: Failed to load ApplicationContext
+Caused by: org.springframework.beans.factory.BeanCreationException: 
+Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Invocation of init method failed; nested exception is org.flywaydb.core.internal.exception.FlywaySqlException: 
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: 
+
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.postgresql.util.PSQLException: FATAL: database "distil" does not exist
+
+simpleConnectionTest  Time elapsed: 0.013 s  <<< ERROR!
+java.lang.IllegalStateException: Failed to load ApplicationContext
+Caused by: org.springframework.beans.factory.BeanCreationException: 
+Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Invocation of init method failed; nested exception is org.flywaydb.core.internal.exception.FlywaySqlException: 
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: 
+
+Unable to obtain connection from database: FATAL: database "distil" does not exist
+----------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "distil" does not exist
+
+Caused by: org.postgresql.util.PSQLException: FATAL: database "distil" does not exist
+

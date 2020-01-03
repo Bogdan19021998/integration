@@ -10,6 +10,8 @@ import ai.distil.integration.job.sync.SshConnection;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorDataSync;
 import ai.distil.integration.job.sync.http.campmon.CampaignMonitorHttpConnection;
 import ai.distil.integration.job.sync.http.campmon.holder.CampaignMonitorFieldsHolder;
+import ai.distil.integration.job.sync.http.klaviyo.KlaviyoFieldsHolder;
+import ai.distil.integration.job.sync.http.klaviyo.KlaviyoHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpDataSync;
 import ai.distil.integration.job.sync.http.mailchimp.MailChimpHttpConnection;
 import ai.distil.integration.job.sync.http.mailchimp.holder.MailChimpMembersFieldsHolder;
@@ -19,7 +21,6 @@ import ai.distil.integration.job.sync.http.sync.SyncSettings;
 import ai.distil.integration.job.sync.jdbc.MsSqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.MySqlJdbcConnection;
 import ai.distil.integration.job.sync.jdbc.PostgreSqlJdbcConnection;
-import ai.distil.integration.job.sync.jdbc.RedshiftSqlJdbcConnection;
 import ai.distil.integration.mapper.ConnectionMapper;
 import ai.distil.integration.service.RestService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,8 @@ public class ConnectionFactory {
     private final MailChimpMembersFieldsHolder mailChimpMembersFieldsHolder;
     private final CampaignMonitorFieldsHolder campaignMonitorFieldsHolder;
     private final SalesforceFieldsHolder salesforceFieldsHolder;
+
+    private final KlaviyoFieldsHolder klaviyoFieldsHolder;
 
     public AbstractConnection buildConnection(DTOConnection dtoConnection) {
         AbstractConnection abstractConnection = buildSimpleConnection(dtoConnection);
@@ -68,13 +71,20 @@ public class ConnectionFactory {
             case SQLSERVER:
                 return new MsSqlJdbcConnection(connection);
             case REDSHIFT:
-                return new RedshiftSqlJdbcConnection(connection);
+                // my klavio
+                return new KlaviyoHttpConnection(connection, restService, klaviyoFieldsHolder );
+
+                // return new RedshiftSqlJdbcConnection(connection);
             case MAILCHIMP:
                 return new MailChimpHttpConnection(connection, restService, mailChimpMembersFieldsHolder);
             case CAMPAIGN_MONITOR:
                 return new CampaignMonitorHttpConnection(connection, restService, campaignMonitorFieldsHolder);
             case SALESFORCE:
                 return new SalesforceHttpConnection(connection, restService, salesforceFieldsHolder);
+            // ----
+            // case KLAVIYO :
+            // return new KlaviyoHttpConnection(connection, restService, klaviyoFieldsHolder );
+            // ----
             default:
                 throw new UnsupportedOperationException();
         }

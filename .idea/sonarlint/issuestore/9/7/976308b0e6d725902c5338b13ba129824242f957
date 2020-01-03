@@ -1,0 +1,28 @@
+
+Msquid:S1611S"1Remove the parentheses around the "row" parameter(™…°ìşÿÿÿÿ
+usquid:S1171="YMove the contents of this initializer to a standard constructor or to field initializers.(Ö¡Ñ›ÿÿÿÿÿ
+Zsquid:S3398]">Move this method into the anonymous class declared at line 82.(õ²×¢ùÿÿÿÿ
+psquid:S1171R"YMove the contents of this initializer to a standard constructor or to field initializers.(ÙÏ½×
+wsquid:S00116™"YRename this field "FORMAT_MAPPING" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§À”«ùÿÿÿÿ
+nsquid:S3008g"WRename this field "DEFAULT_KEYS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(îıïè
+}squid:S00116X"`Rename this field "CUSTOM_VALUES_MAPPERS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¯½‡İûÿÿÿÿ
+usquid:S1171X"YMove the contents of this initializer to a standard constructor or to field initializers.(¯½‡İûÿÿÿÿ
+psquid:S11923"TUse already-defined constant 'PROPERTIES_KEY' instead of duplicating its value here.(Çä¹õûÿÿÿÿ
+†"squid:ClassVariableVisibilityCheckg"XMake DEFAULT_KEYS a static final constant or non-public and provide accessors if needed.(îıïè
+>squid:S2386p"'Make member "DEFAULT_KEYS" "protected".(“‰’ı
+vsquid:S1171™"YMove the contents of this initializer to a standard constructor or to field initializers.(§À”«ùÿÿÿÿ
+Ksquid:S1611¢"3Remove the parentheses around the "entry" parameter(¦­öş
+Csquid:S3599R",Use another way to initialize this instance.(ÙÏ½×
+Isquid:S1135""2Complete the task associated to this TODO comment.(ôñÓ 
+Isquid:S1068#"2Remove this unused "ARRAY_TYPE_KEY" private field.(Ğøˆ
+;squid:S1640X"Convert this Map to an EnumMap.(¯½‡İûÿÿÿÿ
+Msquid:S1611T"1Remove the parentheses around the "row" parameter(‹½æÖşÿÿÿÿ
+xsquid:S00116R"`Rename this field "CUSTOM_FIELDS_MAPPING" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÙÏ½×
+msquid:S1192"VUse already-defined constant 'MERGE_FIELDS_KEY' instead of duplicating its value here.(™©¯˜
+Hsquid:S3599X",Use another way to initialize this instance.(¯½‡İûÿÿÿÿ
+Isquid:S3599™",Use another way to initialize this instance.(§À”«ùÿÿÿÿ
+;squid:S1640="Convert this Map to an EnumMap.(Ö¡Ñ›ÿÿÿÿÿ
+Hsquid:S3599=",Use another way to initialize this instance.(Ö¡Ñ›ÿÿÿÿÿ
+Isquid:S1444g"2Make this "public static DEFAULT_KEYS" field final(îıïè
+Msquid:S2696p"6Make the enclosing method "static" or remove this set.(“‰’ı
+€squid:S00116H"cRename this field "DEFAULT_ADDRESS_MAPPINGS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ïéñôøÿÿÿÿ

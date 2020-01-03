@@ -1,0 +1,33 @@
+spring.datasource:
+  driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/distil?searchpath=distil
+  username: postgres
+  password: 1qaz2wsXX
+
+cassandra:
+  servers:
+    - 10.1.3.5
+  keyspace: distil
+  accountKeyspaceReplicationOptions:
+    class: SimpleStrategy
+    replication_factor: 1
+
+ai:
+  distil:
+    integrations:
+      app:
+        maxDataSourceSize: -1
+    api:
+      integrations:
+        url: http://localhost:8889
+      internal:
+        url: https://staging-api.distil.ai:8888
+      public:
+        url: https://staging-api.distil.ai:8890/public/{org}/{api-code}/customerId
+
+server:
+  port: 8889
+
+
+ai.distil.datapipeline: '{
+}'

@@ -1,0 +1,17 @@
+
+wsquid:S1171G"YMove the contents of this initializer to a standard constructor or to field initializers.(õÓ»8Â¹õæ-
+=squid:S1640G"Convert this Map to an EnumMap.(õÓ»8Â¹õæ-
+€squid:S00116F"aRename this field "CUSTOM_TYPE_CONVERTERS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÿöÏ¼8Â¹õæ-
+Jsquid:S3599G",Use another way to initialize this instance.(õÓ»8Â¹õæ-
+@squid:S1640"Convert this Map to an EnumMap.(Ø×Å´ıÿÿÿÿ8 ñîıæ-
+;squid:S1640"Convert this Map to an EnumMap.(ªˆ¯8 ñîıæ-
+‚squid:S00116"`Rename this field "DEFAULT_STATIC_FIELDS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§ÄÃ’ûÿÿÿÿ8 ñîıæ-
+Hsquid:S3599",Use another way to initialize this instance.(ìÑ•«8 ñîıæ-
+usquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(ìÑ•«8 ñîıæ-
+Nsquid:S1135"2Complete the task associated to this TODO comment.(ı©™ñ8 ñîıæ-
+Msquid:S3599",Use another way to initialize this instance.(Ø×Å´ıÿÿÿÿ8 ñîıæ-
+zsquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(Ø×Å´ıÿÿÿÿ8 ñîıæ-
+Hsquid:S3599",Use another way to initialize this instance.(ªˆ¯8 ñîıæ-
+usquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(ªˆ¯8 ñîıæ-
+Msquid:S3599",Use another way to initialize this instance.(–Íåüÿÿÿÿ8 ñîıæ-
+zsquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(–Íåüÿÿÿÿ8 ñîıæ-

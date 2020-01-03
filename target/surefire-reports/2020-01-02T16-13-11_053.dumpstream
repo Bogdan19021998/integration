@@ -1,0 +1,15 @@
+# Created at 2020-01-02T16:13:11.053
+WARNING: An illegal reflective access operation has occurred
+
+# Created at 2020-01-02T16:13:11.053
+WARNING: Illegal reflective access by com.amazon.jdbc.classloader.JarInJarClassLoader (file:/home/bogdan/.m2/repository/com/amazon/redshift/redshift-jdbc4-no-awssdk/1.2.8.1005/redshift-jdbc4-no-awssdk-1.2.8.1005.jar) to field java.net.URL.factory
+
+# Created at 2020-01-02T16:13:11.054
+WARNING: Please consider reporting this to the maintainers of com.amazon.jdbc.classloader.JarInJarClassLoader
+
+# Created at 2020-01-02T16:13:11.054
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+
+# Created at 2020-01-02T16:13:11.054
+WARNING: All illegal access operations will be denied in a future release
+

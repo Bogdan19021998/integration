@@ -242,8 +242,6 @@ public class MailChimpIntegrationTest {
                     .map(DataSourceDataHolder::mapFromDTODataSourceEntity)
                     .forEach(dataSource -> dataSyncService.reSyncDataSource(tenantId, dataSource, connection));
         }
-
-
     }
 
     @Test
@@ -263,7 +261,7 @@ public class MailChimpIntegrationTest {
         }).collect(Collectors.toList());
 
         AbstractDataSync dataSync = connectionFactory.buildDataSync(new DestinationDTO(), defaultConnection(), integration, new SyncSettings(5), attributes);
-        String listId = "72770c2e10";
+        String listId = "a9b8a9fa99";
         List<CustomAttributeDefinition> customAttributeDefinitions = dataSync.syncCustomAttributesSchema(listId);
 
         ObjectNode customerValues = new ObjectNode(new JsonNodeFactory(false));

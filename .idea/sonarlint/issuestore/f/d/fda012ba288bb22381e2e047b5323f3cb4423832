@@ -1,0 +1,18 @@
+
+usquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(Õç„Êýÿÿÿÿ
+;squid:S1640"Convert this Map to an EnumMap.(Õç„Êýÿÿÿÿ
+Hsquid:S3599",Use another way to initialize this instance.(Õç„Êýÿÿÿÿ
+Dsquid:S3599¨",Use another way to initialize this instance.(…çøŸ
+7squid:S1640¨"Convert this Map to an EnumMap.(…çøŸ
+@squid:S1640"Convert this Map to an EnumMap.(Õç„Êýÿÿÿÿ8·óîýæ-
+@squid:S1640"Convert this Map to an EnumMap.(Õç„Êýÿÿÿÿ8·óîýæ-
+Wsquid:S1444";Make this "public static ORDER_TAGS_DEFINITION" field final(…çøŸ8·óîýæ-
+”"squid:ClassVariableVisibilityCheck"aMake ORDER_TAGS_DEFINITION a static final constant or non-public and provide accessors if needed.(…çøŸ8·óîýæ-
+Msquid:S3599",Use another way to initialize this instance.(Õç„Êýÿÿÿÿ8·óîýæ-
+zsquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(Õç„Êýÿÿÿÿ8·óîýæ-
+Msquid:S3599",Use another way to initialize this instance.(Õç„Êýÿÿÿÿ8·óîýæ-
+zsquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(Õç„Êýÿÿÿÿ8·óîýæ-
+Ssquid:S1135"2Complete the task associated to this TODO comment.(´§»‚ûÿÿÿÿ8·óîýæ-
+|squid:S3008"`Rename this field "ORDER_TAGS_DEFINITION" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(…çøŸ8·óîýæ-
+9squid:S2386"Make this member "protected".(…çøŸ8·óîýæ-
+usquid:S1171"YMove the contents of this initializer to a standard constructor or to field initializers.(…çøŸ8·óîýæ-

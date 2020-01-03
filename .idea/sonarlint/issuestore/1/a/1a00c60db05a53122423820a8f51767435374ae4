@@ -1,0 +1,13 @@
+
+Hsquid:S3457U"%String contains no format specifiers.(®×ğÚıÿÿÿÿ8ñÁµ“ò-
+isquid:CommentedOutCodeLine}"<This block of commented-out lines of code should be removed.(ÃÈï8ñÁµ“ò-
+Wsquid:S1611^"9Remove the parentheses around the "mergeFields" parameter(ƒ™Şğ8ñÁµ“ò-
+\
+squid:S106Ê"9Replace this use of System.out or System.err by a logger.(ªÓ¼áşÿÿÿÿ8–Şˆ¡ò-
+Psquid:S1135ê"2Complete the task associated to this TODO comment.(¾Œùk8ƒçïŸò-
+Usquid:S1481­"1Remove this unused "successCount" local variable.(èšÓñøÿÿÿÿ8§À— ò-
+Zsquid:S1481¬"6Remove this unused "failedSubscribers" local variable.(×®Äêşÿÿÿÿ8§À— ò-
+Msquid:S5411="*Use the primitive boolean expression here.(¨¶”Àøÿÿÿÿ8ñÁµ“ò-
+Psquid:S1135{"2Complete the task associated to this TODO comment.(ûÎöÛ8ñÁµ“ò-
+isquid:S1854¬"ERemove this useless assignment to local variable "failedSubscribers".(×®Äêşÿÿÿÿ8§À— ò-
+osquid:CommentedOutCodeLineÉ"<This block of commented-out lines of code should be removed.(¤©ç‡ûÿÿÿÿ8íò—¡ò-

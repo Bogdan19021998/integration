@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 @Slf4j
 public class JsonDataConverter implements IDataConverter {
@@ -32,8 +33,7 @@ public class JsonDataConverter implements IDataConverter {
                     .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
                     .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, false)
                     .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
-                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                    ;
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
             instance = new JsonDataConverter(mapper);
         }
 
@@ -59,6 +59,11 @@ public class JsonDataConverter implements IDataConverter {
     }
 
     @Override
+    public <T> T fromBytes(byte[] t, TypeReference<T> clazz) {
+        return fromString(new String(t, Charset.forName("UTF-8")), clazz);
+    }
+
+    @Override
     public <T> T fromString(String t, Class<T> clazz) {
         try {
             return mapper.readValue(t, clazz);
@@ -68,7 +73,7 @@ public class JsonDataConverter implements IDataConverter {
     }
 
     @Override
-    public  <T> T parseStream(InputStream is, TypeReference<T> tr) {
+    public <T> T parseStream(InputStream is, TypeReference<T> tr) {
         try {
             return JsonDataConverter.getInstance().fromString(IOUtils.toString(is, "UTF-8"), tr);
         } catch (IOException e) {

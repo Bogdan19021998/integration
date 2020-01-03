@@ -1,0 +1,4 @@
+
+\squid:S4719N"9Replace charset name argument with StandardCharsets.UTF_8(ıóÃÕûÿÿÿÿ8ŸºÜ˜ò-
+jsquid:S00112P"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ŸºÜ˜ò-
+Xsquid:S4719?":Replace Charset.forName() call with StandardCharsets.UTF_8(Úõš«8ÆçÄŸò-

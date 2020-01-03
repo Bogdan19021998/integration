@@ -1,0 +1,16 @@
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/CampaignMonitorIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/RedshiftIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/AbstractSyncTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/ParserTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/SalesforceIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/AbstractIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/UtilsTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/SchemaUpdateTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/MySqlSyncTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/CassandraIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/ParseUtilsTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/unit/PostgreSqlSyncTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/MailChimpIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/MsSqlIntegrationTest.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/utils/ColumnsUtils.java
+/home/bogdan/IdeaProjects/integrations/src/test/java/ai/distil/integration/utils/ParseUtils.java

@@ -230,6 +230,14 @@
             <artifactId>joda-time</artifactId>
             <version>2.10.1</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.19</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.dmfs/oauth2-essentials -->
         <dependency>
             <groupId>org.dmfs</groupId>
@@ -260,6 +268,8 @@
             <artifactId>jcommander</artifactId>
             <version>1.78</version>
         </dependency>
+
+
 
     </dependencies>
 
